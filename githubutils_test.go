@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"testing"
 
 	pb "github.com/brotherlogic/githubcard/proto"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestProcSticky(t *testing.T) {
+	log.Printf("TestProcSticky")
 	g := InitTest()
 	g.issues = append(g.issues, &pb.Issue{Service: "blah", Title: "blah", Body: "blah"})
 	g.procSticky(context.Background())

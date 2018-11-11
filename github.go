@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/brotherlogic/goserver"
@@ -38,6 +39,7 @@ type GithubBridge struct {
 	attempts   int
 	fails      int
 	added      map[string]time.Time
+	addedMutex *sync.Mutex
 	issues     []*pbgh.Issue
 }
 
@@ -59,12 +61,13 @@ func (httpGetter prodHTTPGetter) Get(url string) (*http.Response, error) {
 //Init a record getter
 func Init() *GithubBridge {
 	s := &GithubBridge{
-		GoServer: &goserver.GoServer{},
-		serving:  true,
-		getter:   prodHTTPGetter{},
-		attempts: 0,
-		fails:    0,
-		added:    make(map[string]time.Time),
+		GoServer:   &goserver.GoServer{},
+		serving:    true,
+		getter:     prodHTTPGetter{},
+		attempts:   0,
+		fails:      0,
+		added:      make(map[string]time.Time),
+		addedMutex: &sync.Mutex{},
 	}
 	s.Register = s
 	return s
@@ -104,6 +107,8 @@ func (b GithubBridge) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (b GithubBridge) GetState() []*pbgs.State {
+	b.addedMutex.Lock()
+	defer b.addedMutex.Unlock()
 	return []*pbgs.State{
 		&pbgs.State{Key: "attempts", Value: int64(b.attempts)},
 		&pbgs.State{Key: "fails", Value: int64(b.fails)},
@@ -361,6 +366,8 @@ func (b GithubBridge) passover() error {
 }
 
 func (b *GithubBridge) cleanAdded(ctx context.Context) {
+	b.addedMutex.Lock()
+	defer b.addedMutex.Unlock()
 	for k, t := range b.added {
 		if time.Now().Sub(t) > time.Minute {
 			delete(b.added, k)
