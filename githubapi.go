@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"golang.org/x/net/context"
@@ -19,8 +18,8 @@ type addResponse struct {
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	//Don't double add issues
-	log.Printf("HERE")
 	g.addedMutex.Lock()
+	defer g.addedMutex.Unlock()
 	if v, ok := g.added[in.GetTitle()]; ok {
 		if !in.Sticky {
 			return nil, fmt.Errorf("Unable to add this issue - recently added (%v)", v)
@@ -31,7 +30,6 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	}
 
 	g.added[in.GetTitle()] = time.Now()
-	g.addedMutex.Unlock()
 	b, err := g.AddIssueLocal("brotherlogic", in.GetService(), in.GetTitle(), in.GetBody())
 	if err != nil {
 		if in.Sticky {
