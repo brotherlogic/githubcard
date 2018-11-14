@@ -19,17 +19,19 @@ type addResponse struct {
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	//Don't double add issues
 	g.addedMutex.Lock()
-	defer g.addedMutex.Unlock()
 	if v, ok := g.added[in.GetTitle()]; ok {
 		if !in.Sticky {
+			g.addedMutex.Unlock()
 			return nil, fmt.Errorf("Unable to add this issue - recently added (%v)", v)
 		}
 		g.issues = append(g.issues, in)
 		g.saveIssues(ctx)
+		g.addedMutex.Unlock()
 		return in, nil
 	}
-
 	g.added[in.GetTitle()] = time.Now()
+	g.addedMutex.Unlock()
+
 	b, err := g.AddIssueLocal("brotherlogic", in.GetService(), in.GetTitle(), in.GetBody())
 	if err != nil {
 		if in.Sticky {
