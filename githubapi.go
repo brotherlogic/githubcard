@@ -20,13 +20,12 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	//Don't double add issues
 	g.addedMutex.Lock()
 	if v, ok := g.added[in.GetTitle()]; ok {
+		g.addedMutex.Unlock()
 		if !in.Sticky {
-			g.addedMutex.Unlock()
 			return nil, fmt.Errorf("Unable to add this issue - recently added (%v)", v)
 		}
 		g.issues = append(g.issues, in)
 		g.saveIssues(ctx)
-		g.addedMutex.Unlock()
 		return in, nil
 	}
 	g.added[in.GetTitle()] = time.Now()
