@@ -306,65 +306,6 @@ func (b *GithubBridge) GetIssues() pb.CardList {
 	return cardlist
 }
 
-// RunPass runs a pass over
-func (b GithubBridge) RunPass(ctx context.Context) {
-	for b.serving {
-		time.Sleep(wait)
-		if b.GoServer.Registry.Master {
-			err := b.passover()
-			if err != nil {
-				log.Printf("FAILED to run: %v", err)
-			}
-		}
-	}
-
-	log.Printf("Ducking out of serving")
-}
-
-func (b GithubBridge) passover() error {
-	log.Printf("RUNNING PASSOVER")
-	ip, port := b.GetIP("cardserver")
-	conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
-	if err != nil {
-		log.Printf("Error here: %v", err)
-		return err
-	}
-	defer conn.Close()
-	client := pb.NewCardServiceClient(conn)
-	cards, err := client.GetCards(context.Background(), &pb.Empty{})
-	if err != nil {
-		log.Printf("Error here: %v", (err))
-		return err
-	}
-
-	for _, card := range cards.Cards {
-		if strings.HasPrefix(card.Hash, "addgithubissue") {
-			b.AddIssueLocal("brotherlogic", strings.Split(card.Hash, "-")[2], strings.Split(card.Text, "|")[0], strings.Split(card.Text, "|")[1])
-		}
-	}
-
-	_, err = client.DeleteCards(context.Background(), &pb.DeleteRequest{HashPrefix: "addgithubissue"})
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Doing project call")
-	issues := b.GetIssues()
-
-	_, err = client.DeleteCards(context.Background(), &pb.DeleteRequest{HashPrefix: "githubissue"})
-	if err != nil {
-		log.Printf("Error deleting cards")
-	}
-	_, err = client.AddCards(context.Background(), &issues)
-	if err != nil {
-		log.Printf("Problem adding cards %v", err)
-	} else {
-		log.Printf("Would write: %v", issues)
-	}
-
-	return nil
-}
-
 func (b *GithubBridge) cleanAdded(ctx context.Context) {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
@@ -401,7 +342,6 @@ func main() {
 		} else {
 			log.Printf("GOT TOKEN: %v", m)
 			b.accessCode = m.(*pbgh.Token).GetToken()
-			b.RegisterServingTask(b.RunPass)
 			b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 			b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
 			b.Serve()
