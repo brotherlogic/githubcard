@@ -33,14 +33,15 @@ const (
 // GithubBridge the bridge to the github API
 type GithubBridge struct {
 	*goserver.GoServer
-	accessCode string
-	serving    bool
-	getter     httpGetter
-	attempts   int
-	fails      int
-	added      map[string]time.Time
-	addedMutex *sync.Mutex
-	issues     []*pbgh.Issue
+	accessCode     string
+	serving        bool
+	getter         httpGetter
+	attempts       int
+	fails          int
+	added          map[string]time.Time
+	addedMutex     *sync.Mutex
+	issues         []*pbgh.Issue
+	silencedAlerts int
 }
 
 type httpGetter interface {
@@ -114,6 +115,7 @@ func (b GithubBridge) GetState() []*pbgs.State {
 		&pbgs.State{Key: "fails", Value: int64(b.fails)},
 		&pbgs.State{Key: "added", Text: fmt.Sprintf("%v", b.added)},
 		&pbgs.State{Key: "sticky", Value: int64(len(b.issues))},
+		&pbgs.State{Key: "silenced_alerts", Value: int64(b.silencedAlerts)},
 	}
 }
 
