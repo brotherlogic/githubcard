@@ -17,6 +17,14 @@ type addResponse struct {
 
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
+	//Reject silenced issues
+	for _, silence := range g.silences {
+		if in.GetTitle() == silence {
+			g.silencedAlerts++
+			return &pb.Issue{}, fmt.Errorf("This issue is silenced")
+		}
+	}
+
 	//Don't double add issues
 	g.addedMutex.Lock()
 	if v, ok := g.added[in.GetTitle()]; ok {
