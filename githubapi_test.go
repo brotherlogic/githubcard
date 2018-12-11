@@ -78,6 +78,18 @@ func TestAddIssue(t *testing.T) {
 	}
 }
 
+func TestAddSilencedIssue(t *testing.T) {
+	s := InitTest()
+	_, err := s.AddIssue(context.Background(), &pb.Issue{Title: "Long"})
+	if err == nil {
+		t.Errorf("Adding silenced issue did not fail")
+	}
+
+	if s.silencedAlerts != 1 {
+		t.Errorf("Number of silences has not increased")
+	}
+}
+
 func TestAddIssueToFakeService(t *testing.T) {
 	log.Printf("TestAddIssueToFakeService")
 	issue := &pb.Issue{Title: "Testing", Body: "This is a test issue", Service: "MadeUpService"}
