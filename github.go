@@ -74,6 +74,7 @@ func Init() *GithubBridge {
 			"Long",
 			"Unfinished call",
 			"Context is missing from move",
+			"High CPU",
 		},
 	}
 	s.Register = s
