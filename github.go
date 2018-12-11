@@ -42,6 +42,7 @@ type GithubBridge struct {
 	addedMutex     *sync.Mutex
 	issues         []*pbgh.Issue
 	silencedAlerts int
+	silences       []string
 }
 
 type httpGetter interface {
@@ -69,6 +70,11 @@ func Init() *GithubBridge {
 		fails:      0,
 		added:      make(map[string]time.Time),
 		addedMutex: &sync.Mutex{},
+		silences: []string{
+			"Long",
+			"Unfinished call",
+			"Context is missing from move",
+		},
 	}
 	s.Register = s
 	return s
