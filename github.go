@@ -43,6 +43,7 @@ type GithubBridge struct {
 	issues         []*pbgh.Issue
 	silencedAlerts int
 	silences       []string
+	blankAlerts    int
 }
 
 type httpGetter interface {
@@ -123,6 +124,7 @@ func (b GithubBridge) GetState() []*pbgs.State {
 		&pbgs.State{Key: "added", Text: fmt.Sprintf("%v", b.added)},
 		&pbgs.State{Key: "sticky", Value: int64(len(b.issues))},
 		&pbgs.State{Key: "silenced_alerts", Value: int64(b.silencedAlerts)},
+		&pbgs.State{Key: "black_alerts", Value: int64(b.blankAlerts)},
 	}
 }
 

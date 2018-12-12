@@ -17,6 +17,12 @@ type addResponse struct {
 
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
+	// Reject alerts with a blank body
+	if len(in.GetBody()) == 0 {
+		g.blankAlerts++
+		return &pb.Issue{}, fmt.Errorf("This issue has no body")
+	}
+
 	//Reject silenced issues
 	for _, silence := range g.silences {
 		if in.GetTitle() == silence {
