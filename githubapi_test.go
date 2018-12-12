@@ -78,9 +78,21 @@ func TestAddIssue(t *testing.T) {
 	}
 }
 
-func TestAddSilencedIssue(t *testing.T) {
+func TestAddBlankIssue(t *testing.T) {
 	s := InitTest()
 	_, err := s.AddIssue(context.Background(), &pb.Issue{Title: "Long"})
+	if err == nil {
+		t.Errorf("Adding silenced issue did not fail")
+	}
+
+	if s.blankAlerts != 1 {
+		t.Errorf("Number of blanks has not increased")
+	}
+}
+
+func TestAddSilencedIssue(t *testing.T) {
+	s := InitTest()
+	_, err := s.AddIssue(context.Background(), &pb.Issue{Title: "Long", Body: "Blah"})
 	if err == nil {
 		t.Errorf("Adding silenced issue did not fail")
 	}
