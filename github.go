@@ -177,8 +177,6 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/user/issues"
 	body, err := b.visitURL(urlv)
 
-	b.Log(fmt.Sprintf("RESULT = %v", body))
-
 	if err != nil {
 		return nil, err
 	}
