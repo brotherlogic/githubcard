@@ -92,7 +92,7 @@ func TestAddBlankIssue(t *testing.T) {
 
 func TestAddSilencedIssue(t *testing.T) {
 	s := InitTest()
-	_, err := s.AddIssue(context.Background(), &pb.Issue{Title: "Long", Body: "Blah"})
+	_, err := s.AddIssue(context.Background(), &pb.Issue{Title: "Unfinished call", Body: "Blah"})
 	if err == nil {
 		t.Errorf("Adding silenced issue did not fail")
 	}

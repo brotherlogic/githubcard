@@ -72,7 +72,6 @@ func Init() *GithubBridge {
 		added:      make(map[string]time.Time),
 		addedMutex: &sync.Mutex{},
 		silences: []string{
-			"Long",
 			"Unfinished call",
 			"Context is missing from move",
 			"High CPU",
