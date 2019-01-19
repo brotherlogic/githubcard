@@ -106,7 +106,7 @@ func (b GithubBridge) readIssues(ctx context.Context) error {
 }
 
 // Mote promotes this server
-func (b GithubBridge) Mote(ctx context.Context, master bool) error {
+func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
 	if master {
 		m, _, err := b.Read(context.Background(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
 		if err != nil {
@@ -122,7 +122,7 @@ func (b GithubBridge) Mote(ctx context.Context, master bool) error {
 }
 
 // GetState gets the state of the server
-func (b GithubBridge) GetState() []*pbgs.State {
+func (b *GithubBridge) GetState() []*pbgs.State {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
 	return []*pbgs.State{
