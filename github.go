@@ -108,6 +108,11 @@ func (b GithubBridge) readIssues(ctx context.Context) error {
 // Mote promotes this server
 func (b GithubBridge) Mote(ctx context.Context, master bool) error {
 	if master {
+		m, _, err := b.Read(context.Background(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
+		if err != nil {
+			return err
+		}
+		b.accessCode = m.(*pbgh.Token).GetToken()
 		return b.readIssues(ctx)
 	}
 	return nil
@@ -344,15 +349,8 @@ func main() {
 	if len(*token) > 0 {
 		b.Save(context.Background(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
 	} else {
-		m, _, err := b.Read(context.Background(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
-		if err != nil {
-			log.Printf("Failed to read token: %v", err)
-		} else {
-			log.Printf("GOT TOKEN: %v", m)
-			b.accessCode = m.(*pbgh.Token).GetToken()
-			b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
-			b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
-			b.Serve()
-		}
+		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
+		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
+		log.Printf("%v", b.Serve())
 	}
 }
