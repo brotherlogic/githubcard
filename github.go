@@ -73,7 +73,6 @@ func Init() *GithubBridge {
 		addedMutex: &sync.Mutex{},
 		silences: []string{
 			"Unfinished call",
-			"Context is missing from move",
 			"High CPU",
 		},
 	}
