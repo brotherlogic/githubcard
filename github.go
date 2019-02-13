@@ -104,6 +104,12 @@ func (b GithubBridge) readIssues(ctx context.Context) error {
 	return nil
 }
 
+// Shutdown shuts down the server
+func (b *GithubBridge) Shutdown(ctx context.Context) error {
+	b.saveIssues(ctx)
+	return nil
+}
+
 // Mote promotes this server
 func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
 	if master {
