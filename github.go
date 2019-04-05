@@ -327,7 +327,7 @@ func (b *GithubBridge) GetIssues() pb.CardList {
 	return cardlist
 }
 
-func (b *GithubBridge) cleanAdded(ctx context.Context) {
+func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
 	for k, t := range b.added {
@@ -335,6 +335,8 @@ func (b *GithubBridge) cleanAdded(ctx context.Context) {
 			delete(b.added, k)
 		}
 	}
+
+	return nil
 }
 
 func main() {
