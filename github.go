@@ -28,6 +28,9 @@ import (
 const (
 	// KEY the issues
 	KEY = "/github.com/brotherlogic/githubcard/issues"
+
+	// CONFIG where we store la config
+	CONFIG = "/github.com/brotherlogic/githubcard/config"
 )
 
 // GithubBridge the bridge to the github API
@@ -44,6 +47,7 @@ type GithubBridge struct {
 	silencedAlerts int
 	silences       []string
 	blankAlerts    int
+	config         *pbgh.Config
 }
 
 type httpGetter interface {
@@ -71,10 +75,7 @@ func Init() *GithubBridge {
 		fails:      0,
 		added:      make(map[string]time.Time),
 		addedMutex: &sync.Mutex{},
-		silences: []string{
-			"Unfinished call",
-			"High CPU",
-		},
+		config:     &pbgh.Config{},
 	}
 	s.Register = s
 	return s
@@ -92,6 +93,7 @@ func (b GithubBridge) ReportHealth() bool {
 
 func (b *GithubBridge) saveIssues(ctx context.Context) {
 	b.KSclient.Save(ctx, KEY, &pbgh.IssueList{Issues: b.issues})
+	b.KSclient.Save(ctx, CONFIG, b.config)
 }
 
 func (b GithubBridge) readIssues(ctx context.Context) error {
@@ -101,6 +103,14 @@ func (b GithubBridge) readIssues(ctx context.Context) error {
 		return err
 	}
 	b.issues = (data.(*pbgh.IssueList).Issues)
+
+	config := &pbgh.Config{}
+	data, _, err = b.KSclient.Read(ctx, CONFIG, config)
+	if err != nil {
+		return err
+	}
+	b.config = data.(*pbgh.Config)
+
 	return nil
 }
 
@@ -137,6 +147,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 		&pbgs.State{Key: "sticky", Value: int64(len(b.issues))},
 		&pbgs.State{Key: "silenced_alerts", Value: int64(b.silencedAlerts)},
 		&pbgs.State{Key: "blank_alerts", Value: int64(b.blankAlerts)},
+		&pbgs.State{Key: "silences", Text: fmt.Sprintf("%v", b.config.Silences)},
 	}
 }
 

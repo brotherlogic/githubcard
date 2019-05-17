@@ -6,6 +6,10 @@ message Token {
 	string token = 1;
 }
 
+message Config {
+  repeated string silences = 1;
+}
+
 message Issue {
   string title = 1;
   string body = 2;
@@ -13,9 +17,9 @@ message Issue {
   int32 number = 4;
   
   enum IssueState {
-	  OPEN = 0;
-	  CLOSED = 1;
-	}
+    OPEN = 0;
+    CLOSED = 1;
+  }
   IssueState state = 5;
   
   bool sticky = 6;
@@ -25,7 +29,20 @@ message IssueList {
   repeated Issue issues = 1;
 }
 
+message SilenceRequest {
+  enum SilenceState {
+    UNKNOWN = 0;
+    SILENCE = 1;
+    UNSILENCE = 2;
+  }
+  string silence = 1;
+  SilenceState state = 2;
+}
+
+message SilenceResponse {}
+
 service Github {
-	rpc AddIssue(Issue) returns (Issue) {};
-	rpc Get(Issue) returns (Issue) {};
+  rpc AddIssue(Issue) returns (Issue) {};
+  rpc Get(Issue) returns (Issue) {};
+  rpc Silence(SilenceRequest) returns (SilenceResponse) {};
 }

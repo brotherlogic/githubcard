@@ -18,3 +18,13 @@ func TestProcSticky(t *testing.T) {
 		t.Errorf("Issue was not added: %v", g.issues)
 	}
 }
+
+func TestProcStickyfail(t *testing.T) {
+	log.Printf("TestProcSticky")
+	g := InitTest()
+	g.procSticky(context.Background())
+
+	if len(g.issues) != 0 {
+		t.Errorf("Issue was not added: %v", g.issues)
+	}
+}

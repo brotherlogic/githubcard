@@ -92,13 +92,40 @@ func TestAddBlankIssue(t *testing.T) {
 
 func TestAddSilencedIssue(t *testing.T) {
 	s := InitTest()
-	_, err := s.AddIssue(context.Background(), &pb.Issue{Title: "Unfinished call", Body: "Blah"})
+
+	_, err := s.AddIssue(context.Background(), &pb.Issue{Title: "Unfinished call", Body: "Blah", Service: "Home"})
+	if err != nil {
+		t.Errorf("We should be able to add this: %v", err)
+	}
+
+	_, err = s.Silence(context.Background(), &pb.SilenceRequest{State: pb.SilenceRequest_SILENCE, Silence: "Unfinished call"})
+	if err != nil {
+		t.Errorf("Unable to silence: %v", err)
+	}
+
+	_, err = s.AddIssue(context.Background(), &pb.Issue{Title: "Unfinished call", Body: "Blah", Service: "Home"})
 	if err == nil {
-		t.Errorf("Adding silenced issue did not fail")
+		t.Errorf("We shouldn't have been able to add a silence issue")
 	}
 
 	if s.silencedAlerts != 1 {
 		t.Errorf("Number of silences has not increased")
+	}
+
+	s.Silence(context.Background(), &pb.SilenceRequest{State: pb.SilenceRequest_UNSILENCE, Silence: "Unfinished call"})
+
+	_, err = s.AddIssue(context.Background(), &pb.Issue{Title: "Unfinished call", Body: "Blah", Service: "Home", Sticky: true})
+	if err != nil {
+		t.Errorf("Unable to add issue once it's unsilenced: %v", err)
+	}
+
+	if s.silencedAlerts != 1 {
+		t.Errorf("Number of silences has changed")
+	}
+
+	_, err = s.Silence(context.Background(), &pb.SilenceRequest{Silence: "Unfinished call"})
+	if err == nil {
+		t.Errorf("Malformed silence did not fail")
 	}
 }
 
