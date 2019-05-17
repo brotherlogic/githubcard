@@ -3,13 +3,12 @@
 
 package githubcard
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-
 import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
 	context "golang.org/x/net/context"
 	grpc "google.golang.org/grpc"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -34,6 +33,7 @@ var Issue_IssueState_name = map[int32]string{
 	0: "OPEN",
 	1: "CLOSED",
 }
+
 var Issue_IssueState_value = map[string]int32{
 	"OPEN":   0,
 	"CLOSED": 1,
@@ -42,8 +42,37 @@ var Issue_IssueState_value = map[string]int32{
 func (x Issue_IssueState) String() string {
 	return proto.EnumName(Issue_IssueState_name, int32(x))
 }
+
 func (Issue_IssueState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_githubcard_80558b1df39b95f8, []int{1, 0}
+	return fileDescriptor_bfced67e3377ee11, []int{2, 0}
+}
+
+type SilenceRequest_SilenceState int32
+
+const (
+	SilenceRequest_UNKNOWN   SilenceRequest_SilenceState = 0
+	SilenceRequest_SILENCE   SilenceRequest_SilenceState = 1
+	SilenceRequest_UNSILENCE SilenceRequest_SilenceState = 2
+)
+
+var SilenceRequest_SilenceState_name = map[int32]string{
+	0: "UNKNOWN",
+	1: "SILENCE",
+	2: "UNSILENCE",
+}
+
+var SilenceRequest_SilenceState_value = map[string]int32{
+	"UNKNOWN":   0,
+	"SILENCE":   1,
+	"UNSILENCE": 2,
+}
+
+func (x SilenceRequest_SilenceState) String() string {
+	return proto.EnumName(SilenceRequest_SilenceState_name, int32(x))
+}
+
+func (SilenceRequest_SilenceState) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_bfced67e3377ee11, []int{4, 0}
 }
 
 type Token struct {
@@ -57,16 +86,17 @@ func (m *Token) Reset()         { *m = Token{} }
 func (m *Token) String() string { return proto.CompactTextString(m) }
 func (*Token) ProtoMessage()    {}
 func (*Token) Descriptor() ([]byte, []int) {
-	return fileDescriptor_githubcard_80558b1df39b95f8, []int{0}
+	return fileDescriptor_bfced67e3377ee11, []int{0}
 }
+
 func (m *Token) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Token.Unmarshal(m, b)
 }
 func (m *Token) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Token.Marshal(b, m, deterministic)
 }
-func (dst *Token) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Token.Merge(dst, src)
+func (m *Token) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Token.Merge(m, src)
 }
 func (m *Token) XXX_Size() int {
 	return xxx_messageInfo_Token.Size(m)
@@ -82,6 +112,45 @@ func (m *Token) GetToken() string {
 		return m.Token
 	}
 	return ""
+}
+
+type Config struct {
+	Silences             []string `protobuf:"bytes,1,rep,name=silences,proto3" json:"silences,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Config) Reset()         { *m = Config{} }
+func (m *Config) String() string { return proto.CompactTextString(m) }
+func (*Config) ProtoMessage()    {}
+func (*Config) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bfced67e3377ee11, []int{1}
+}
+
+func (m *Config) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Config.Unmarshal(m, b)
+}
+func (m *Config) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Config.Marshal(b, m, deterministic)
+}
+func (m *Config) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Config.Merge(m, src)
+}
+func (m *Config) XXX_Size() int {
+	return xxx_messageInfo_Config.Size(m)
+}
+func (m *Config) XXX_DiscardUnknown() {
+	xxx_messageInfo_Config.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Config proto.InternalMessageInfo
+
+func (m *Config) GetSilences() []string {
+	if m != nil {
+		return m.Silences
+	}
+	return nil
 }
 
 type Issue struct {
@@ -100,16 +169,17 @@ func (m *Issue) Reset()         { *m = Issue{} }
 func (m *Issue) String() string { return proto.CompactTextString(m) }
 func (*Issue) ProtoMessage()    {}
 func (*Issue) Descriptor() ([]byte, []int) {
-	return fileDescriptor_githubcard_80558b1df39b95f8, []int{1}
+	return fileDescriptor_bfced67e3377ee11, []int{2}
 }
+
 func (m *Issue) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Issue.Unmarshal(m, b)
 }
 func (m *Issue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Issue.Marshal(b, m, deterministic)
 }
-func (dst *Issue) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Issue.Merge(dst, src)
+func (m *Issue) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Issue.Merge(m, src)
 }
 func (m *Issue) XXX_Size() int {
 	return xxx_messageInfo_Issue.Size(m)
@@ -173,16 +243,17 @@ func (m *IssueList) Reset()         { *m = IssueList{} }
 func (m *IssueList) String() string { return proto.CompactTextString(m) }
 func (*IssueList) ProtoMessage()    {}
 func (*IssueList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_githubcard_80558b1df39b95f8, []int{2}
+	return fileDescriptor_bfced67e3377ee11, []int{3}
 }
+
 func (m *IssueList) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_IssueList.Unmarshal(m, b)
 }
 func (m *IssueList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_IssueList.Marshal(b, m, deterministic)
 }
-func (dst *IssueList) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_IssueList.Merge(dst, src)
+func (m *IssueList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IssueList.Merge(m, src)
 }
 func (m *IssueList) XXX_Size() int {
 	return xxx_messageInfo_IssueList.Size(m)
@@ -200,11 +271,124 @@ func (m *IssueList) GetIssues() []*Issue {
 	return nil
 }
 
+type SilenceRequest struct {
+	Silence              string                      `protobuf:"bytes,1,opt,name=silence,proto3" json:"silence,omitempty"`
+	State                SilenceRequest_SilenceState `protobuf:"varint,2,opt,name=state,proto3,enum=githubcard.SilenceRequest_SilenceState" json:"state,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
+	XXX_unrecognized     []byte                      `json:"-"`
+	XXX_sizecache        int32                       `json:"-"`
+}
+
+func (m *SilenceRequest) Reset()         { *m = SilenceRequest{} }
+func (m *SilenceRequest) String() string { return proto.CompactTextString(m) }
+func (*SilenceRequest) ProtoMessage()    {}
+func (*SilenceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bfced67e3377ee11, []int{4}
+}
+
+func (m *SilenceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SilenceRequest.Unmarshal(m, b)
+}
+func (m *SilenceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SilenceRequest.Marshal(b, m, deterministic)
+}
+func (m *SilenceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SilenceRequest.Merge(m, src)
+}
+func (m *SilenceRequest) XXX_Size() int {
+	return xxx_messageInfo_SilenceRequest.Size(m)
+}
+func (m *SilenceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SilenceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SilenceRequest proto.InternalMessageInfo
+
+func (m *SilenceRequest) GetSilence() string {
+	if m != nil {
+		return m.Silence
+	}
+	return ""
+}
+
+func (m *SilenceRequest) GetState() SilenceRequest_SilenceState {
+	if m != nil {
+		return m.State
+	}
+	return SilenceRequest_UNKNOWN
+}
+
+type SilenceResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *SilenceResponse) Reset()         { *m = SilenceResponse{} }
+func (m *SilenceResponse) String() string { return proto.CompactTextString(m) }
+func (*SilenceResponse) ProtoMessage()    {}
+func (*SilenceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bfced67e3377ee11, []int{5}
+}
+
+func (m *SilenceResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SilenceResponse.Unmarshal(m, b)
+}
+func (m *SilenceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SilenceResponse.Marshal(b, m, deterministic)
+}
+func (m *SilenceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SilenceResponse.Merge(m, src)
+}
+func (m *SilenceResponse) XXX_Size() int {
+	return xxx_messageInfo_SilenceResponse.Size(m)
+}
+func (m *SilenceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SilenceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SilenceResponse proto.InternalMessageInfo
+
 func init() {
+	proto.RegisterEnum("githubcard.Issue_IssueState", Issue_IssueState_name, Issue_IssueState_value)
+	proto.RegisterEnum("githubcard.SilenceRequest_SilenceState", SilenceRequest_SilenceState_name, SilenceRequest_SilenceState_value)
 	proto.RegisterType((*Token)(nil), "githubcard.Token")
+	proto.RegisterType((*Config)(nil), "githubcard.Config")
 	proto.RegisterType((*Issue)(nil), "githubcard.Issue")
 	proto.RegisterType((*IssueList)(nil), "githubcard.IssueList")
-	proto.RegisterEnum("githubcard.Issue_IssueState", Issue_IssueState_name, Issue_IssueState_value)
+	proto.RegisterType((*SilenceRequest)(nil), "githubcard.SilenceRequest")
+	proto.RegisterType((*SilenceResponse)(nil), "githubcard.SilenceResponse")
+}
+
+func init() { proto.RegisterFile("githubcard.proto", fileDescriptor_bfced67e3377ee11) }
+
+var fileDescriptor_bfced67e3377ee11 = []byte{
+	// 400 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xdf, 0x6a, 0xd4, 0x40,
+	0x14, 0xc6, 0x77, 0x76, 0x37, 0xff, 0xce, 0x6a, 0x4d, 0x0f, 0x22, 0x43, 0x54, 0x08, 0x83, 0x60,
+	0xbc, 0xb0, 0x17, 0x11, 0xf4, 0xca, 0x0b, 0xd9, 0x86, 0x52, 0x5c, 0xb2, 0x92, 0x58, 0xbc, 0x6e,
+	0x92, 0xb1, 0x0e, 0xad, 0x49, 0xcd, 0x4c, 0x84, 0xbe, 0x8e, 0x6f, 0xe0, 0xb3, 0xf8, 0x42, 0x92,
+	0x99, 0x64, 0x37, 0xb2, 0x0a, 0xde, 0x84, 0xf9, 0x7d, 0xf9, 0xf8, 0xce, 0x7c, 0x27, 0x01, 0xff,
+	0x4a, 0xa8, 0x2f, 0x5d, 0x51, 0x5e, 0xb6, 0xd5, 0xc9, 0x6d, 0xdb, 0xa8, 0x06, 0x61, 0xaf, 0xb0,
+	0xa7, 0x60, 0x7d, 0x6c, 0xae, 0x79, 0x8d, 0x0f, 0xc1, 0x52, 0xfd, 0x81, 0x92, 0x90, 0x44, 0x5e,
+	0x66, 0x80, 0x3d, 0x03, 0x7b, 0xdd, 0xd4, 0x9f, 0xc5, 0x15, 0x06, 0xe0, 0x4a, 0x71, 0xc3, 0xeb,
+	0x92, 0x4b, 0x4a, 0xc2, 0x45, 0xe4, 0x65, 0x3b, 0x66, 0xbf, 0x08, 0x58, 0xe7, 0x52, 0x76, 0x5c,
+	0xa7, 0x08, 0x75, 0xc3, 0x77, 0x29, 0x3d, 0x20, 0xc2, 0xb2, 0x68, 0xaa, 0x3b, 0x3a, 0xd7, 0xa2,
+	0x3e, 0x23, 0x05, 0x47, 0xf2, 0xf6, 0xbb, 0x28, 0x39, 0x5d, 0x68, 0x79, 0x44, 0x7c, 0x04, 0x76,
+	0xdd, 0x7d, 0x2d, 0x78, 0x4b, 0x97, 0x21, 0x89, 0xac, 0x6c, 0x20, 0x8c, 0xc1, 0x92, 0xea, 0x52,
+	0x71, 0x6a, 0x85, 0x24, 0x3a, 0x8a, 0x9f, 0x9c, 0x4c, 0x8a, 0xe9, 0xe9, 0xe6, 0x99, 0xf7, 0x9e,
+	0xcc, 0x58, 0xfb, 0x2c, 0xa9, 0x44, 0x79, 0x7d, 0x47, 0xed, 0x90, 0x44, 0x6e, 0x36, 0x10, 0x63,
+	0x00, 0x7b, 0x33, 0xba, 0xb0, 0xdc, 0x7e, 0x48, 0x52, 0x7f, 0x86, 0x00, 0xf6, 0x7a, 0xb3, 0xcd,
+	0x93, 0x53, 0x9f, 0xb0, 0xd7, 0xe0, 0x69, 0xcf, 0x46, 0x48, 0x85, 0x2f, 0xc0, 0x16, 0x3d, 0x98,
+	0xf2, 0xab, 0xf8, 0xf8, 0x60, 0x7a, 0x36, 0x18, 0xd8, 0x0f, 0x02, 0x47, 0xb9, 0x59, 0x4d, 0xc6,
+	0xbf, 0x75, 0x5c, 0x2a, 0x5d, 0xd6, 0x28, 0xc3, 0x62, 0x46, 0xc4, 0xb7, 0x63, 0xa9, 0xb9, 0x2e,
+	0xf5, 0x7c, 0x1a, 0xfb, 0x67, 0xc8, 0x88, 0xd3, 0x7e, 0xec, 0x0d, 0xdc, 0x9b, 0xca, 0xb8, 0x02,
+	0xe7, 0x22, 0x7d, 0x9f, 0x6e, 0x3f, 0xf5, 0x65, 0x56, 0xe0, 0xe4, 0xe7, 0x9b, 0x24, 0x5d, 0x27,
+	0x3e, 0xc1, 0xfb, 0xe0, 0x5d, 0xa4, 0x23, 0xce, 0xd9, 0x31, 0x3c, 0xd8, 0xc5, 0xcb, 0xdb, 0xa6,
+	0x96, 0x3c, 0xfe, 0x49, 0xc0, 0x3e, 0xd3, 0xd3, 0x31, 0x06, 0xf7, 0x5d, 0x55, 0x99, 0x4f, 0x7a,
+	0xd8, 0x34, 0x38, 0x94, 0xd8, 0x0c, 0x5f, 0xc2, 0xe2, 0x8c, 0xab, 0xff, 0xb6, 0x9f, 0x82, 0x33,
+	0x5c, 0x00, 0x83, 0x7f, 0x97, 0x0e, 0x1e, 0xff, 0xf5, 0x9d, 0xb9, 0x31, 0x9b, 0x15, 0xb6, 0xfe,
+	0xa3, 0x5f, 0xfd, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x93, 0x75, 0x39, 0x9a, 0xe5, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -221,6 +405,7 @@ const _ = grpc.SupportPackageIsVersion4
 type GithubClient interface {
 	AddIssue(ctx context.Context, in *Issue, opts ...grpc.CallOption) (*Issue, error)
 	Get(ctx context.Context, in *Issue, opts ...grpc.CallOption) (*Issue, error)
+	Silence(ctx context.Context, in *SilenceRequest, opts ...grpc.CallOption) (*SilenceResponse, error)
 }
 
 type githubClient struct {
@@ -249,10 +434,20 @@ func (c *githubClient) Get(ctx context.Context, in *Issue, opts ...grpc.CallOpti
 	return out, nil
 }
 
+func (c *githubClient) Silence(ctx context.Context, in *SilenceRequest, opts ...grpc.CallOption) (*SilenceResponse, error) {
+	out := new(SilenceResponse)
+	err := c.cc.Invoke(ctx, "/githubcard.Github/Silence", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GithubServer is the server API for Github service.
 type GithubServer interface {
 	AddIssue(context.Context, *Issue) (*Issue, error)
 	Get(context.Context, *Issue) (*Issue, error)
+	Silence(context.Context, *SilenceRequest) (*SilenceResponse, error)
 }
 
 func RegisterGithubServer(s *grpc.Server, srv GithubServer) {
@@ -295,6 +490,24 @@ func _Github_Get_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Github_Silence_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SilenceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GithubServer).Silence(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/githubcard.Github/Silence",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GithubServer).Silence(ctx, req.(*SilenceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Github_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "githubcard.Github",
 	HandlerType: (*GithubServer)(nil),
@@ -307,31 +520,11 @@ var _Github_serviceDesc = grpc.ServiceDesc{
 			MethodName: "Get",
 			Handler:    _Github_Get_Handler,
 		},
+		{
+			MethodName: "Silence",
+			Handler:    _Github_Silence_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "githubcard.proto",
-}
-
-func init() { proto.RegisterFile("githubcard.proto", fileDescriptor_githubcard_80558b1df39b95f8) }
-
-var fileDescriptor_githubcard_80558b1df39b95f8 = []byte{
-	// 274 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x91, 0xd1, 0x4a, 0xf3, 0x30,
-	0x14, 0xc7, 0x97, 0xaf, 0x4d, 0xbe, 0xee, 0x08, 0x52, 0x0f, 0x22, 0x41, 0x14, 0x4a, 0xae, 0xea,
-	0x85, 0xbb, 0x88, 0xe0, 0xbd, 0xe8, 0x18, 0xc2, 0x70, 0x92, 0xf9, 0x02, 0x6b, 0x1b, 0x34, 0x54,
-	0x57, 0x69, 0x52, 0x61, 0xcf, 0xe9, 0x0b, 0x49, 0xd2, 0xea, 0x84, 0xde, 0x78, 0x13, 0xce, 0xef,
-	0x7f, 0x7e, 0xc9, 0x09, 0x09, 0xa4, 0xcf, 0xc6, 0xbd, 0x74, 0x45, 0xb9, 0x69, 0xab, 0xd9, 0x7b,
-	0xdb, 0xb8, 0x06, 0x61, 0x9f, 0x88, 0x73, 0xa0, 0x4f, 0x4d, 0xad, 0xb7, 0x78, 0x0c, 0xd4, 0xf9,
-	0x82, 0x93, 0x8c, 0xe4, 0x53, 0xd5, 0x83, 0xf8, 0x24, 0x40, 0xef, 0xad, 0xed, 0x74, 0xe8, 0x1b,
-	0xf7, 0xaa, 0x7f, 0xfa, 0x1e, 0x10, 0x21, 0x2e, 0x9a, 0x6a, 0xc7, 0xff, 0x85, 0x30, 0xd4, 0xc8,
-	0xe1, 0xbf, 0xd5, 0xed, 0x87, 0x29, 0x35, 0x8f, 0x42, 0xfc, 0x8d, 0x78, 0x02, 0x6c, 0xdb, 0xbd,
-	0x15, 0xba, 0xe5, 0x71, 0x46, 0x72, 0xaa, 0x06, 0x42, 0x09, 0xd4, 0xba, 0x8d, 0xd3, 0x9c, 0x66,
-	0x24, 0x3f, 0x94, 0x67, 0xb3, 0x5f, 0x57, 0x0e, 0xd3, 0xfb, 0x75, 0xed, 0x1d, 0xd5, 0xab, 0xfe,
-	0x2c, 0xeb, 0x4c, 0x59, 0xef, 0x38, 0xcb, 0x48, 0x9e, 0xa8, 0x81, 0x84, 0x00, 0xd8, 0xcb, 0x98,
-	0x40, 0xbc, 0x7a, 0x9c, 0x3f, 0xa4, 0x13, 0x04, 0x60, 0xb7, 0xcb, 0xd5, 0x7a, 0x7e, 0x97, 0x12,
-	0x71, 0x0d, 0xd3, 0xe0, 0x2c, 0x8d, 0x75, 0x78, 0x01, 0xcc, 0x78, 0xb0, 0x9c, 0x64, 0x51, 0x7e,
-	0x20, 0x8f, 0x46, 0xd3, 0xd5, 0x20, 0xc8, 0x1a, 0xd8, 0x22, 0xf4, 0x50, 0x42, 0x72, 0x53, 0x55,
-	0xfd, 0xcb, 0x8c, 0x37, 0x9c, 0x8e, 0x23, 0x31, 0xc1, 0x4b, 0x88, 0x16, 0xda, 0xfd, 0x55, 0x2f,
-	0x58, 0xf8, 0xac, 0xab, 0xaf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xa9, 0xbe, 0x33, 0x41, 0xc0, 0x01,
-	0x00, 0x00,
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"golang.org/x/net/context"
@@ -24,7 +25,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	}
 
 	//Reject silenced issues
-	for _, silence := range g.silences {
+	for _, silence := range g.config.Silences {
 		if in.GetTitle() == silence {
 			g.silencedAlerts++
 			return &pb.Issue{}, fmt.Errorf("This issue is silenced")
@@ -54,6 +55,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		return nil, err
 	}
 	r := &addResponse{}
+	log.Printf("UNMARSHAL: %v", string(b))
 	err2 := json.Unmarshal(b, &r)
 	if err2 != nil {
 		return nil, err2
@@ -72,4 +74,28 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	b, err := g.GetIssueLocal("brotherlogic", in.GetService(), int(in.GetNumber()))
 	return b, err
+}
+
+// Silence an issue
+func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.SilenceResponse, error) {
+	currSilence := -1
+	for i, sil := range g.config.Silences {
+		if sil == in.Silence {
+			currSilence = i
+		}
+	}
+
+	if in.State == pb.SilenceRequest_SILENCE && currSilence == -1 {
+		g.config.Silences = append(g.config.Silences, in.Silence)
+		g.saveIssues(ctx)
+		return &pb.SilenceResponse{}, nil
+	}
+
+	if in.State == pb.SilenceRequest_UNSILENCE && currSilence >= 0 {
+		g.config.Silences = append(g.config.Silences[:currSilence], g.config.Silences[currSilence+1:]...)
+		g.saveIssues(ctx)
+		return &pb.SilenceResponse{}, nil
+	}
+
+	return nil, fmt.Errorf("Unable to apply request %v", in)
 }
