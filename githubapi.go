@@ -26,7 +26,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 
 	//Reject silenced issues
 	for _, silence := range g.config.Silences {
-		if in.GetTitle() == silence {
+		if in.GetTitle() == silence.Silence {
 			g.silencedAlerts++
 			return &pb.Issue{}, fmt.Errorf("This issue is silenced")
 		}
@@ -78,15 +78,20 @@ func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error)
 
 // Silence an issue
 func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.SilenceResponse, error) {
+
+	if in.Origin == "" {
+		return nil, fmt.Errorf("Silence needs an origin")
+	}
+
 	currSilence := -1
 	for i, sil := range g.config.Silences {
-		if sil == in.Silence {
+		if sil.Silence == in.Silence && sil.Origin == in.Origin {
 			currSilence = i
 		}
 	}
 
 	if in.State == pb.SilenceRequest_SILENCE && currSilence == -1 {
-		g.config.Silences = append(g.config.Silences, in.Silence)
+		g.config.Silences = append(g.config.Silences, &pb.Silence{Silence: in.Silence, Origin: in.Origin})
 		g.saveIssues(ctx)
 		return &pb.SilenceResponse{}, nil
 	}
