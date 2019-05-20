@@ -33,6 +33,11 @@ const (
 	CONFIG = "/github.com/brotherlogic/githubcard/config"
 )
 
+type silence struct {
+	silence string
+	origin  string
+}
+
 // GithubBridge the bridge to the github API
 type GithubBridge struct {
 	*goserver.GoServer
