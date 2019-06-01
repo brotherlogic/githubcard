@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/brotherlogic/githubcard/proto"
 )
@@ -37,7 +39,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	if v, ok := g.added[in.GetTitle()]; ok {
 		g.addedMutex.Unlock()
 		if !in.Sticky {
-			return nil, fmt.Errorf("Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
+			return nil, status.Errorf(codes.ResourceExhausted, "Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
 		}
 		g.issues = append(g.issues, in)
 		g.saveIssues(ctx)
