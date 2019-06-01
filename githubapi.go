@@ -37,7 +37,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	if v, ok := g.added[in.GetTitle()]; ok {
 		g.addedMutex.Unlock()
 		if !in.Sticky {
-			return nil, fmt.Errorf("Unable to add this issue - recently added (%v)", v)
+			return nil, fmt.Errorf("Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
 		}
 		g.issues = append(g.issues, in)
 		g.saveIssues(ctx)
