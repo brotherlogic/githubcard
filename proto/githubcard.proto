@@ -47,8 +47,17 @@ message SilenceRequest {
 
 message SilenceResponse {}
 
+message GetAllRequest {
+  bool latest_only = 1;
+}
+
+message GetAllResponse {
+  repeated Issue issues = 1;
+}
+
 service Github {
   rpc AddIssue(Issue) returns (Issue) {};
   rpc Get(Issue) returns (Issue) {};
+  rpc GetAll(GetAllRequest) returns (GetAllResponse) {};
   rpc Silence(SilenceRequest) returns (SilenceResponse) {};
 }

@@ -78,6 +78,11 @@ func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error)
 	return b, err
 }
 
+//GetAll gets all the issues currently open
+func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.GetAllResponse, error) {
+	return nil, fmt.Errorf("Not implemented yet")
+}
+
 // Silence an issue
 func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.SilenceResponse, error) {
 

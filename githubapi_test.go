@@ -262,3 +262,11 @@ func TestGetIssue(t *testing.T) {
 		t.Errorf("Issue has not been returned correctly: %v", ib)
 	}
 }
+
+func TestGetAllIssues(t *testing.T) {
+	s := InitTest()
+	_, err := s.GetAll(context.Background(), &pb.GetAllRequest{})
+	if err == nil {
+		t.Errorf("Get all did not fail")
+	}
+}
