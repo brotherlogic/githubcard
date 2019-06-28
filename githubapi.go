@@ -74,6 +74,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 
 //Get gets an issue from github
 func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
+	g.Log(fmt.Sprintf("GETTING %v %v", in.GetService(), in.GetNumber()))
 	b, err := g.GetIssueLocal("brotherlogic", in.GetService(), int(in.GetNumber()))
 	return b, err
 }
