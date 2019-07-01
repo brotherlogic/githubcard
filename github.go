@@ -278,6 +278,7 @@ func hash(s string) int32 {
 func (b *GithubBridge) GetIssueLocal(owner string, project string, number int) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/repos/" + owner + "/" + project + "/issues/" + strconv.Itoa(number)
 	body, err := b.visitURL(urlv)
+	b.Log(fmt.Sprintf("RETURN %v", body))
 
 	if err != nil {
 		return nil, err
