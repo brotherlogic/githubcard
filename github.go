@@ -128,7 +128,7 @@ func (b *GithubBridge) Shutdown(ctx context.Context) error {
 // Mote promotes this server
 func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
 	if master {
-		m, _, err := b.Read(context.Background(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
+		m, _, err := b.Read(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
 		if err != nil {
 			return err
 		}
@@ -367,7 +367,7 @@ func main() {
 	b.RegisterServer("githubcard", false)
 
 	if len(*token) > 0 {
-		b.Save(context.Background(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
+		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
