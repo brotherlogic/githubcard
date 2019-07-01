@@ -132,6 +132,9 @@ func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
 		if err != nil {
 			return err
 		}
+		if len(m.(*pbgh.Token).GetToken()) == 0 {
+			return fmt.Errorf("Error reading token: %v", m)
+		}
 		b.accessCode = m.(*pbgh.Token).GetToken()
 
 		b.Log(fmt.Sprintf("READ: %v", b.accessCode))
