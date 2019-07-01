@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"golang.org/x/net/context"
@@ -57,9 +56,10 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		return nil, err
 	}
 	r := &addResponse{}
-	log.Printf("UNMARSHAL: %v", string(b))
+
 	err2 := json.Unmarshal(b, &r)
 	if err2 != nil {
+		g.Log(fmt.Sprintf("Unmarshal error: %v", string(b)))
 		return nil, err2
 	}
 

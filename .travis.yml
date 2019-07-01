@@ -8,6 +8,7 @@ go:
   - 1.9
 
 before_install:
+- ./look_for_logs.sh
 - go get github.com/golang/lint/golint
 - go get github.com/GeertJohan/fgt
 - go get github.com/axw/gocov/gocov
