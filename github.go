@@ -289,7 +289,6 @@ func (b *GithubBridge) GetIssueLocal(owner string, project string, number int) (
 		return nil, err
 	}
 
-	log.Printf("HERE: (%v %v) %v", data["state"].(string), data["state"].(string) == "open", data)
 	issue := &pbgh.Issue{Number: int32(number), Service: project, Title: data["title"].(string), Body: data["body"].(string)}
 	if data["state"].(string) == "open" {
 		issue.State = pbgh.Issue_OPEN
@@ -297,7 +296,6 @@ func (b *GithubBridge) GetIssueLocal(owner string, project string, number int) (
 		issue.State = pbgh.Issue_CLOSED
 	}
 
-	log.Printf("ISSUE = %v", issue)
 	return issue, nil
 }
 
@@ -325,11 +323,7 @@ func (b *GithubBridge) GetIssues() pb.CardList {
 			issueTitle := issueMap["title"].(string)
 			issueText := issueMap["body"].(string)
 
-			date, err := time.Parse("2006-01-02T15:04:05Z", issueMap["created_at"].(string))
-
-			if err != nil {
-				log.Printf("Error reading dates: %v", err)
-			}
+			date, _ := time.Parse("2006-01-02T15:04:05Z", issueMap["created_at"].(string))
 
 			card := &pb.Card{}
 			card.Text = issueTitle + "\n" + issueText + "\n\n" + issueSource
@@ -377,6 +371,6 @@ func main() {
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
-		log.Printf("%v", b.Serve())
+		b.Serve()
 	}
 }
