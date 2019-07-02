@@ -116,6 +116,10 @@ func (b GithubBridge) readIssues(ctx context.Context) error {
 	}
 	b.config = data.(*pbgh.Config)
 
+	if len(b.config.JobsOfInterest) == 0 {
+		b.config.JobsOfInterest = append(b.config.JobsOfInterest, "githubreceiver")
+	}
+
 	return nil
 }
 
@@ -149,6 +153,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
 	return []*pbgs.State{
+		&pbgs.State{Key: "jobs", Text: fmt.Sprintf("%v", b.config.JobsOfInterest)},
 		&pbgs.State{Key: "attempts", Value: int64(b.attempts)},
 		&pbgs.State{Key: "fails", Value: int64(b.fails)},
 		&pbgs.State{Key: "added", Text: fmt.Sprintf("%v", b.added)},
