@@ -101,7 +101,7 @@ func (b *GithubBridge) saveIssues(ctx context.Context) {
 	b.KSclient.Save(ctx, CONFIG, b.config)
 }
 
-func (b GithubBridge) readIssues(ctx context.Context) error {
+func (b *GithubBridge) readIssues(ctx context.Context) error {
 	issues := &pbgh.IssueList{}
 	data, _, err := b.KSclient.Read(ctx, KEY, issues)
 	if err != nil {
