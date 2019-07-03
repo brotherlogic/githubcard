@@ -48,3 +48,12 @@ func TestValidateJobsFail(t *testing.T) {
 		t.Errorf("Validation did not fail")
 	}
 }
+
+func TestValidateSingleJob(t *testing.T) {
+	s := InitTest()
+	err := s.validateJob(context.Background(), "crasher2")
+
+	if err != nil {
+		t.Errorf("Validation failed: %v", err)
+	}
+}
