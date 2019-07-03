@@ -46,7 +46,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 			Config: Config{
 				URL:         fmt.Sprintf("http://%v/githubwebhook", g.config.ExternalIP),
 				ContentType: "json",
-				InsecureSSL: 1,
+				InsecureSSL: "1",
 			}})
 		if err != nil {
 			return err

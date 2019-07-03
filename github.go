@@ -229,7 +229,7 @@ type Webhook struct {
 type Config struct {
 	URL         string `json:"url"`
 	ContentType string `json:"content_type"`
-	InsecureSSL int    `json:"insecure_ssl"`
+	InsecureSSL string `json:"insecure_ssl"`
 }
 
 func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook, error) {
