@@ -437,14 +437,14 @@ func main() {
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
 	} else if len(*external) > 0 {
-		config := &pbgh.Config{}
-		data, _, err := b.KSclient.Read(context.Background(), CONFIG, config)
+		/*config := &pbgh.Config{}
+		data, _, err := b.KSclient.Read(context.Bacground(), CONFIG, config)
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
 		tconfig := data.(*pbgh.Config)
 		tconfig.ExternalIP = *external
-		b.KSclient.Save(context.Background(), CONFIG, tconfig)
+		b.KSclient.Save(context.Bacground(), CONFIG, tconfig)*/
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
