@@ -219,17 +219,17 @@ type Project struct {
 
 // Webhook struct describing a simple webhook
 type Webhook struct {
-	Name   string   `json:string`
-	Active bool     `json:active`
-	Events []string `json:events`
-	Config Config   `json:config`
+	Name   string   `json:"name"`
+	Active bool     `json:"active"`
+	Events []string `json:"events"`
+	Config Config   `json:"config"`
 }
 
 // Config struct for webhook
 type Config struct {
-	URL         string `json:url`
-	ContentType string `json:content_type`
-	InsecureSSL int    `json:insecure_ssl`
+	URL         string `json:"url"`
+	ContentType string `json:"content_type"`
+	InsecureSSL int    `json:"insecure_ssl"`
 }
 
 func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook, error) {
@@ -438,14 +438,14 @@ func main() {
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
 	} else if len(*external) > 0 {
-		/*config := &pbgh.Config{}
-		data, _, err := b.KSclient.Read(context.Bacground(), CONFIG, config)
+		config := &pbgh.Config{}
+		data, _, err := b.KSclient.Read(context.Background(), CONFIG, config)
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
 		tconfig := data.(*pbgh.Config)
 		tconfig.ExternalIP = *external
-		b.KSclient.Save(context.Bacground(), CONFIG, tconfig)*/
+		b.KSclient.Save(context.Background(), CONFIG, tconfig)
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
