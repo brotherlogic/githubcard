@@ -55,6 +55,7 @@ type GithubBridge struct {
 	config         *pbgh.Config
 	gets           int64
 	posts          int64
+	webhookcount   int64
 }
 
 type httpGetter interface {
@@ -155,6 +156,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
 	return []*pbgs.State{
+		&pbgs.State{Key: "webhook_count", Value: b.webhookcount},
 		&pbgs.State{Key: "external", Text: b.config.ExternalIP},
 		&pbgs.State{Key: "gets", Value: b.gets},
 		&pbgs.State{Key: "posts", Value: b.posts},
@@ -418,6 +420,8 @@ func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 }
 
 func (b *GithubBridge) githubwebhook(w http.ResponseWriter, r *http.Request) {
+	b.Log(fmt.Sprintf("Received web ping"))
+	b.webhookcount++
 }
 
 func (b *GithubBridge) serveUp(port int32) {
