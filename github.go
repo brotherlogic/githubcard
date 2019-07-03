@@ -421,7 +421,7 @@ func (b *GithubBridge) githubwebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *GithubBridge) serveUp(port int32) {
-	http.HandleFunc("/githubwebhook", s.githubwebhook)
+	http.HandleFunc("/githubwebhook", b.githubwebhook)
 	err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
 	if err != nil {
 		panic(err)
