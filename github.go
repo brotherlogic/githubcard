@@ -417,6 +417,17 @@ func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 	return nil
 }
 
+func (s *GithubBridge) githubwebhook(w http.ResponseWriter, r *http.Request) {
+}
+
+func (s *GithubBridge) serveUp(port int32) {
+	http.HandleFunc("/githubwebhook", s.githubwebhook)
+	err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", true, "Show all output")
 	var token = flag.String("token", "", "The token to use to auth")
@@ -447,6 +458,9 @@ func main() {
 		tconfig.ExternalIP = *external
 		b.KSclient.Save(context.Bacground(), CONFIG, tconfig) */
 	} else {
+		// Handle web requests
+		go b.serveUp(b.Registry.Port - 1)
+
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
 		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Minute)
