@@ -182,6 +182,7 @@ func (b *GithubBridge) postURL(urlv string, data string) (*http.Response, error)
 	}
 
 	b.posts++
+	b.Log(fmt.Sprintf("POST %v", url))
 	return b.getter.Post(url, data)
 }
 
@@ -254,7 +255,8 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 		return err
 	}
 
-	_, err = b.postURL(urlv, string(bytes))
+	body, err := b.postURL(urlv, string(bytes))
+	b.Log(fmt.Sprintf("ADD_WEB_HOOK = %v", body))
 	return err
 }
 
