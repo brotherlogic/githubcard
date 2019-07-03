@@ -255,8 +255,15 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 		return err
 	}
 
-	body, err := b.postURL(urlv, string(bytes))
-	b.Log(fmt.Sprintf("ADD_WEB_HOOK = %v", body))
+	resp, err := b.postURL(urlv, string(bytes))
+
+	b.Log(fmt.Sprintf("ADD_WEB_HOOK = %v", resp))
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	b.Log(fmt.Sprintf("RESPONSE = %v (%v)", body, err))
+
 	return err
 }
 
