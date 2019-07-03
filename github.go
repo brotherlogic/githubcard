@@ -262,7 +262,7 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 
-	b.Log(fmt.Sprintf("RESPONSE = %v (%v)", body, err))
+	b.Log(fmt.Sprintf("RESPONSE = %v (%v)", string(body), err))
 
 	return err
 }
