@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -33,12 +34,18 @@ func (httpGetter failGetter) Get(url string) (*http.Response, error) {
 	return nil, errors.New("Built to Fail")
 }
 
-type testFileGetter struct{ jsonBreak bool }
+type testFileGetter struct {
+	jsonBreak bool
+	failPost  bool
+}
 
 func (httpGetter testFileGetter) Post(url string, data string) (*http.Response, error) {
 	log.Printf("url  %v", url)
 	log.Printf("data %v", data)
 	response := &http.Response{}
+	if httpGetter.failPost {
+		return response, fmt.Errorf("Built to fail")
+	}
 	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
 	if httpGetter.jsonBreak {
 		strippedURL = strings.Replace(strippedURL, "token", "broke", -1)
@@ -268,5 +275,30 @@ func TestGetAllIssues(t *testing.T) {
 	_, err := s.GetAll(context.Background(), &pb.GetAllRequest{})
 	if err == nil {
 		t.Errorf("Get all did not fail")
+	}
+}
+
+func TestGetAddJob(t *testing.T) {
+	s := InitTest()
+	_, err := s.RegisterJob(context.Background(), &pb.RegisterRequest{Job: "blah"})
+	if err != nil {
+		t.Errorf("register fail: %v", err)
+	}
+
+	if len(s.config.JobsOfInterest) != 1 {
+		t.Errorf("Job not added: %v", s.config)
+	}
+}
+func TestGetAddExistingJob(t *testing.T) {
+	s := InitTest()
+	s.config.JobsOfInterest = append(s.config.JobsOfInterest, "blah")
+
+	_, err := s.RegisterJob(context.Background(), &pb.RegisterRequest{Job: "blah"})
+	if err != nil {
+		t.Errorf("register fail: %v", err)
+	}
+
+	if len(s.config.JobsOfInterest) != 1 {
+		t.Errorf("Job not added: %v", s.config)
 	}
 }

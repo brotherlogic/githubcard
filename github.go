@@ -85,7 +85,6 @@ func Init() *GithubBridge {
 		addedMutex: &sync.Mutex{},
 		config:     &pbgh.Config{},
 	}
-	s.Register = s
 	return s
 }
 
@@ -259,6 +258,9 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 	}
 
 	resp, err := b.postURL(urlv, string(bytes))
+	if err != nil {
+		return err
+	}
 
 	b.Log(fmt.Sprintf("ADD_WEB_HOOK = %v", resp))
 
@@ -435,6 +437,8 @@ func main() {
 	}
 
 	b.PrepServer()
+	b.Register = b
+
 	b.RegisterServer("githubcard", false)
 
 	if len(*token) > 0 {

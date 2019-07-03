@@ -42,6 +42,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	if len(hooks) == 1 {
 		err := g.addWebHook(ctx, job, Webhook{
 			Name:   "web",
+			Active: true,
 			Events: []string{"push", "issues"},
 			Config: Config{
 				URL:         fmt.Sprintf("http://%v:50052/githubwebhook", g.config.ExternalIP),
