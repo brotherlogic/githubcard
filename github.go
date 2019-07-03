@@ -225,6 +225,7 @@ type Webhook struct {
 	Config Config   `json:config`
 }
 
+// Config struct for webhook
 type Config struct {
 	URL         string `json:url`
 	ContentType string `json:content_type`
