@@ -17,6 +17,20 @@ type addResponse struct {
 	Message string
 }
 
+//RegisterJob registers a job to be built
+func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+	for _, j := range g.config.JobsOfInterest {
+		if j == in.Job {
+			return &pb.RegisterResponse{}, nil
+		}
+	}
+
+	g.config.JobsOfInterest = append(g.config.JobsOfInterest, in.Job)
+	g.saveIssues(ctx)
+
+	return &pb.RegisterResponse{}, nil
+}
+
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	// Reject alerts with a blank body

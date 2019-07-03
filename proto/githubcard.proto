@@ -30,6 +30,13 @@ message Issue {
   IssueState state = 5;
   
   bool sticky = 6;
+
+  enum Origin {
+    UNKNOWN = 0;
+    FROM_WEB = 1;
+    FROM_RECEIEVER = 2;
+  }
+  Origin origin = 7;
 }
 
 message IssueList {
@@ -57,9 +64,16 @@ message GetAllResponse {
   repeated Issue issues = 1;
 }
 
+message RegisterRequest {
+  string job = 1;
+}
+
+message RegisterResponse {}
+
 service Github {
   rpc AddIssue(Issue) returns (Issue) {};
   rpc Get(Issue) returns (Issue) {};
   rpc GetAll(GetAllRequest) returns (GetAllResponse) {};
   rpc Silence(SilenceRequest) returns (SilenceResponse) {};
+  rpc RegisterJob(RegisterRequest) returns (RegisterResponse) {};
 }
