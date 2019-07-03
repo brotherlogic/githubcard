@@ -3,6 +3,11 @@ mkdir -p testdata/repos/brotherlogic/MadeUpService/issues/
 mkdir -p testdata/repos/brotherlogic/crasher
 mkdir -p testdata/user/
 
+
+sleep 1
+curl -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/crasher/hooks?access_token=$1"  > testdata/repos/brotherlogic/crasher/hooks_access_token=token
+exit
+
 sleep 1
 curl -X POST -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/MadeUpService/issues?access_token=$1" -d '{"title": "Testing", "body": "This is a test issue", "assignee": "brotherlogic"}' > testdata/repos/brotherlogic/MadeUpService/issues_access_token=token
 exit
