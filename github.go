@@ -225,6 +225,7 @@ type Webhook struct {
 	Config Config   `json:config`
 }
 
+// Config struct for webhook
 type Config struct {
 	URL         string `json:url`
 	ContentType string `json:content_type`
@@ -262,7 +263,7 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 
-	b.Log(fmt.Sprintf("RESPONSE = %v (%v)", body, err))
+	b.Log(fmt.Sprintf("RESPONSE = %v (%v)", string(body), err))
 
 	return err
 }
@@ -437,14 +438,14 @@ func main() {
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
 	} else if len(*external) > 0 {
-		config := &pbgh.Config{}
-		data, _, err := b.KSclient.Read(context.Background(), CONFIG, config)
+		/*config := &pbgh.Config{}
+		data, _, err := b.KSclient.Read(context.Bacground(), CONFIG, config)
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
 		tconfig := data.(*pbgh.Config)
 		tconfig.ExternalIP = *external
-		b.KSclient.Save(context.Background(), CONFIG, tconfig)
+		b.KSclient.Save(context.Bacground(), CONFIG, tconfig)*/
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
