@@ -270,3 +270,12 @@ func TestGetAllIssues(t *testing.T) {
 		t.Errorf("Get all did not fail")
 	}
 }
+
+func TestValidateJobs(t *testing.T) {
+	s := InitTest()
+	err := s.validateJobs(context.Background())
+
+	if err != nil {
+		t.Errorf("Validation failed")
+	}
+}

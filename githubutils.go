@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 )
 
@@ -12,6 +14,14 @@ func (g *GithubBridge) procSticky(ctx context.Context) error {
 			g.saveIssues(ctx)
 			return nil
 		}
+	}
+
+	return nil
+}
+
+func (g *GithubBridge) validateJobs(ctx context.Context) error {
+	for _, j := range g.config.JobsOfInterest {
+		g.Log(fmt.Sprintf("Checking %v", j))
 	}
 
 	return nil
