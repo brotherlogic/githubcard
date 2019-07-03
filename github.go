@@ -246,7 +246,15 @@ func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook
 	if err != nil {
 		return []*Webhook{}, err
 	}
-	return data, nil
+
+	result := make([]*Webhook, 0)
+	for _, d := range data {
+		if d.Name == "web" {
+			result = append(result, d)
+		}
+	}
+
+	return result, nil
 }
 
 func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook) error {
