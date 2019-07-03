@@ -182,7 +182,7 @@ func (b *GithubBridge) postURL(urlv string, data string) (*http.Response, error)
 	}
 
 	b.posts++
-	b.Log(fmt.Sprintf("POST %v", url))
+	b.Log(fmt.Sprintf("POST %v [%v]", url, data))
 	return b.getter.Post(url, data)
 }
 
