@@ -155,6 +155,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
 	return []*pbgs.State{
+		&pbgs.State{Key: "external", Text: b.config.ExternalIP},
 		&pbgs.State{Key: "gets", Value: b.gets},
 		&pbgs.State{Key: "posts", Value: b.posts},
 		&pbgs.State{Key: "jobs", Text: fmt.Sprintf("%v", b.config.JobsOfInterest)},
@@ -217,7 +218,16 @@ type Project struct {
 
 // Webhook struct describing a simple webhook
 type Webhook struct {
-	Active bool `json:active`
+	Name   string   `json:string`
+	Active bool     `json:active`
+	Events []string `json:events`
+	Config Config   `json:config`
+}
+
+type Config struct {
+	URL         string `json:url`
+	ContentType string `json:content_type`
+	InsecureSSL int    `json:insecure_ssl`
 }
 
 func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook, error) {
@@ -234,6 +244,18 @@ func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook
 		return []*Webhook{}, err
 	}
 	return data, nil
+}
+
+func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks", repo)
+
+	bytes, err := json.Marshal(hook)
+	if err != nil {
+		return err
+	}
+
+	_, err = b.postURL(urlv, string(bytes))
+	return err
 }
 
 func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
@@ -388,6 +410,7 @@ func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 func main() {
 	var quiet = flag.Bool("quiet", true, "Show all output")
 	var token = flag.String("token", "", "The token to use to auth")
+	var external = flag.String("external", "", "External IP")
 	flag.Parse()
 
 	b := Init()
@@ -404,6 +427,15 @@ func main() {
 
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
+	} else if len(*external) > 0 {
+		config := &pbgh.Config{}
+		data, _, err := b.KSclient.Read(context.Background(), CONFIG, config)
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+		tconfig := data.(*pbgh.Config)
+		tconfig.ExternalIP = *external
+		b.KSclient.Save(context.Background(), CONFIG, tconfig)
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
