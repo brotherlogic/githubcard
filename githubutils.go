@@ -21,8 +21,23 @@ func (g *GithubBridge) procSticky(ctx context.Context) error {
 
 func (g *GithubBridge) validateJobs(ctx context.Context) error {
 	for _, j := range g.config.JobsOfInterest {
-		g.Log(fmt.Sprintf("Checking %v", j))
+		err := g.validateJob(ctx, j)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
+}
+
+func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
+	hooks, err := g.getWebHooks(ctx, job)
+	if err != nil {
+		return err
+	}
+
+	g.Log(fmt.Sprintf("Found %v webhooks", len(hooks)))
+	return nil
+
 }

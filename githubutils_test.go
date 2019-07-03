@@ -28,3 +28,23 @@ func TestProcStickyfail(t *testing.T) {
 		t.Errorf("Issue was not added: %v", g.issues)
 	}
 }
+
+func TestValidateJobs(t *testing.T) {
+	s := InitTest()
+	s.config.JobsOfInterest = append(s.config.JobsOfInterest, "crasher")
+	err := s.validateJobs(context.Background())
+
+	if err != nil {
+		t.Errorf("Validation failed")
+	}
+}
+
+func TestValidateJobsFail(t *testing.T) {
+	s := InitTest()
+	s.config.JobsOfInterest = append(s.config.JobsOfInterest, "madeupjob")
+	err := s.validateJobs(context.Background())
+
+	if err == nil {
+		t.Errorf("Validation did not fail")
+	}
+}

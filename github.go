@@ -53,6 +53,8 @@ type GithubBridge struct {
 	silences       []string
 	blankAlerts    int
 	config         *pbgh.Config
+	gets           int64
+	posts          int64
 }
 
 type httpGetter interface {
@@ -153,6 +155,8 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
 	return []*pbgs.State{
+		&pbgs.State{Key: "gets", Value: b.gets},
+		&pbgs.State{Key: "posts", Value: b.posts},
 		&pbgs.State{Key: "jobs", Text: fmt.Sprintf("%v", b.config.JobsOfInterest)},
 		&pbgs.State{Key: "attempts", Value: int64(b.attempts)},
 		&pbgs.State{Key: "fails", Value: int64(b.fails)},
@@ -176,6 +180,7 @@ func (b *GithubBridge) postURL(urlv string, data string) (*http.Response, error)
 		url = url + "?access_token=" + b.accessCode
 	}
 
+	b.posts++
 	return b.getter.Post(url, data)
 }
 
@@ -189,6 +194,7 @@ func (b *GithubBridge) visitURL(urlv string) (string, error) {
 	}
 
 	b.Log(fmt.Sprintf("VISIT %v", url))
+	b.gets++
 	resp, err := b.getter.Get(url)
 	if err != nil {
 		return "", err
@@ -207,6 +213,27 @@ func (b *GithubBridge) visitURL(urlv string) (string, error) {
 // Project is a project in the github world
 type Project struct {
 	Name string
+}
+
+// Webhook struct describing a simple webhook
+type Webhook struct {
+	Active bool `json:active`
+}
+
+func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook, error) {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks", repo)
+	body, err := b.visitURL(urlv)
+
+	if err != nil {
+		return []*Webhook{}, err
+	}
+
+	var data []*Webhook
+	err = json.Unmarshal([]byte(body), &data)
+	if err != nil {
+		return []*Webhook{}, err
+	}
+	return data, nil
 }
 
 func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
