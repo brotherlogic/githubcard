@@ -417,10 +417,10 @@ func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 	return nil
 }
 
-func (s *GithubBridge) githubwebhook(w http.ResponseWriter, r *http.Request) {
+func (b *GithubBridge) githubwebhook(w http.ResponseWriter, r *http.Request) {
 }
 
-func (s *GithubBridge) serveUp(port int32) {
+func (b *GithubBridge) serveUp(port int32) {
 	http.HandleFunc("/githubwebhook", s.githubwebhook)
 	err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
 	if err != nil {
