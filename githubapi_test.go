@@ -270,11 +270,22 @@ func TestGetIssue(t *testing.T) {
 	}
 }
 
+func TestGetAllIssuesLatest(t *testing.T) {
+	s := InitTest()
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIEVER})
+	_, err := s.GetAll(context.Background(), &pb.GetAllRequest{LatestOnly: true})
+	if err != nil {
+		t.Errorf("Get all did fail: %v", err)
+	}
+}
+
 func TestGetAllIssues(t *testing.T) {
 	s := InitTest()
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIEVER})
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIEVER})
 	_, err := s.GetAll(context.Background(), &pb.GetAllRequest{})
-	if err == nil {
-		t.Errorf("Get all did not fail")
+	if err != nil {
+		t.Errorf("Get all did fail: %v", err)
 	}
 }
 

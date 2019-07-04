@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"time"
 
 	"golang.org/x/net/context"
@@ -33,6 +34,14 @@ func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) 
 
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
+	// If this comes from the receiver - just add it
+	if in.Origin == pb.Issue_FROM_RECEIEVER {
+		in.DateAdded = time.Now().Unix()
+		g.config.Issues = append(g.config.Issues, in)
+		g.saveIssues(ctx)
+		return in, nil
+	}
+
 	// Reject alerts with a blank body
 	if len(in.GetBody()) == 0 {
 		g.blankAlerts++
@@ -95,7 +104,21 @@ func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error)
 
 //GetAll gets all the issues currently open
 func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.GetAllResponse, error) {
-	return nil, fmt.Errorf("Not implemented yet")
+	resp := &pb.GetAllResponse{}
+
+	for _, is := range g.config.Issues {
+		resp.Issues = append(resp.Issues, is)
+	}
+
+	sort.SliceStable(resp.Issues, func(i, j int) bool {
+		return resp.Issues[i].DateAdded < resp.Issues[j].DateAdded
+	})
+
+	if in.LatestOnly {
+		return &pb.GetAllResponse{Issues: []*pb.Issue{resp.Issues[0]}}, nil
+	}
+
+	return resp, nil
 }
 
 // Silence an issue

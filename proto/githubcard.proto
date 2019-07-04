@@ -15,6 +15,7 @@ message Config {
   repeated Silence silences = 1;
   repeated string jobs_of_interest = 2;
   string externalIP = 3;
+  repeated Issue issues = 4;
 }
 
 message Issue {
@@ -37,6 +38,8 @@ message Issue {
     FROM_RECEIEVER = 2;
   }
   Origin origin = 7;
+
+  int64 date_added = 8;
 }
 
 message IssueList {
