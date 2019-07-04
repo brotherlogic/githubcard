@@ -35,7 +35,7 @@ func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) 
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	// If this comes from the receiver - just add it
-	if in.Origin == pb.Issue_FROM_RECEIEVER {
+	if in.Origin == pb.Issue_FROM_RECEIVER {
 		in.DateAdded = time.Now().Unix()
 		g.config.Issues = append(g.config.Issues, in)
 		g.saveIssues(ctx)

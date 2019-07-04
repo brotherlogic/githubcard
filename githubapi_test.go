@@ -272,7 +272,7 @@ func TestGetIssue(t *testing.T) {
 
 func TestGetAllIssuesLatest(t *testing.T) {
 	s := InitTest()
-	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIEVER})
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER})
 	_, err := s.GetAll(context.Background(), &pb.GetAllRequest{LatestOnly: true})
 	if err != nil {
 		t.Errorf("Get all did fail: %v", err)
@@ -281,8 +281,8 @@ func TestGetAllIssuesLatest(t *testing.T) {
 
 func TestGetAllIssues(t *testing.T) {
 	s := InitTest()
-	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIEVER})
-	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIEVER})
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER})
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER})
 	_, err := s.GetAll(context.Background(), &pb.GetAllRequest{})
 	if err != nil {
 		t.Errorf("Get all did fail: %v", err)
