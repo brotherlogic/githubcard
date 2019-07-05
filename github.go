@@ -56,6 +56,7 @@ type GithubBridge struct {
 	gets           int64
 	posts          int64
 	webhookcount   int64
+	issueCount     int64
 }
 
 type httpGetter interface {
@@ -155,6 +156,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
 	return []*pbgs.State{
+		&pbgs.State{Key: "issues", Value: b.issueCount},
 		&pbgs.State{Key: "webhook_count", Value: b.webhookcount},
 		&pbgs.State{Key: "external", Text: b.config.ExternalIP},
 		&pbgs.State{Key: "gets", Value: b.gets},
@@ -294,6 +296,7 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		return nil, err
 	}
 
+	b.issueCount = int64(len(data))
 	for _, d := range data {
 		dp := d.(map[string]interface{})
 		if dp["title"].(string) == title {
