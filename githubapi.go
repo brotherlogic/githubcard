@@ -32,6 +32,17 @@ func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) 
 	return &pb.RegisterResponse{}, nil
 }
 
+//DeleteIssue removes an issue
+func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+	for i, is := range g.config.Issues {
+		if is.Url == in.Issue.Url {
+			g.config.Issues = append(g.config.Issues[:i], g.config.Issues[i+1:]...)
+		}
+	}
+
+	return &pb.DeleteResponse{}, nil
+}
+
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	// If this comes from the receiver - just add it
