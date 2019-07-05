@@ -297,14 +297,16 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	}
 
 	b.issueCount = int64(len(data))
+	retIssue = &pbgh.Issue{}
 	for _, d := range data {
 		dp := d.(map[string]interface{})
 		if dp["title"].(string) == title {
-			return &pbgh.Issue{Title: title}, nil
+			retIssue = &pbgh.Issue{Title: title}, nil
 		}
+		b.Log(fmt.Sprintf("URL = %v", dp["url"]))
 	}
 
-	return nil, nil
+	return retIssue, nil
 }
 
 // Payload for sending to github
