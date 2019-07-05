@@ -297,11 +297,11 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	}
 
 	b.issueCount = int64(len(data))
-	retIssue = &pbgh.Issue{}
+	retIssue := &pbgh.Issue{}
 	for _, d := range data {
 		dp := d.(map[string]interface{})
 		if dp["title"].(string) == title {
-			retIssue = &pbgh.Issue{Title: title}, nil
+			retIssue = &pbgh.Issue{Title: title}
 		}
 		b.Log(fmt.Sprintf("URL = %v", dp["url"]))
 	}
