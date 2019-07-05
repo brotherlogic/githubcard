@@ -270,6 +270,15 @@ func TestGetIssue(t *testing.T) {
 	}
 }
 
+func TestGetAllIssuesLatestWithNoEntries(t *testing.T) {
+	s := InitTest()
+
+	_, err := s.GetAll(context.Background(), &pb.GetAllRequest{LatestOnly: true})
+	if err != nil {
+		t.Errorf("Get all did fail: %v", err)
+	}
+}
+
 func TestGetAllIssuesLatest(t *testing.T) {
 	s := InitTest()
 	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER})

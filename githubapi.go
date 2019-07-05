@@ -115,7 +115,7 @@ func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.Ge
 	})
 
 	if in.LatestOnly {
-		return &pb.GetAllResponse{Issues: []*pb.Issue{resp.Issues[0]}}, nil
+		return &pb.GetAllResponse{Issues: resp.Issues[0:]}, nil
 	}
 
 	return resp, nil
