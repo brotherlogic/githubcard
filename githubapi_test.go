@@ -298,6 +298,35 @@ func TestGetAllIssues(t *testing.T) {
 	}
 }
 
+func TestGetAllIssuesThenDelete(t *testing.T) {
+	s := InitTest()
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER, Url: "blah"})
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER})
+	resp, err := s.GetAll(context.Background(), &pb.GetAllRequest{})
+	if err != nil {
+		t.Errorf("Get all did fail: %v", err)
+	}
+
+	if len(resp.Issues) != 2 {
+		t.Fatalf("Wrong number of issues: %v", resp)
+	}
+
+	_, err = s.DeleteIssue(context.Background(), &pb.DeleteRequest{Issue: &pb.Issue{Url: "blah"}})
+	if err != nil {
+		t.Errorf("Delete failed")
+	}
+
+	resp, err = s.GetAll(context.Background(), &pb.GetAllRequest{})
+	if err != nil {
+		t.Errorf("Get all did fail: %v", err)
+	}
+
+	if len(resp.Issues) != 1 {
+		t.Fatalf("Wrong number of issues: %v", resp)
+	}
+
+}
+
 func TestGetAddJob(t *testing.T) {
 	s := InitTest()
 	_, err := s.RegisterJob(context.Background(), &pb.RegisterRequest{Job: "blah"})

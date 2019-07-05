@@ -75,10 +75,17 @@ message RegisterRequest {
 
 message RegisterResponse {}
 
+message DeleteRequest {
+  Issue issue = 1;
+}
+
+message DeleteResponse {}
+
 service Github {
   rpc AddIssue(Issue) returns (Issue) {};
   rpc Get(Issue) returns (Issue) {};
   rpc GetAll(GetAllRequest) returns (GetAllResponse) {};
   rpc Silence(SilenceRequest) returns (SilenceResponse) {};
   rpc RegisterJob(RegisterRequest) returns (RegisterResponse) {};
+  rpc DeleteIssue(DeleteRequest) returns (DeleteResponse) {};
 }
