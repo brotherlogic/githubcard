@@ -310,6 +310,7 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		for _, issue := range b.config.Issues {
 			if dp["url"] == issue.Url {
 				t, _ := time.Parse(dp["created_at"].(string), "2006-01-02T15:04:05Z")
+				b.Log(fmt.Sprintf("CONV %v -> %v", dp["created_at"], t))
 				issue.DateAdded = t.Unix()
 				found = true
 			}
