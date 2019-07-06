@@ -155,9 +155,20 @@ func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
 func (b *GithubBridge) GetState() []*pbgs.State {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
+
+	bestIssue := ""
+	bestTime := time.Now().Unix()
+
+	for _, issue := range b.config.Issues {
+		if issue.DateAdded < bestTime {
+			bestIssue = issue.Url
+			bestTime = issue.DateAdded
+		}
+	}
+
 	return []*pbgs.State{
 		&pbgs.State{Key: "issues", Value: b.issueCount},
-		&pbgs.State{Key: "current_issues", Text: fmt.Sprintf("%", b.config.Issues)},
+		&pbgs.State{Key: "current_issue", Text: bestIssue},
 		&pbgs.State{Key: "webhook_count", Value: b.webhookcount},
 		&pbgs.State{Key: "external", Text: b.config.ExternalIP},
 		&pbgs.State{Key: "gets", Value: b.gets},
