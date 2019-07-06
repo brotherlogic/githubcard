@@ -230,7 +230,7 @@ type Webhook struct {
 
 // Config struct for webhook
 type Config struct {
-	URL         string `json:"url"`
+	URL         string `json:"url`
 	ContentType string `json:"content_type"`
 	InsecureSSL string `json:"insecure_ssl"`
 }
@@ -304,6 +304,18 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 			retIssue = &pbgh.Issue{Title: title}
 		}
 		b.Log(fmt.Sprintf("URL = %v", dp["url"]))
+
+		found := false
+		for _, issue := range b.config.Issues {
+			if dp["url"] == issue.Url {
+				found = true
+			}
+		}
+
+		if !found {
+			val, _ := strconv.Atoi(dp["created_at"].(string))
+			b.config.Issues = append(b.config.Issues, &pbgh.Issue{Title: title, Url: dp["url"].(string), DateAdded: int64(val)})
+		}
 	}
 
 	return retIssue, nil
