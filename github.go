@@ -297,7 +297,7 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	}
 
 	b.issueCount = int64(len(data))
-	retIssue := &pbgh.Issue{}
+	var retIssue *pbgh.Issue
 	for _, d := range data {
 		dp := d.(map[string]interface{})
 		if dp["title"].(string) == title {
