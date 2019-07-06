@@ -157,6 +157,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 	defer b.addedMutex.Unlock()
 	return []*pbgs.State{
 		&pbgs.State{Key: "issues", Value: b.issueCount},
+		&pbgs.State{Key: "current_issues", Text: fmt.Sprintf("%", b.config.Issues)},
 		&pbgs.State{Key: "webhook_count", Value: b.webhookcount},
 		&pbgs.State{Key: "external", Text: b.config.ExternalIP},
 		&pbgs.State{Key: "gets", Value: b.gets},
