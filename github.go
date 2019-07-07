@@ -335,6 +335,7 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		seenUrls[dp["url"].(string)] = true
 	}
 
+	b.Log(fmt.Sprintf("Pre-Remove %v and %v", len(b.config.Issues), len(data)))
 	for i, issue := range b.config.Issues {
 		if !seenUrls[issue.Url] {
 			b.config.Issues = append(b.config.Issues[:i], b.config.Issues[i+1:]...)
