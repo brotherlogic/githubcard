@@ -310,6 +310,7 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 
 	b.issueCount = int64(len(data))
 	var retIssue *pbgh.Issue
+	seenUrls := make(map[string]bool)
 	for _, d := range data {
 		dp := d.(map[string]interface{})
 		if dp["title"].(string) == title {
@@ -330,6 +331,15 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		if !found {
 			val, _ := strconv.Atoi(dp["created_at"].(string))
 			b.config.Issues = append(b.config.Issues, &pbgh.Issue{Title: title, Url: dp["url"].(string), DateAdded: int64(val)})
+		}
+
+		seenUrls[dp["url"].(string)] = true
+	}
+
+	for i, issue := range b.config.Issues {
+		if !seenUrls[issue.Url] {
+			b.config.Issues = append(b.config.Issues[:i], b.config.Issues[i+1:]...)
+			return retIssue, nil
 		}
 	}
 
