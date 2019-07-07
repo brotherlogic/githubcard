@@ -321,8 +321,7 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		found := false
 		for _, issue := range b.config.Issues {
 			if dp["url"].(string) == issue.Url {
-				t, terr := time.Parse("2006-01-02T15:04:05Z", dp["created_at"].(string))
-				b.Log(fmt.Sprintf("CONV %v -> %v [terr]", dp["created_at"], t, terr))
+				t, _ := time.Parse("2006-01-02T15:04:05Z", dp["created_at"].(string))
 				issue.DateAdded = t.Unix()
 				found = true
 			}
@@ -339,6 +338,7 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	for i, issue := range b.config.Issues {
 		if !seenUrls[issue.Url] {
 			b.config.Issues = append(b.config.Issues[:i], b.config.Issues[i+1:]...)
+			b.Log(fmt.Sprintf("Removing: %v", issue))
 			return retIssue, nil
 		}
 	}
