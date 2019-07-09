@@ -222,7 +222,7 @@ func (b *GithubBridge) patchURL(urlv string, data string) (*http.Response, error
 	}
 
 	b.posts++
-	b.Log(fmt.Sprintf("POST %v [%v]", url, data))
+	b.Log(fmt.Sprintf("PATCH %v [%v]", url, data))
 	return b.getter.Patch(url, data)
 }
 
