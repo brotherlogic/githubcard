@@ -62,12 +62,20 @@ type GithubBridge struct {
 type httpGetter interface {
 	Post(url string, data string) (*http.Response, error)
 	Get(url string) (*http.Response, error)
+	Patch(url string, data string) (*http.Response, error)
 }
 
 type prodHTTPGetter struct{}
 
 func (httpGetter prodHTTPGetter) Post(url string, data string) (*http.Response, error) {
 	return http.Post(url, "application/json", bytes.NewBuffer([]byte(data)))
+}
+
+func (httpGetter prodHTTPGetter) Patch(url string, data string) (*http.Response, error) {
+	req, _ := http.NewRequest("PATCH", url, bytes.NewBuffer([]byte(data)))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	return client.Do(req)
 }
 
 func (httpGetter prodHTTPGetter) Get(url string) (*http.Response, error) {
@@ -201,6 +209,19 @@ func (b *GithubBridge) postURL(urlv string, data string) (*http.Response, error)
 	return b.getter.Post(url, data)
 }
 
+func (b *GithubBridge) patchURL(urlv string, data string) (*http.Response, error) {
+	url := urlv
+	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
+		url = url + "&access_token=" + b.accessCode
+	} else {
+		url = url + "?access_token=" + b.accessCode
+	}
+
+	b.posts++
+	b.Log(fmt.Sprintf("POST %v [%v]", url, data))
+	return b.getter.Patch(url, data)
+}
+
 func (b *GithubBridge) visitURL(urlv string) (string, error) {
 
 	url := urlv
@@ -272,7 +293,7 @@ func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook
 	return result, nil
 }
 
-func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook Webhook) error {
+func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Webhook) error {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks/%v", repo, hook.ID)
 
 	bytes, err := json.Marshal(hook)
@@ -280,12 +301,12 @@ func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook Webh
 		return err
 	}
 
-	resp, err := b.postURL(urlv, string(bytes))
+	resp, err := b.patchURL(urlv, string(bytes))
 	if err != nil {
 		return err
 	}
 
-	b.Log(fmt.Sprintf("ADD_WEB_HOOK = %v", resp))
+	b.Log(fmt.Sprintf("UPDATE_WEB_HOOK = %v", resp))
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
