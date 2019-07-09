@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"golang.org/x/net/context"
 )
@@ -37,13 +38,21 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		return err
 	}
 
-	g.Log(fmt.Sprintf("Found %v webhooks", len(hooks)))
+	g.Log(fmt.Sprintf("Found %+v webhooks", len(hooks)))
+
+	if len(hooks) == 2 {
+		for _, hook := range hooks {
+			if strings.Contains(hook.Config.URL, "githubwebhook") {
+				g.Log(fmt.Sprintf("Found %v events", len(hook.Events)))
+			}
+		}
+	}
 
 	if len(hooks) == 1 {
 		err := g.addWebHook(ctx, job, Webhook{
 			Name:   "web",
 			Active: true,
-			Events: []string{"push", "issues"},
+			Events: []string{"push", "issues", "create"},
 			Config: Config{
 				URL:         fmt.Sprintf("http://%v:50052/githubwebhook", g.config.ExternalIP),
 				ContentType: "json",
