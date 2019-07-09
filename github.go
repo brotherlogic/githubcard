@@ -268,7 +268,7 @@ type Webhook struct {
 
 // Config struct for webhook
 type Config struct {
-	URL         string `json:"url`
+	URL         string `json:"url"`
 	ContentType string `json:"content_type"`
 	InsecureSSL string `json:"insecure_ssl"`
 }
