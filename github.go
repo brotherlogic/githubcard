@@ -234,6 +234,7 @@ type Project struct {
 
 // Webhook struct describing a simple webhook
 type Webhook struct {
+	ID     int      `json:"id"`
 	Name   string   `json:"name"`
 	Active bool     `json:"active"`
 	Events []string `json:"events"`
@@ -269,6 +270,29 @@ func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook
 	}
 
 	return result, nil
+}
+
+func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook Webhook) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks/%v", repo, hook.ID)
+
+	bytes, err := json.Marshal(hook)
+	if err != nil {
+		return err
+	}
+
+	resp, err := b.postURL(urlv, string(bytes))
+	if err != nil {
+		return err
+	}
+
+	b.Log(fmt.Sprintf("ADD_WEB_HOOK = %v", resp))
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	b.Log(fmt.Sprintf("RESPONSE = %v (%v)", string(body), err))
+
+	return err
 }
 
 func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook) error {

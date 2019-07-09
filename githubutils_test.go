@@ -67,3 +67,12 @@ func TestValidatePostFailSingleJob(t *testing.T) {
 		t.Errorf("Validation failed: %v", err)
 	}
 }
+
+func TestValidatePostUpdate(t *testing.T) {
+	s := InitTest()
+	err := s.validateJob(context.Background(), "crasher3")
+
+	if err != nil {
+		t.Errorf("Validation failed: %v", err)
+	}
+}
