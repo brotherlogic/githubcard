@@ -131,6 +131,10 @@ func (b *GithubBridge) readIssues(ctx context.Context) error {
 		b.config.JobsOfInterest = append(b.config.JobsOfInterest, "githubreceiver")
 	}
 
+	if len(b.config.JobsOfInterest) != 1 {
+		b.config.JobsOfInterest = []string{"githubreceiver"}
+	}
+
 	return nil
 }
 
