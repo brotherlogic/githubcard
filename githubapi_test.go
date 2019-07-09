@@ -30,6 +30,10 @@ func (httpGetter failGetter) Post(url string, data string) (*http.Response, erro
 	return nil, errors.New("Built to Fail")
 }
 
+func (httpGetter failGetter) Patch(url string, data string) (*http.Response, error) {
+	return nil, errors.New("Built to Fail")
+}
+
 func (httpGetter failGetter) Get(url string) (*http.Response, error) {
 	return nil, errors.New("Built to Fail")
 }
@@ -40,6 +44,25 @@ type testFileGetter struct {
 }
 
 func (httpGetter testFileGetter) Post(url string, data string) (*http.Response, error) {
+	log.Printf("url  %v", url)
+	log.Printf("data %v", data)
+	response := &http.Response{}
+	if httpGetter.failPost {
+		return response, fmt.Errorf("Built to fail")
+	}
+	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
+	if httpGetter.jsonBreak {
+		strippedURL = strings.Replace(strippedURL, "token", "broke", -1)
+	}
+	blah, err := os.Open("testdata" + strippedURL)
+	if err != nil {
+		log.Printf("Error opening test file %v", err)
+	}
+	response.Body = blah
+	return response, nil
+}
+
+func (httpGetter testFileGetter) Patch(url string, data string) (*http.Response, error) {
 	log.Printf("url  %v", url)
 	log.Printf("data %v", data)
 	response := &http.Response{}

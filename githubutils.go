@@ -44,6 +44,10 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		for _, hook := range hooks {
 			if strings.Contains(hook.Config.URL, "githubwebhook") {
 				g.Log(fmt.Sprintf("Found %v events", len(hook.Events)))
+				if len(hook.Events) != 3 {
+					hook.Events = []string{"push", "issues", "create"}
+					g.updateWebHook(ctx, job, hook)
+				}
 			}
 		}
 	}
