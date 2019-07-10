@@ -259,11 +259,12 @@ type Project struct {
 
 // Webhook struct describing a simple webhook
 type Webhook struct {
-	ID     int      `json:"id"`
-	Name   string   `json:"name"`
-	Active bool     `json:"active"`
-	Events []string `json:"events"`
-	Config Config   `json:"config"`
+	ID        int      `json:"id"`
+	Name      string   `json:"name"`
+	Active    bool     `json:"active"`
+	Events    []string `json:"events"`
+	AddEvents []string `json:"add_events"`
+	Config    Config   `json:"config"`
 }
 
 // Config struct for webhook
@@ -300,7 +301,8 @@ func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook
 func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Webhook) error {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks/%v", repo, hook.ID)
 
-	bytes, err := json.Marshal(hook)
+	nhook := &Webhook{AddEvents: []string{"create"}}
+	bytes, err := json.Marshal(nhook)
 	if err != nil {
 		return err
 	}
