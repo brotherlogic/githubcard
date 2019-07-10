@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -30,6 +31,6 @@ func main() {
 	defer cancel()
 
 	resp, err := client.CreatePullRequest(ctx, &pb.PullRequest{Job: "githubreceiver", Branch: "create_branch"})
-	log.Printf("%v and %v", resp, err)
+	fmt.Printf("%v and %v\n", resp, err)
 
 }
