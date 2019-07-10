@@ -350,6 +350,11 @@ func TestGetAllIssuesThenDelete(t *testing.T) {
 
 }
 
+func TestCreatePullRequesrt(t *testing.T) {
+	s := InitTest()
+	s.CreatePullRequest(context.Background(), &pb.PullRequest{Job: "blah", Branch: "blah"})
+}
+
 func TestGetAddJob(t *testing.T) {
 	s := InitTest()
 	_, err := s.RegisterJob(context.Background(), &pb.RegisterRequest{Job: "blah"})
@@ -361,6 +366,7 @@ func TestGetAddJob(t *testing.T) {
 		t.Errorf("Job not added: %v", s.config)
 	}
 }
+
 func TestGetAddExistingJob(t *testing.T) {
 	s := InitTest()
 	s.config.JobsOfInterest = append(s.config.JobsOfInterest, "blah")
