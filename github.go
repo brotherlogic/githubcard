@@ -426,7 +426,7 @@ func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch s
 	b.Log(fmt.Sprintf("PULL_REQUEST %v", string(rb)))
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return fmt.Errorf("UNable to build pull request")
+		return fmt.Errorf("UNable to build pull request: %v", resp.StatusCode)
 	}
 
 	return nil
