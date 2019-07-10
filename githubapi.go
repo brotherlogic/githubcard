@@ -18,6 +18,12 @@ type addResponse struct {
 	Message string
 }
 
+//CreatePullRequest creates a pull request
+func (g *GithubBridge) CreatePullRequest(ctx context.Context, in *pb.PullRequest) (*pb.PullResponse, error) {
+	err := g.createPullRequestLocal(ctx, in.Job, in.Branch)
+	return &pb.PullResponse{}, err
+}
+
 //RegisterJob registers a job to be built
 func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	for _, j := range g.config.JobsOfInterest {

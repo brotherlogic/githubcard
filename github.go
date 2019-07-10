@@ -398,6 +398,40 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	return retIssue, nil
 }
 
+// PRequest pull request
+type PRequest struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+	Head  string `json:"head"`
+	Base  string `json:"base"`
+}
+
+func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch string) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls", job)
+
+	payload := &PRequest{Title: "Simple pull request", Head: branch, Base: "master", Body: "Building..."}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	resp, err := b.postURL(urlv, string(bytes))
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	rb, _ := ioutil.ReadAll(resp.Body)
+
+	b.Log(fmt.Sprintf("PULL_REQUEST %v", string(rb)))
+
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+		return fmt.Errorf("UNable to build pull request")
+	}
+
+	return nil
+}
+
 // Payload for sending to github
 type Payload struct {
 	Title    string `json:"title"`

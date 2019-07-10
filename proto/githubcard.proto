@@ -81,6 +81,13 @@ message DeleteRequest {
 
 message DeleteResponse {}
 
+message PullRequest{
+  string job = 1;
+  string branch = 2;
+}
+
+message PullResponse {}
+
 service Github {
   rpc AddIssue(Issue) returns (Issue) {};
   rpc Get(Issue) returns (Issue) {};
@@ -88,4 +95,5 @@ service Github {
   rpc Silence(SilenceRequest) returns (SilenceResponse) {};
   rpc RegisterJob(RegisterRequest) returns (RegisterResponse) {};
   rpc DeleteIssue(DeleteRequest) returns (DeleteResponse) {};
+  rpc CreatePullRequest(PullRequest) returns (PullResponse) {};
 }
