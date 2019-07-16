@@ -26,9 +26,6 @@ import (
 )
 
 const (
-	// KEY the issues
-	KEY = "/github.com/brotherlogic/githubcard/issues"
-
 	// CONFIG where we store la config
 	CONFIG = "/github.com/brotherlogic/githubcard/config"
 )
@@ -108,18 +105,10 @@ func (b GithubBridge) ReportHealth() bool {
 }
 
 func (b *GithubBridge) saveIssues(ctx context.Context) {
-	b.KSclient.Save(ctx, KEY, &pbgh.IssueList{Issues: b.issues})
 	b.KSclient.Save(ctx, CONFIG, b.config)
 }
 
 func (b *GithubBridge) readIssues(ctx context.Context) error {
-	issues := &pbgh.IssueList{}
-	data, _, err := b.KSclient.Read(ctx, KEY, issues)
-	if err != nil {
-		return err
-	}
-	b.issues = (data.(*pbgh.IssueList).Issues)
-
 	config := &pbgh.Config{}
 	data, _, err = b.KSclient.Read(ctx, CONFIG, config)
 	if err != nil {
