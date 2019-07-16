@@ -110,7 +110,7 @@ func (b *GithubBridge) saveIssues(ctx context.Context) {
 
 func (b *GithubBridge) readIssues(ctx context.Context) error {
 	config := &pbgh.Config{}
-	data, _, err = b.KSclient.Read(ctx, CONFIG, config)
+	data, _, err := b.KSclient.Read(ctx, CONFIG, config)
 	if err != nil {
 		return err
 	}
