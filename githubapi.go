@@ -20,7 +20,7 @@ type addResponse struct {
 
 //CreatePullRequest creates a pull request
 func (g *GithubBridge) CreatePullRequest(ctx context.Context, in *pb.PullRequest) (*pb.PullResponse, error) {
-	err := g.createPullRequestLocal(ctx, in.Job, in.Branch)
+	err := g.createPullRequestLocal(ctx, in.Job, in.Branch, in.Title)
 	return &pb.PullResponse{}, err
 }
 

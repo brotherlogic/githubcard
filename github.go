@@ -396,10 +396,10 @@ type PRequest struct {
 	Base  string `json:"base"`
 }
 
-func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch string) error {
+func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, title string) error {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls", job)
 
-	payload := &PRequest{Title: "Simple pull request", Head: branch, Base: "master", Body: "Building..."}
+	payload := &PRequest{Title: title, Head: branch, Base: "master", Body: "Auto created pull request"}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -554,7 +554,7 @@ func main() {
 	flag.Parse()
 
 	b := Init()
-	b.GoServer.KSclient = *keystoreclient.GetClient(b.GetIP)
+	b.GoServer.KSclient = *keystoreclient.GetClient(b.DialMaster)
 
 	//Turn off logging
 	if *quiet {

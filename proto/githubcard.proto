@@ -84,6 +84,7 @@ message DeleteResponse {}
 message PullRequest{
   string job = 1;
   string branch = 2;
+  string title = 3;
 }
 
 message PullResponse {}
