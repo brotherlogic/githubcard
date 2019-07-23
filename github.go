@@ -422,6 +422,26 @@ func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, 
 	return nil
 }
 
+type commit struct {
+	Sha string `json:"sha"`
+}
+
+func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pullNumber int32) (*pbgh.PullResponse, error) {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/commits", job, pullNumber)
+	body, err := b.visitURL(urlv)
+	if err != nil {
+		return nil, err
+	}
+
+	var data []*commit
+	err = json.Unmarshal([]byte(body), &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pbgh.PullResponse{NumberOfCommits: int32(len(data))}, nil
+}
+
 // Payload for sending to github
 type Payload struct {
 	Title    string `json:"title"`

@@ -355,6 +355,18 @@ func TestCreatePullRequesrt(t *testing.T) {
 	s.CreatePullRequest(context.Background(), &pb.PullRequest{Job: "blah", Branch: "blah"})
 }
 
+func TestGetPullRequest(t *testing.T) {
+	s := InitTest()
+	pull, err := s.GetPullRequest(context.Background(), &pb.PullRequest{Job: "githubreceiver", PullNumber: 24})
+	if err != nil {
+		t.Fatalf("Error getting pull request: %v", err)
+	}
+
+	if pull.NumberOfCommits != 7 {
+		t.Errorf("Wrong number of commits returend: %v", pull)
+	}
+}
+
 func TestGetAddJob(t *testing.T) {
 	s := InitTest()
 	_, err := s.RegisterJob(context.Background(), &pb.RegisterRequest{Job: "blah"})
@@ -379,4 +391,5 @@ func TestGetAddExistingJob(t *testing.T) {
 	if len(s.config.JobsOfInterest) != 1 {
 		t.Errorf("Job not added: %v", s.config)
 	}
+
 }

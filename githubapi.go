@@ -18,6 +18,11 @@ type addResponse struct {
 	Message string
 }
 
+//GetPullRequest gets a pull request
+func (g *GithubBridge) GetPullRequest(ctx context.Context, in *pb.PullRequest) (*pb.PullResponse, error) {
+	return g.getPullRequestLocal(ctx, in.Job, in.PullNumber)
+}
+
 //CreatePullRequest creates a pull request
 func (g *GithubBridge) CreatePullRequest(ctx context.Context, in *pb.PullRequest) (*pb.PullResponse, error) {
 	err := g.createPullRequestLocal(ctx, in.Job, in.Branch, in.Title)
