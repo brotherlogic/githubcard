@@ -85,9 +85,12 @@ message PullRequest{
   string job = 1;
   string branch = 2;
   string title = 3;
+  int32 pull_number = 4;
 }
 
-message PullResponse {}
+message PullResponse {
+  int32 number_of_commits = 1;
+}
 
 service Github {
   rpc AddIssue(Issue) returns (Issue) {};
@@ -97,4 +100,5 @@ service Github {
   rpc RegisterJob(RegisterRequest) returns (RegisterResponse) {};
   rpc DeleteIssue(DeleteRequest) returns (DeleteResponse) {};
   rpc CreatePullRequest(PullRequest) returns (PullResponse) {};
+  rpc GetPullRequest(PullRequest) returns (PullResponse) {};
 }
