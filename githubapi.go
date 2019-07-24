@@ -18,6 +18,11 @@ type addResponse struct {
 	Message string
 }
 
+//ClosePullRequest closes a pull request
+func (g *GithubBridge) ClosePullRequest(ctx context.Context, in *pb.CloseRequest) (*pb.CloseResponse, error) {
+	return g.closePullRequestLocal(ctx, in.Job, in.PullNumber, in.Sha)
+}
+
 //GetPullRequest gets a pull request
 func (g *GithubBridge) GetPullRequest(ctx context.Context, in *pb.PullRequest) (*pb.PullResponse, error) {
 	return g.getPullRequestLocal(ctx, in.Job, in.PullNumber)

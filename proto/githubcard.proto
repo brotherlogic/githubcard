@@ -93,6 +93,14 @@ message PullResponse {
   bool is_open = 2;
 }
 
+message CloseRequest {
+  string job = 1;
+  int32 pull_number = 2;
+  string sha = 3;
+}
+
+message CloseResponse{}
+
 service Github {
   rpc AddIssue(Issue) returns (Issue) {};
   rpc Get(Issue) returns (Issue) {};
@@ -102,4 +110,5 @@ service Github {
   rpc DeleteIssue(DeleteRequest) returns (DeleteResponse) {};
   rpc CreatePullRequest(PullRequest) returns (PullResponse) {};
   rpc GetPullRequest(PullRequest) returns (PullResponse) {};
+  rpc ClosePullRequest(CloseRequest) returns (CloseResponse) {};
 }

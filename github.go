@@ -60,6 +60,7 @@ type httpGetter interface {
 	Post(url string, data string) (*http.Response, error)
 	Get(url string) (*http.Response, error)
 	Patch(url string, data string) (*http.Response, error)
+	Put(url string, data string) (*http.Response, error)
 }
 
 type prodHTTPGetter struct{}
@@ -70,6 +71,13 @@ func (httpGetter prodHTTPGetter) Post(url string, data string) (*http.Response, 
 
 func (httpGetter prodHTTPGetter) Patch(url string, data string) (*http.Response, error) {
 	req, _ := http.NewRequest("PATCH", url, bytes.NewBuffer([]byte(data)))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	return client.Do(req)
+}
+
+func (httpGetter prodHTTPGetter) Put(url string, data string) (*http.Response, error) {
+	req, _ := http.NewRequest("Put", url, bytes.NewBuffer([]byte(data)))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	return client.Do(req)
@@ -209,6 +217,19 @@ func (b *GithubBridge) patchURL(urlv string, data string) (*http.Response, error
 	b.posts++
 	b.Log(fmt.Sprintf("PATCH %v [%v]", url, data))
 	return b.getter.Patch(url, data)
+}
+
+func (b *GithubBridge) putURL(urlv string, data string) (*http.Response, error) {
+	url := urlv
+	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
+		url = url + "&access_token=" + b.accessCode
+	} else {
+		url = url + "?access_token=" + b.accessCode
+	}
+
+	b.posts++
+	b.Log(fmt.Sprintf("PUT %v [%v]", url, data))
+	return b.getter.Put(url, data)
 }
 
 func (b *GithubBridge) visitURL(urlv string) (string, error) {
@@ -456,6 +477,35 @@ func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pull
 	}
 
 	return &pbgh.PullResponse{NumberOfCommits: int32(len(data)), IsOpen: prdata.State == "open"}, nil
+}
+
+type closePayload struct {
+	Sha string `json:"sha"`
+}
+
+func (b *GithubBridge) closePullRequestLocal(ctx context.Context, job string, pullNumber int32, sha string) (*pbgh.CloseResponse, error) {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/merge", job, pullNumber)
+
+	payload := closePayload{Sha: sha}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := b.putURL(urlv, string(bytes))
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	rb, _ := ioutil.ReadAll(resp.Body)
+	b.Log(fmt.Sprintf("CLOSE %v", string(rb)))
+
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+		return nil, fmt.Errorf("Error closing pull request: %v", resp.StatusCode)
+	}
+
+	return &pbgh.CloseResponse{}, nil
 }
 
 // Payload for sending to github
