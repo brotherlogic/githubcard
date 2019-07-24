@@ -617,7 +617,7 @@ func main() {
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
-		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Hour)
+		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Minute*5)
 		b.Serve()
 	}
 }
