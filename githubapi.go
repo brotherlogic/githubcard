@@ -18,7 +18,7 @@ type addResponse struct {
 	Message string
 }
 
-//GetPullRequest gets a pull request
+//ClosePullRequest closes a pull request
 func (g *GithubBridge) ClosePullRequest(ctx context.Context, in *pb.CloseRequest) (*pb.CloseResponse, error) {
 	return g.closePullRequestLocal(ctx, in.Job, in.PullNumber, in.Sha)
 }

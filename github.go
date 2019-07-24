@@ -479,14 +479,14 @@ func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pull
 	return &pbgh.PullResponse{NumberOfCommits: int32(len(data)), IsOpen: prdata.State == "open"}, nil
 }
 
-type ClosePayload struct {
+type closePayload struct {
 	Sha string `json:"sha"`
 }
 
 func (b *GithubBridge) closePullRequestLocal(ctx context.Context, job string, pullNumber int32, sha string) (*pbgh.CloseResponse, error) {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/merge", job, pullNumber)
 
-	payload := ClosePayload{Sha: sha}
+	payload := closePayload{Sha: sha}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
