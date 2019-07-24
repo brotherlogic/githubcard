@@ -90,6 +90,7 @@ message PullRequest{
 
 message PullResponse {
   int32 number_of_commits = 1;
+  bool is_open = 2;
 }
 
 service Github {
