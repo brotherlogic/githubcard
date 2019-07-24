@@ -378,6 +378,11 @@ func TestCreatePullRequesrt(t *testing.T) {
 	s.CreatePullRequest(context.Background(), &pb.PullRequest{Job: "blah", Branch: "blah"})
 }
 
+func TestClosePullRequesrt(t *testing.T) {
+	s := InitTest()
+	s.ClosePullRequest(context.Background(), &pb.CloseRequest{Job: "frametracker", PullNumber: 16, Sha: "f4256902623ce71c7dbcd02f5c3a959afbd7e395"})
+}
+
 func TestGetPullRequest(t *testing.T) {
 	s := InitTest()
 	pull, err := s.GetPullRequest(context.Background(), &pb.PullRequest{Job: "githubreceiver", PullNumber: 24})
