@@ -5,6 +5,11 @@ mkdir -p testdata/repos/brotherlogic/githubreceiver/pulls/24/
 mkdir -p testdata/user/
 
 sleep 1
+curl -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/githubreceiver/pulls/24?access_token=$1"  > testdata/repos/brotherlogic/githubreceiver/pulls/24_access_token=token
+exit
+
+
+sleep 1
 curl -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/githubreceiver/pulls/24/commits?access_token=$1"  > testdata/repos/brotherlogic/githubreceiver/pulls/24/commits_access_token=token
 exit
 

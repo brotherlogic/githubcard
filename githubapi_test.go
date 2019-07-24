@@ -365,6 +365,10 @@ func TestGetPullRequest(t *testing.T) {
 	if pull.NumberOfCommits != 7 {
 		t.Errorf("Wrong number of commits returend: %v", pull)
 	}
+
+	if !pull.IsOpen {
+		t.Errorf("Pull request should be open %v", pull)
+	}
 }
 
 func TestGetAddJob(t *testing.T) {

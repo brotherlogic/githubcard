@@ -426,6 +426,10 @@ type commit struct {
 	Sha string `json:"sha"`
 }
 
+type prr struct {
+	State string `json:"state"`
+}
+
 func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pullNumber int32) (*pbgh.PullResponse, error) {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/commits", job, pullNumber)
 	body, err := b.visitURL(urlv)
@@ -439,7 +443,19 @@ func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pull
 		return nil, err
 	}
 
-	return &pbgh.PullResponse{NumberOfCommits: int32(len(data))}, nil
+	urlv = fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v", job, pullNumber)
+	body, err = b.visitURL(urlv)
+	if err != nil {
+		return nil, err
+	}
+
+	var prdata *prr
+	err = json.Unmarshal([]byte(body), &prdata)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pbgh.PullResponse{NumberOfCommits: int32(len(data)), IsOpen: prdata.State == "open"}, nil
 }
 
 // Payload for sending to github
