@@ -77,7 +77,7 @@ func (httpGetter prodHTTPGetter) Patch(url string, data string) (*http.Response,
 }
 
 func (httpGetter prodHTTPGetter) Put(url string, data string) (*http.Response, error) {
-	req, _ := http.NewRequest("Put", url, bytes.NewBuffer([]byte(data)))
+	req, _ := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(data)))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	return client.Do(req)
