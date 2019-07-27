@@ -3,7 +3,13 @@ mkdir -p testdata/repos/brotherlogic/MadeUpService/issues/
 mkdir -p testdata/repos/brotherlogic/crasher
 mkdir -p testdata/repos/brotherlogic/githubreceiver/pulls/24/
 mkdir -p testdata/repos/brotherlogic/frametracker/pulls/16/
+mkdir -p testdata/repos/brotherlogic/pullrequester/git/refs/heads/
 mkdir -p testdata/user/
+
+sleep 1
+curl -X DELETE -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/pullrequester/git/refs/heads/update_on_update?access_token=$1"  > testdata/repos/brotherlogic/pullrequester/git/refs/heads/update_on_update_access_token=token
+exit
+
 
 sleep 1
 curl -X PUT -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/frametracker/pulls/16/merge?access_token=$1" -d '{"sha": "f4256902623ce71c7dbcd02f5c3a959afbd7e395"'} > testdata/repos/brotherlogic/frametracker/pulls/16/merge_access_token=token
