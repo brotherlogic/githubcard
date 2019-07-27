@@ -59,6 +59,7 @@ type GithubBridge struct {
 type httpGetter interface {
 	Post(url string, data string) (*http.Response, error)
 	Get(url string) (*http.Response, error)
+	Delete(url string) (*http.Response, error)
 	Patch(url string, data string) (*http.Response, error)
 	Put(url string, data string) (*http.Response, error)
 }
@@ -78,6 +79,13 @@ func (httpGetter prodHTTPGetter) Patch(url string, data string) (*http.Response,
 
 func (httpGetter prodHTTPGetter) Put(url string, data string) (*http.Response, error) {
 	req, _ := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(data)))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	return client.Do(req)
+}
+
+func (httpGetter prodHTTPGetter) Delete(url string) (*http.Response, error) {
+	req, _ := http.NewRequest("DELETE", url, bytes.NewBuffer([]byte{}))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	return client.Do(req)
@@ -230,6 +238,19 @@ func (b *GithubBridge) putURL(urlv string, data string) (*http.Response, error) 
 	b.posts++
 	b.Log(fmt.Sprintf("PUT %v [%v]", url, data))
 	return b.getter.Put(url, data)
+}
+
+func (b *GithubBridge) deleteURL(urlv string) (*http.Response, error) {
+	url := urlv
+	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
+		url = url + "&access_token=" + b.accessCode
+	} else {
+		url = url + "?access_token=" + b.accessCode
+	}
+
+	b.posts++
+	b.Log(fmt.Sprintf("DELETE %v", url))
+	return b.getter.Delete(url)
 }
 
 func (b *GithubBridge) visitURL(urlv string) (string, error) {
@@ -506,6 +527,13 @@ func (b *GithubBridge) closePullRequestLocal(ctx context.Context, job string, pu
 	}
 
 	return &pbgh.CloseResponse{}, nil
+}
+
+func (b *GithubBridge) deleteBranchLocal(ctx context.Context, job string, branchName string) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/git/refs/heads/%v", job, branchName)
+
+	_, err := b.deleteURL(urlv)
+	return err
 }
 
 // Payload for sending to github

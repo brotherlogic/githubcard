@@ -42,6 +42,10 @@ func (httpGetter failGetter) Get(url string) (*http.Response, error) {
 	return nil, errors.New("Built to Fail")
 }
 
+func (httpGetter failGetter) Delete(url string) (*http.Response, error) {
+	return nil, errors.New("Built to Fail")
+}
+
 type testFileGetter struct {
 	jsonBreak bool
 	failPost  bool
@@ -101,10 +105,22 @@ func (httpGetter testFileGetter) Put(url string, data string) (*http.Response, e
 		log.Printf("Error opening test file %v", err)
 	}
 	response.Body = blah
+	response.StatusCode = 200
 	return response, nil
 }
 
 func (httpGetter testFileGetter) Get(url string) (*http.Response, error) {
+	response := &http.Response{}
+	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
+	blah, err := os.Open("testdata" + strippedURL)
+	if err != nil {
+		log.Printf("Error opening test file %v", err)
+	}
+	response.Body = blah
+	return response, nil
+}
+
+func (httpGetter testFileGetter) Delete(url string) (*http.Response, error) {
 	response := &http.Response{}
 	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
 	blah, err := os.Open("testdata" + strippedURL)
@@ -380,7 +396,19 @@ func TestCreatePullRequesrt(t *testing.T) {
 
 func TestClosePullRequesrt(t *testing.T) {
 	s := InitTest()
-	s.ClosePullRequest(context.Background(), &pb.CloseRequest{Job: "frametracker", PullNumber: 16, Sha: "f4256902623ce71c7dbcd02f5c3a959afbd7e395"})
+	resp, err := s.ClosePullRequest(context.Background(), &pb.CloseRequest{Job: "frametracker", PullNumber: 16, Sha: "f4256902623ce71c7dbcd02f5c3a959afbd7e395", BranchName: "testbranch"})
+	if err != nil {
+		t.Errorf("Bad pr %v and %v", resp, err)
+	}
+}
+
+func TestCloseMadeUpPullRequest(t *testing.T) {
+	s := InitTest()
+	s.getter = &testFileGetter{failPost: true}
+	resp, err := s.ClosePullRequest(context.Background(), &pb.CloseRequest{Job: "madeup", PullNumber: 16, Sha: "f4256902623ce71c7dbcd02f5c3a959afbd7e395", BranchName: "testbranch"})
+	if err == nil {
+		t.Errorf("PR was fine: %v", resp)
+	}
 }
 
 func TestGetPullRequest(t *testing.T) {

@@ -97,6 +97,7 @@ message CloseRequest {
   string job = 1;
   int32 pull_number = 2;
   string sha = 3;
+  string branch_name = 4;
 }
 
 message CloseResponse{}

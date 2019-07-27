@@ -20,7 +20,12 @@ type addResponse struct {
 
 //ClosePullRequest closes a pull request
 func (g *GithubBridge) ClosePullRequest(ctx context.Context, in *pb.CloseRequest) (*pb.CloseResponse, error) {
-	return g.closePullRequestLocal(ctx, in.Job, in.PullNumber, in.Sha)
+	resp, err := g.closePullRequestLocal(ctx, in.Job, in.PullNumber, in.Sha)
+	if err != nil {
+		return resp, err
+	}
+	err = g.deleteBranchLocal(ctx, in.Job, in.BranchName)
+	return resp, err
 }
 
 //GetPullRequest gets a pull request
