@@ -406,13 +406,14 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 			if dp["url"].(string) == issue.Url {
 				t, _ := time.Parse("2006-01-02T15:04:05Z", dp["created_at"].(string))
 				issue.DateAdded = t.Unix()
+				issue.Title = dp["title"].(string)
 				found = true
 			}
 		}
 
 		if !found {
 			val, _ := strconv.Atoi(dp["created_at"].(string))
-			b.config.Issues = append(b.config.Issues, &pbgh.Issue{Title: title, Url: dp["url"].(string), DateAdded: int64(val)})
+			b.config.Issues = append(b.config.Issues, &pbgh.Issue{Title: dp["title"].(string), Url: dp["url"].(string), DateAdded: int64(val)})
 		}
 
 		seenUrls[dp["url"].(string)] = true
