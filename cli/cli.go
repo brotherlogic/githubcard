@@ -30,7 +30,7 @@ func main() {
 	ctx, cancel := utils.BuildContext("githubcard-cli", "githubcard-cli")
 	defer cancel()
 
-	resp, err := client.CreatePullRequest(ctx, &pb.PullRequest{Job: "githubreceiver", Branch: "create_branch"})
+	resp, err := client.GetAll(ctx, &pb.GetAllRequest{})
 	fmt.Printf("%v and %v\n", resp, err)
 
 }
