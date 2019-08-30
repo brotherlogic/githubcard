@@ -157,8 +157,6 @@ func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
 		}
 		b.accessCode = m.(*pbgh.Token).GetToken()
 
-		b.Log(fmt.Sprintf("READ: %v", b.accessCode))
-
 		return b.readIssues(ctx)
 	}
 	return nil
@@ -210,7 +208,6 @@ func (b *GithubBridge) postURL(urlv string, data string) (*http.Response, error)
 	}
 
 	b.posts++
-	b.Log(fmt.Sprintf("POST %v [%v]", url, data))
 	return b.getter.Post(url, data)
 }
 
@@ -223,7 +220,6 @@ func (b *GithubBridge) patchURL(urlv string, data string) (*http.Response, error
 	}
 
 	b.posts++
-	b.Log(fmt.Sprintf("PATCH %v [%v]", url, data))
 	return b.getter.Patch(url, data)
 }
 
@@ -236,7 +232,6 @@ func (b *GithubBridge) putURL(urlv string, data string) (*http.Response, error) 
 	}
 
 	b.posts++
-	b.Log(fmt.Sprintf("PUT %v [%v]", url, data))
 	return b.getter.Put(url, data)
 }
 
@@ -249,7 +244,6 @@ func (b *GithubBridge) deleteURL(urlv string) (*http.Response, error) {
 	}
 
 	b.posts++
-	b.Log(fmt.Sprintf("DELETE %v", url))
 	return b.getter.Delete(url)
 }
 
@@ -262,7 +256,6 @@ func (b *GithubBridge) visitURL(urlv string) (string, error) {
 		url = url + "?access_token=" + b.accessCode
 	}
 
-	b.Log(fmt.Sprintf("VISIT %v", url))
 	b.gets++
 	resp, err := b.getter.Get(url)
 	if err != nil {
@@ -344,12 +337,8 @@ func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Web
 		return err
 	}
 
-	b.Log(fmt.Sprintf("UPDATE_WEB_HOOK = %v", resp))
-
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
-	b.Log(fmt.Sprintf("RESPONSE = %v (%v)", string(body), err))
+	_, err = ioutil.ReadAll(resp.Body)
 
 	return err
 }
@@ -367,12 +356,8 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 		return err
 	}
 
-	b.Log(fmt.Sprintf("ADD_WEB_HOOK = %v", resp))
-
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
-	b.Log(fmt.Sprintf("RESPONSE = %v (%v)", string(body), err))
+	_, err = ioutil.ReadAll(resp.Body)
 
 	return err
 }
@@ -399,7 +384,6 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		if dp["title"].(string) == title {
 			retIssue = &pbgh.Issue{Title: title}
 		}
-		b.Log(fmt.Sprintf("URL = %v", dp["url"]))
 
 		found := false
 		for _, issue := range b.config.Issues {
@@ -419,11 +403,9 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		seenUrls[dp["url"].(string)] = true
 	}
 
-	b.Log(fmt.Sprintf("Pre-Remove %v and %v", len(b.config.Issues), len(data)))
 	for i, issue := range b.config.Issues {
 		if !seenUrls[issue.Url] {
 			b.config.Issues = append(b.config.Issues[:i], b.config.Issues[i+1:]...)
-			b.Log(fmt.Sprintf("Removing: %v", issue))
 			return retIssue, nil
 		}
 	}
@@ -452,11 +434,6 @@ func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, 
 	if err != nil {
 		return err
 	}
-
-	defer resp.Body.Close()
-	rb, _ := ioutil.ReadAll(resp.Body)
-
-	b.Log(fmt.Sprintf("PULL_REQUEST %v", string(rb)))
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		return fmt.Errorf("UNable to build pull request: %v", resp.StatusCode)
@@ -519,10 +496,6 @@ func (b *GithubBridge) closePullRequestLocal(ctx context.Context, job string, pu
 		return nil, err
 	}
 
-	defer resp.Body.Close()
-	rb, _ := ioutil.ReadAll(resp.Body)
-	b.Log(fmt.Sprintf("CLOSE %v", string(rb)))
-
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		return nil, fmt.Errorf("Error closing pull request: %v", resp.StatusCode)
 	}
@@ -561,8 +534,6 @@ func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string) ([]byte, e
 		return nil, err
 	}
 
-	b.Log(fmt.Sprintf("%v -> %v", payload, string(bytes)))
-
 	urlv := "https://api.github.com/repos/" + owner + "/" + repo + "/issues"
 	resp, err := b.postURL(urlv, string(bytes))
 	if err != nil {
@@ -574,7 +545,6 @@ func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string) ([]byte, e
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		b.fails++
-		b.Log(fmt.Sprintf("%v returned from github: %v -> %v", resp.StatusCode, string(rb), string(bytes)))
 	}
 
 	return rb, nil
@@ -590,7 +560,6 @@ func hash(s string) int32 {
 func (b *GithubBridge) GetIssueLocal(owner string, project string, number int) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/repos/" + owner + "/" + project + "/issues/" + strconv.Itoa(number)
 	body, err := b.visitURL(urlv)
-	b.Log(fmt.Sprintf("RETURN %v", body))
 
 	if err != nil {
 		return nil, err
