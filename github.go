@@ -54,6 +54,7 @@ type GithubBridge struct {
 	posts          int64
 	webhookcount   int64
 	issueCount     int64
+	addedCount     map[string]int64
 }
 
 type httpGetter interface {
@@ -106,6 +107,7 @@ func Init() *GithubBridge {
 		added:      make(map[string]time.Time),
 		addedMutex: &sync.Mutex{},
 		config:     &pbgh.Config{},
+		addedCount: make(map[string]int64),
 	}
 	return s
 }
@@ -177,7 +179,17 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 		}
 	}
 
+	mostIssue := ""
+	mostCount := int64(0)
+	for issue, count := range b.addedCount {
+		if count > mostCount {
+			mostIssue = issue
+			mostCount = count
+		}
+	}
+
 	return []*pbgs.State{
+		&pbgs.State{Key: "top_issue", Text: mostIssue},
 		&pbgs.State{Key: "issues", Value: b.issueCount},
 		&pbgs.State{Key: "current_issue", Text: bestIssue},
 		&pbgs.State{Key: "webhook_count", Value: b.webhookcount},

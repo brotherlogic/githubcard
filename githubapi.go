@@ -90,6 +90,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 
 	//Don't double add issues
 	g.addedMutex.Lock()
+	g.addedCount[in.GetTitle()]++
 	if v, ok := g.added[in.GetTitle()]; ok {
 		g.addedMutex.Unlock()
 		if !in.Sticky {
