@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	host, port, err := utils.Resolve("githubcard")
+	host, port, err := utils.Resolve("githubcard", "githubcard-cli")
 	if err != nil {
 		log.Fatalf("Unable to reach organiser: %v", err)
 	}
@@ -30,7 +30,7 @@ func main() {
 	ctx, cancel := utils.BuildContext("githubcard-cli", "githubcard-cli")
 	defer cancel()
 
-	resp, err := client.GetAll(ctx, &pb.GetAllRequest{})
+	resp, err := client.Silence(ctx, &pb.SilenceRequest{Silence: "Crash for recordcollection", State: pb.SilenceRequest_UNSILENCE, Origin: "1569274842730506610"})
 	fmt.Printf("%v and %v\n", resp, err)
 
 }
