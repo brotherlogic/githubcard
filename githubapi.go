@@ -166,7 +166,7 @@ func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.
 
 	currSilence := -1
 	for i, sil := range g.config.Silences {
-		if sil.Silence == in.Silence && sil.Origin == in.Origin {
+		if sil.Origin == in.Origin {
 			currSilence = i
 		}
 	}
