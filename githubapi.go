@@ -183,5 +183,5 @@ func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.
 		return &pb.SilenceResponse{}, nil
 	}
 
-	return nil, fmt.Errorf("Unable to apply request %v", in)
+	return nil, fmt.Errorf("Unable to apply request, silence was not found %v", in)
 }
