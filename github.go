@@ -138,6 +138,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) error {
 		b.config.JobsOfInterest = append(b.config.JobsOfInterest, "githubreceiver")
 	}
 
+	b.config.Silences = []*pbgh.Silence{}
+
 	return nil
 }
 
