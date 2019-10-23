@@ -30,7 +30,8 @@ func main() {
 	ctx, cancel := utils.BuildContext("githubcard-cli", "githubcard-cli")
 	defer cancel()
 
-	resp, err := client.Silence(ctx, &pb.SilenceRequest{Silence: "Crash for recordcollection", State: pb.SilenceRequest_UNSILENCE, Origin: "1569274842730506610"})
+	//	resp, err := client.Silence(ctx, &pb.SilenceRequest{Silence: "Crash for recordcollection", State: pb.SilenceRequest_UNSILENCE, Origin: "1569274842730506610"})
+	resp, err := client.RegisterJob(ctx, &pb.RegisterRequest{Job: "redfinlib"})
 	fmt.Printf("%v and %v\n", resp, err)
 
 }
