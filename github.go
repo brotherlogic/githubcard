@@ -55,6 +55,7 @@ type GithubBridge struct {
 	webhookcount   int64
 	issueCount     int64
 	addedCount     map[string]int64
+	lastIssue      time.Time
 }
 
 type httpGetter interface {
@@ -189,6 +190,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 	}
 
 	return []*pbgs.State{
+		&pbgs.State{Key: "last_issue", TimeValue: b.lastIssue.Unix()},
 		&pbgs.State{Key: "top_issue", Text: mostIssue},
 		&pbgs.State{Key: "issues", Value: b.issueCount},
 		&pbgs.State{Key: "current_issue", Text: bestIssue},
@@ -666,7 +668,7 @@ func main() {
 	b.PrepServer()
 	b.Register = b
 
-	b.RegisterServerV2("githubcard", false)
+	b.RegisterServerV2("githubcard", false, false)
 
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
