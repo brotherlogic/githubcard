@@ -121,7 +121,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 
 	err2 := json.Unmarshal(b, &r)
 	if err2 != nil {
-		return nil, err2
+		return nil, fmt.Errorf("Error unmarshal: %v from %v", err2, string(b))
 	}
 
 	if r.Message == "Not Found" {
