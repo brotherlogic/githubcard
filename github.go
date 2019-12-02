@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"hash/fnv"
@@ -19,6 +18,8 @@ import (
 	"github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/brotherlogic/cardserver/card"
 	pbgh "github.com/brotherlogic/githubcard/proto"
@@ -539,7 +540,7 @@ func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string) ([]byte, e
 		return nil, err
 	}
 	if issue != nil {
-		return nil, errors.New("Issue already exists")
+		return nil, status.Errorf(codes.FailedPrecondition, "Issue already exists")
 	}
 
 	payload := Payload{Title: title, Body: body, Assignee: owner}
