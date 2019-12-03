@@ -654,7 +654,7 @@ func (b *GithubBridge) rebuild(ctx context.Context) error {
 func (b *GithubBridge) loadUp(ctx context.Context) error {
 	b.Log(fmt.Sprintf("Time is %v", time.Now().Sub(b.lastIssue)))
 	if time.Now().Sub(b.lastIssue) > time.Hour*24 && b.lastIssue.Unix() > 0 {
-		b.RaiseIssue(ctx, "No issues raised", fmt.Sprintf("Last issue was %v", b.lastIssue), false)
+		b.RaiseIssue(ctx, "No issues raised", fmt.Sprintf("Last issue was at %v (%v)", b.lastIssue, b.lastIssue.Unix()), false)
 	}
 	return nil
 }
