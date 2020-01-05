@@ -40,6 +40,18 @@ func (g *GithubBridge) CreatePullRequest(ctx context.Context, in *pb.PullRequest
 	return &pb.PullResponse{}, err
 }
 
+//AddMilestone adds a milestone
+func (g *GithubBridge) AddMilestone(ctx context.Context, req *pb.AddMilestoneRequest) (*pb.AddMilestoneResponse, error) {
+	num, err := g.createMilestoneLocal(ctx, req.Repo, req.Title, "open", req.Description)
+	return &pb.AddMilestoneResponse{Number: int32(num)}, err
+}
+
+//UpdateMilestone updates a milestone
+func (g *GithubBridge) UpdateMilestone(ctx context.Context, req *pb.UpdateMilestoneRequest) (*pb.UpdateMilestoneResponse, error) {
+	err := g.updateMilestoneLocal(ctx, req.Repo, req.Number, req.State)
+	return &pb.UpdateMilestoneResponse{}, err
+}
+
 //RegisterJob registers a job to be built
 func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	for _, j := range g.config.JobsOfInterest {

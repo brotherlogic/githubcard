@@ -100,6 +100,24 @@ message CloseRequest {
   string branch_name = 4;
 }
 
+message AddMilestoneRequest {
+  string title = 1;
+  string description = 3;
+  string repo = 4;
+}
+
+message AddMilestoneResponse {
+  int32 number = 1;
+}
+
+message UpdateMilestoneRequest {
+  int32 number = 1;
+  string repo = 2;
+  string state = 3;
+}
+
+message UpdateMilestoneResponse {}
+
 message CloseResponse{}
 
 service Github {
@@ -112,4 +130,6 @@ service Github {
   rpc CreatePullRequest(PullRequest) returns (PullResponse) {};
   rpc GetPullRequest(PullRequest) returns (PullResponse) {};
   rpc ClosePullRequest(CloseRequest) returns (CloseResponse) {};
+  rpc AddMilestone(AddMilestoneRequest) returns (AddMilestoneResponse) {};
+  rpc UpdateMilestone (UpdateMilestoneRequest) returns (UpdateMilestoneResponse) {};
 }

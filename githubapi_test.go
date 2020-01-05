@@ -394,6 +394,26 @@ func TestCreatePullRequesrt(t *testing.T) {
 	s.CreatePullRequest(context.Background(), &pb.PullRequest{Job: "blah", Branch: "blah"})
 }
 
+func TestAddMilestone(t *testing.T) {
+	s := InitTest()
+	num, err := s.AddMilestone(context.Background(), &pb.AddMilestoneRequest{Title: "test", Description: "Testing", Repo: "frametracker"})
+	if err != nil {
+		t.Errorf("Bad add milestone: %v", err)
+	}
+
+	if num.GetNumber() != int32(1) {
+		t.Errorf("Bad number: %v", num.GetNumber())
+	}
+}
+
+func TestUpdateMilestone(t *testing.T) {
+	s := InitTest()
+	_, err := s.UpdateMilestone(context.Background(), &pb.UpdateMilestoneRequest{Number: 1, Repo: "frametracker", State: "closed"})
+	if err != nil {
+		t.Errorf("Bad update milesonte: %v", err)
+	}
+}
+
 func TestClosePullRequesrt(t *testing.T) {
 	s := InitTest()
 	resp, err := s.ClosePullRequest(context.Background(), &pb.CloseRequest{Job: "frametracker", PullNumber: 16, Sha: "f4256902623ce71c7dbcd02f5c3a959afbd7e395", BranchName: "testbranch"})
