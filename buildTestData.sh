@@ -3,8 +3,19 @@ mkdir -p testdata/repos/brotherlogic/MadeUpService/issues/
 mkdir -p testdata/repos/brotherlogic/crasher
 mkdir -p testdata/repos/brotherlogic/githubreceiver/pulls/24/
 mkdir -p testdata/repos/brotherlogic/frametracker/pulls/16/
+mkdir -p testdata/repos/brotherlogic/frametracker/milestones/1/
 mkdir -p testdata/repos/brotherlogic/pullrequester/git/refs/heads/
 mkdir -p testdata/user/
+
+sleep 1
+curl -X PATCH -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/frametracker/milestones/1?access_token=$1" -d '{"state": "closed"}' > testdata/repos/brotherlogic/frametracker/milestones/1_access_token=token
+exit
+
+
+sleep 1
+curl -X POST -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/frametracker/milestones?access_token=$1" -d '{"title": "Testing", "description": "This is a test issue"}' > testdata/repos/brotherlogic/frametracker/milestones_access_token=token
+exit
+
 
 sleep 1
 curl -X DELETE -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/pullrequester/git/refs/heads/update_on_update?access_token=$1"  > testdata/repos/brotherlogic/pullrequester/git/refs/heads/update_on_update_access_token=token

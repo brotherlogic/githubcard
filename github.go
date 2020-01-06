@@ -428,6 +428,74 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	return retIssue, nil
 }
 
+// AmRequest milestone request
+type AmRequest struct {
+	Title       string `json:"title"`
+	State       string `json:"state"`
+	Description string `json:"description"`
+}
+
+// AmResponse milestone add response
+type AmResponse struct {
+	Number int `json:"number"`
+}
+
+func (b *GithubBridge) createMilestoneLocal(ctx context.Context, repo, title, state, description string) (int, error) {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/milestones", repo)
+
+	payload := &AmRequest{Title: title, State: state, Description: description}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return -1, err
+	}
+
+	resp, err := b.postURL(urlv, string(bytes))
+	if err != nil {
+		return -1, err
+	}
+
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
+		return -1, fmt.Errorf("Unable to add milestone: %v", resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
+	rb, _ := ioutil.ReadAll(resp.Body)
+
+	var amresponse *AmResponse
+	err = json.Unmarshal([]byte(rb), &amresponse)
+	if err != nil {
+		return -1, err
+	}
+
+	return amresponse.Number, err
+}
+
+// UmRequest milestone request
+type UmRequest struct {
+	State string `json:"state"`
+}
+
+func (b *GithubBridge) updateMilestoneLocal(ctx context.Context, repo string, number int32, state string) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/milestones/%v", repo, number)
+
+	payload := &UmRequest{State: state}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	resp, err := b.postURL(urlv, string(bytes))
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
+		return fmt.Errorf("UNable to update milestone: %v", resp.StatusCode)
+	}
+
+	return err
+}
+
 // PRequest pull request
 type PRequest struct {
 	Title string `json:"title"`
