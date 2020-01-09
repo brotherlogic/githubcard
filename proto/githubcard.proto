@@ -42,6 +42,8 @@ message Issue {
   int64 date_added = 8;
 
   string url = 9;
+
+  int32 milestone_number = 10;
 }
 
 message IssueList {

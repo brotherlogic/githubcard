@@ -121,7 +121,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	g.added[in.GetTitle()] = time.Now()
 	g.addedMutex.Unlock()
 
-	b, err := g.AddIssueLocal("brotherlogic", in.GetService(), in.GetTitle(), in.GetBody())
+	b, err := g.AddIssueLocal("brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()))
 	if err != nil {
 		if in.Sticky {
 			g.issues = append(g.issues, in)

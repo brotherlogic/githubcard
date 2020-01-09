@@ -595,13 +595,14 @@ func (b *GithubBridge) deleteBranchLocal(ctx context.Context, job string, branch
 
 // Payload for sending to github
 type Payload struct {
-	Title    string `json:"title"`
-	Body     string `json:"body"`
-	Assignee string `json:"assignee"`
+	Title     string `json:"title"`
+	Body      string `json:"body"`
+	Assignee  string `json:"assignee"`
+	Milestone int    `json:"milestone"`
 }
 
 // AddIssueLocal adds an issue
-func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string) ([]byte, error) {
+func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string, milestone int) ([]byte, error) {
 	b.attempts++
 	issue, err := b.issueExists(title)
 	if err != nil {
@@ -611,7 +612,7 @@ func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string) ([]byte, e
 		return nil, status.Errorf(codes.FailedPrecondition, "Issue already exists")
 	}
 
-	payload := Payload{Title: title, Body: body, Assignee: owner}
+	payload := Payload{Title: title, Body: body, Assignee: owner, Milestone: milestone}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
