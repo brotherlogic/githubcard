@@ -518,7 +518,7 @@ func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, 
 		return err
 	}
 
-	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
 		return fmt.Errorf("UNable to build pull request: %v", resp.StatusCode)
 	}
 
@@ -631,8 +631,8 @@ func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string, milestone 
 	defer resp.Body.Close()
 	rb, _ := ioutil.ReadAll(resp.Body)
 
-	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		b.fails++
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
+		return rb, fmt.Errorf("POST error: %v -> %v", resp.StatusCode, string(rb))
 	}
 
 	return rb, nil
