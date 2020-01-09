@@ -612,11 +612,15 @@ func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string, milestone 
 		return nil, status.Errorf(codes.FailedPrecondition, "Issue already exists")
 	}
 
-	payload := Payload{Title: title, Body: body, Assignee: owner, Milestone: milestone}
+	payload := Payload{Title: title, Body: body, Assignee: owner}
+	if milestone > 0 {
+		payload = Payload{Title: title, Body: body, Assignee: owner, Milestone: milestone}
+	}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
+	b.Log(fmt.Sprintf("Writing: %v", string(bytes)))
 
 	urlv := "https://api.github.com/repos/" + owner + "/" + repo + "/issues"
 	resp, err := b.postURL(urlv, string(bytes))
