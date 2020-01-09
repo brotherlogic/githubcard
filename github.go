@@ -595,6 +595,13 @@ func (b *GithubBridge) deleteBranchLocal(ctx context.Context, job string, branch
 
 // Payload for sending to github
 type Payload struct {
+	Title    string `json:"title"`
+	Body     string `json:"body"`
+	Assignee string `json:"assignee"`
+}
+
+// PayloadWithMilestone same as above but with a milestone field.
+type PayloadWithMilestone struct {
 	Title     string `json:"title"`
 	Body      string `json:"body"`
 	Assignee  string `json:"assignee"`
@@ -613,14 +620,19 @@ func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string, milestone 
 	}
 
 	payload := Payload{Title: title, Body: body, Assignee: owner}
-	if milestone > 0 {
-		payload = Payload{Title: title, Body: body, Assignee: owner, Milestone: milestone}
-	}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
-	b.Log(fmt.Sprintf("Writing: %v", string(bytes)))
+
+	if milestone > 0 {
+		payload := PayloadWithMilestone{Title: title, Body: body, Assignee: owner, Milestone: milestone}
+		bytes, err = json.Marshal(payload)
+		if err != nil {
+			return nil, err
+		}
+
+	}
 
 	urlv := "https://api.github.com/repos/" + owner + "/" + repo + "/issues"
 	resp, err := b.postURL(urlv, string(bytes))
