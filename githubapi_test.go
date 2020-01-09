@@ -313,7 +313,7 @@ func TestSubmitComplexIssue(t *testing.T) {
 		t.Fatalf("Error in adding issue: %v", err)
 	}
 
-	if ib.Number != 15 {
+	if ib.Number != 17 {
 		t.Errorf("Issue has not been added: %v", ib.Number)
 	}
 }
