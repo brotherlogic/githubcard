@@ -25,6 +25,7 @@ func (g *GithubBridge) validateJobs(ctx context.Context) error {
 		err := g.validateJob(ctx, j)
 
 		if err != nil {
+			g.Log(fmt.Sprintf("Error validating %v -> %v", j, err))
 			return err
 		}
 	}
