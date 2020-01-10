@@ -8,7 +8,6 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 
 	pb "github.com/brotherlogic/githubcard/proto"
@@ -80,9 +79,6 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	g.lastIssue = time.Now()
-	// Log where this issue came from
-	peer, ok := peer.FromContext(ctx)
-	g.Log(fmt.Sprintf("PEER for %v -> %+v and %v", in.GetTitle(), peer, ok))
 
 	// If this comes from the receiver - just add it
 	if in.Origin == pb.Issue_FROM_RECEIVER {
