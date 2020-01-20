@@ -461,8 +461,7 @@ func (b *GithubBridge) createMilestoneLocal(ctx context.Context, repo, title, st
 		defer resp.Body.Close()
 		rb, _ := ioutil.ReadAll(resp.Body)
 
-		b.Log(fmt.Sprintf("Error adding milestone: %v", string(rb)))
-		return -1, fmt.Errorf("Unable to add milestone: %v", resp.StatusCode)
+		return -1, fmt.Errorf("Unable to add milestone: %v -> %v", resp.StatusCode, string(rb))
 	}
 
 	defer resp.Body.Close()
