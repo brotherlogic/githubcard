@@ -57,6 +57,7 @@ type GithubBridge struct {
 	issueCount     int64
 	addedCount     map[string]int64
 	lastIssue      time.Time
+	issueLock      *sync.Mutex
 }
 
 type httpGetter interface {
@@ -110,6 +111,7 @@ func Init() *GithubBridge {
 		addedMutex: &sync.Mutex{},
 		config:     &pbgh.Config{},
 		addedCount: make(map[string]int64),
+		issueLock:  &sync.Mutex{},
 	}
 	return s
 }
