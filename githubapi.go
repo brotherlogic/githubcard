@@ -72,6 +72,7 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	for i, is := range g.config.Issues {
 		if is.Url == in.Issue.Url {
 			g.config.Issues = append(g.config.Issues[:i], g.config.Issues[i+1:]...)
+			break
 		}
 	}
 
