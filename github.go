@@ -744,13 +744,6 @@ func (b *GithubBridge) rebuild(ctx context.Context) error {
 	return err
 }
 
-func (b *GithubBridge) loadUp(ctx context.Context) error {
-	if time.Now().Sub(b.lastIssue) > time.Hour*12 && b.lastIssue.Unix() > 0 {
-		b.RaiseIssue(ctx, "No issues raised", fmt.Sprintf("Last issue was at %v (%v)", b.lastIssue, b.lastIssue.Unix()), false)
-	}
-	return nil
-}
-
 func main() {
 	var quiet = flag.Bool("quiet", true, "Show all output")
 	var token = flag.String("token", "", "The token to use to auth")
@@ -790,7 +783,7 @@ func main() {
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
 		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Minute*5)
 		b.RegisterRepeatingTask(b.rebuild, "rebuild_issues", time.Minute*5)
-		b.RegisterRepeatingTask(b.loadUp, "load_up", time.Minute*5)
+
 		b.Serve()
 	}
 }
