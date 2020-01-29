@@ -665,7 +665,7 @@ func hash(s string) int32 {
 }
 
 // GetIssueLocal Gets github issues for a given project
-func (b *GithubBridge) GetIssueLocal(owner string, project string, number int) (*pbgh.Issue, error) {
+func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project string, number int) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/repos/" + owner + "/" + project + "/issues/" + strconv.Itoa(number)
 	body, err := b.visitURL(urlv)
 
@@ -677,6 +677,10 @@ func (b *GithubBridge) GetIssueLocal(owner string, project string, number int) (
 	err = json.Unmarshal([]byte(body), &data)
 	if err != nil {
 		return nil, err
+	}
+
+	if _, ok := data["title"]; !ok {
+		b.RaiseIssue(ctx, "Bad parse", fmt.Sprintf("Bad parse %v", string(body)), false)
 	}
 
 	issue := &pbgh.Issue{Number: int32(number), Service: project, Title: data["title"].(string), Body: data["body"].(string)}
