@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"golang.org/x/net/context"
 )
@@ -40,9 +39,6 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	if err != nil {
 		return err
 	}
-
-	g.Log(fmt.Sprintf("%v -> %v hooks", job, len(hooks)))
-	time.Sleep(time.Second * 5)
 
 	if len(hooks) == 2 {
 		for _, hook := range hooks {
