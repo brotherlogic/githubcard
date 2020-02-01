@@ -363,7 +363,6 @@ func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Web
 func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook) error {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks", repo)
 
-	b.Log(fmt.Sprintf("SENDING: %v", hook))
 	bytes, err := json.Marshal(hook)
 	if err != nil {
 		return err
