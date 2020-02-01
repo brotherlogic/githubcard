@@ -30,6 +30,7 @@ func (g *GithubBridge) validateJobs(ctx context.Context) error {
 		}
 	}
 
+	g.Log(fmt.Sprintf("Validating %v jobs", len(g.config.JobsOfInterest)))
 	return nil
 }
 
