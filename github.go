@@ -24,6 +24,7 @@ import (
 	pb "github.com/brotherlogic/cardserver/card"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
+	"github.com/brotherlogic/goserver/utils"
 )
 
 const (
@@ -376,7 +377,7 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 	defer resp.Body.Close()
 	data, err := ioutil.ReadAll(resp.Body)
 
-	b.Log(fmt.Sprintf("READ: %v", string(data)))
+	b.Log(fmt.Sprintf("READ[%v]: %v", resp.StatusCode, string(data)))
 
 	return err
 }
@@ -773,14 +774,16 @@ func main() {
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
 	} else if len(*external) > 0 {
-		/*config := &pbgh.Config{}
-		data, _, err := b.KSclient.Read(context.Bacground(), CONFIG, config)
+		ctx, cancel := utils.ManualContext("githubc", "githubc", time.Minute)
+		defer cancel()
+		config := &pbgh.Config{}
+		data, _, err := b.KSclient.Read(ctx, CONFIG, config)
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
 		tconfig := data.(*pbgh.Config)
 		tconfig.ExternalIP = *external
-		b.KSclient.Save(context.Bacground(), CONFIG, tconfig) */
+		fmt.Printf("SAVED = %v\n", b.KSclient.Save(ctx, CONFIG, tconfig))
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
