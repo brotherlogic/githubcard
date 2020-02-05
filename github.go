@@ -293,7 +293,7 @@ func (b *GithubBridge) visitURL(urlv string) (string, bool, error) {
 		return string(body), false, fmt.Errorf("Non 200 return (%v)", resp.StatusCode)
 	}
 
-	return string(body), len(resp.Header["Link"]) > 1, nil
+	return string(body), len(resp.Header["Link"]) >= 1, nil
 }
 
 // Project is a project in the github world
