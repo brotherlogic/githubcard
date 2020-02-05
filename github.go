@@ -395,8 +395,6 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		return nil, err
 	}
 
-	b.Log(fmt.Sprintf("Exists: %v", body))
-
 	var data []interface{}
 	err = json.Unmarshal([]byte(body), &data)
 	if err != nil {
@@ -436,6 +434,8 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 			return retIssue, nil
 		}
 	}
+
+	b.Log(fmt.Sprintf("Exists: %v", body))
 
 	return retIssue, nil
 }
