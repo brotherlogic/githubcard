@@ -390,6 +390,8 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		return nil, err
 	}
 
+	b.Log(fmt.Sprintf("Exists: %v", body))
+
 	var data []interface{}
 	err = json.Unmarshal([]byte(body), &data)
 	if err != nil {
@@ -787,7 +789,7 @@ func main() {
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
-		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Minute*5)
+		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Hour*6)
 		b.RegisterRepeatingTask(b.rebuild, "rebuild_issues", time.Minute*5)
 
 		b.Serve()
