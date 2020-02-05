@@ -287,6 +287,11 @@ func (b *GithubBridge) visitURL(urlv string) (string, error) {
 		return "", err
 	}
 
+	if resp.StatusCode != 200 && resp.StatusCode != 0 {
+		b.Log(fmt.Sprintf("Error in visit (%v): %v", resp.StatusCode, string(body)))
+		return string(body), fmt.Errorf("Non 200 return (%v)", resp.StatusCode)
+	}
+
 	return string(body), nil
 }
 
