@@ -428,14 +428,14 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		seenUrls[dp["url"].(string)] = true
 	}
 
+	b.Log(fmt.Sprintf("Exists: %v", body))
+
 	for i, issue := range b.config.Issues {
 		if !seenUrls[issue.Url] {
 			b.config.Issues = append(b.config.Issues[:i], b.config.Issues[i+1:]...)
 			return retIssue, nil
 		}
 	}
-
-	b.Log(fmt.Sprintf("Exists: %v", body))
 
 	return retIssue, nil
 }
