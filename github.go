@@ -265,7 +265,7 @@ func (b *GithubBridge) deleteURL(urlv string) (*http.Response, error) {
 	return b.getter.Delete(url)
 }
 
-func (b *GithubBridge) visitURL(urlv string) (string, error) {
+func (b *GithubBridge) visitURL(urlv string) (string, bool, error) {
 
 	url := urlv
 	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
@@ -277,23 +277,23 @@ func (b *GithubBridge) visitURL(urlv string) (string, error) {
 	b.gets++
 	resp, err := b.getter.Get(url)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	b.Log(fmt.Sprintf("HEADERS = %+v", resp.Header["Link"]))
 	if resp.StatusCode != 200 && resp.StatusCode != 0 {
 		b.Log(fmt.Sprintf("Error in visit (%v): %v", resp.StatusCode, string(body)))
-		return string(body), fmt.Errorf("Non 200 return (%v)", resp.StatusCode)
+		return string(body), false, fmt.Errorf("Non 200 return (%v)", resp.StatusCode)
 	}
 
-	return string(body), nil
+	return string(body), len(resp.Header["Link"]) > 1, nil
 }
 
 // Project is a project in the github world
@@ -325,7 +325,7 @@ type Config struct {
 
 func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook, error) {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks", repo)
-	body, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(urlv)
 
 	if err != nil {
 		return []*Webhook{}, err
@@ -390,10 +390,14 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 
 func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/user/issues"
-	body, err := b.visitURL(urlv)
+	body, more, err := b.visitURL(urlv)
 
 	if err != nil {
 		return nil, err
+	}
+
+	if more {
+		return nil, fmt.Errorf("Can't read all issues")
 	}
 
 	var data []interface{}
@@ -549,7 +553,7 @@ type prr struct {
 
 func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pullNumber int32) (*pbgh.PullResponse, error) {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/commits", job, pullNumber)
-	body, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(urlv)
 	if err != nil {
 		return nil, err
 	}
@@ -561,7 +565,7 @@ func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pull
 	}
 
 	urlv = fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v", job, pullNumber)
-	body, err = b.visitURL(urlv)
+	body, _, err = b.visitURL(urlv)
 	if err != nil {
 		return nil, err
 	}
@@ -673,7 +677,7 @@ func hash(s string) int32 {
 // GetIssueLocal Gets github issues for a given project
 func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project string, number int) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/repos/" + owner + "/" + project + "/issues/" + strconv.Itoa(number)
-	body, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(urlv)
 
 	if err != nil {
 		return nil, err
@@ -703,7 +707,7 @@ func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project 
 func (b *GithubBridge) GetIssues() pb.CardList {
 	cardlist := pb.CardList{}
 	urlv := "https://api.github.com/issues?state=open&filter=all"
-	body, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(urlv)
 
 	if err != nil {
 		return cardlist
