@@ -287,6 +287,7 @@ func (b *GithubBridge) visitURL(urlv string) (string, error) {
 		return "", err
 	}
 
+	b.Log(fmt.Sprintf("HEADERS = %+v", resp.Header))
 	if resp.StatusCode != 200 && resp.StatusCode != 0 {
 		b.Log(fmt.Sprintf("Error in visit (%v): %v", resp.StatusCode, string(body)))
 		return string(body), fmt.Errorf("Non 200 return (%v)", resp.StatusCode)
@@ -427,8 +428,6 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 
 		seenUrls[dp["url"].(string)] = true
 	}
-
-	b.Log(fmt.Sprintf("Exists: %v", body))
 
 	for i, issue := range b.config.Issues {
 		if !seenUrls[issue.Url] {
