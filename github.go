@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -69,35 +68,63 @@ type httpGetter interface {
 	Put(url string, data string) (*http.Response, error)
 }
 
-type prodHTTPGetter struct{}
-
-func (httpGetter prodHTTPGetter) Post(url string, data string) (*http.Response, error) {
-	return http.Post(url, "application/json", bytes.NewBuffer([]byte(data)))
+type prodHTTPGetter struct {
+	accessToken string
 }
 
-func (httpGetter prodHTTPGetter) Patch(url string, data string) (*http.Response, error) {
+func (h prodHTTPGetter) getClient() *http.Client {
+	//ctx, cancel := utils.ManualContext("getclient", "getclient", time.Minute)
+	//defer cancel()
+	//return oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+	//	&oauth2.Token{AccessToken: h.accessToken}))
+	return &http.Client{}
+}
+
+func (h prodHTTPGetter) prepRequest(req *http.Request) {
+	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth("brotherlogic", h.accessToken)
+}
+
+func (h prodHTTPGetter) Post(url string, data string) (*http.Response, error) {
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(data)))
+	if err != nil {
+		return nil, err
+	}
+	h.prepRequest(req)
+
+	return h.getClient().Do(req)
+}
+
+func (h prodHTTPGetter) Patch(url string, data string) (*http.Response, error) {
 	req, _ := http.NewRequest("PATCH", url, bytes.NewBuffer([]byte(data)))
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	return client.Do(req)
+
+	h.prepRequest(req)
+
+	return h.getClient().Do(req)
 }
 
-func (httpGetter prodHTTPGetter) Put(url string, data string) (*http.Response, error) {
+func (h prodHTTPGetter) Put(url string, data string) (*http.Response, error) {
 	req, _ := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(data)))
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	return client.Do(req)
+
+	h.prepRequest(req)
+
+	return h.getClient().Do(req)
 }
 
-func (httpGetter prodHTTPGetter) Delete(url string) (*http.Response, error) {
+func (h prodHTTPGetter) Delete(url string) (*http.Response, error) {
 	req, _ := http.NewRequest("DELETE", url, bytes.NewBuffer([]byte{}))
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	return client.Do(req)
+
+	h.prepRequest(req)
+
+	return h.getClient().Do(req)
 }
 
-func (httpGetter prodHTTPGetter) Get(url string) (*http.Response, error) {
-	return http.Get(url)
+func (h prodHTTPGetter) Get(url string) (*http.Response, error) {
+	req, _ := http.NewRequest("GET", url, nil)
+
+	h.prepRequest(req)
+
+	return h.getClient().Do(req)
 }
 
 //Init a record getter
@@ -163,6 +190,7 @@ func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
 			return fmt.Errorf("Error reading token: %v", m)
 		}
 		b.accessCode = m.(*pbgh.Token).GetToken()
+		b.getter = &prodHTTPGetter{accessToken: b.accessCode}
 
 		return b.readIssues(ctx)
 	}
@@ -217,64 +245,29 @@ const (
 	wait = 5 * time.Minute // Wait five minute between runs
 )
 
-func (b *GithubBridge) postURL(urlv string, data string) (*http.Response, error) {
-	url := urlv
-	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
-		url = url + "&access_token=" + b.accessCode
-	} else {
-		url = url + "?access_token=" + b.accessCode
-	}
-
+func (b *GithubBridge) postURL(url string, data string) (*http.Response, error) {
 	b.posts++
 	return b.getter.Post(url, data)
 }
 
-func (b *GithubBridge) patchURL(urlv string, data string) (*http.Response, error) {
-	url := urlv
-	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
-		url = url + "&access_token=" + b.accessCode
-	} else {
-		url = url + "?access_token=" + b.accessCode
-	}
-
+func (b *GithubBridge) patchURL(url string, data string) (*http.Response, error) {
 	b.posts++
 	return b.getter.Patch(url, data)
 }
 
-func (b *GithubBridge) putURL(urlv string, data string) (*http.Response, error) {
-	url := urlv
-	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
-		url = url + "&access_token=" + b.accessCode
-	} else {
-		url = url + "?access_token=" + b.accessCode
-	}
-
+func (b *GithubBridge) putURL(url string, data string) (*http.Response, error) {
 	b.posts++
 	return b.getter.Put(url, data)
 }
 
-func (b *GithubBridge) deleteURL(urlv string) (*http.Response, error) {
-	url := urlv
-	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
-		url = url + "&access_token=" + b.accessCode
-	} else {
-		url = url + "?access_token=" + b.accessCode
-	}
-
+func (b *GithubBridge) deleteURL(url string) (*http.Response, error) {
 	b.posts++
 	return b.getter.Delete(url)
 }
 
-func (b *GithubBridge) visitURL(urlv string) (string, bool, error) {
-
-	url := urlv
-	if len(b.accessCode) > 0 && strings.Contains(urlv, "?") {
-		url = url + "&access_token=" + b.accessCode
-	} else {
-		url = url + "?access_token=" + b.accessCode
-	}
-
+func (b *GithubBridge) visitURL(url string) (string, bool, error) {
 	b.gets++
+
 	resp, err := b.getter.Get(url)
 	if err != nil {
 		return "", false, err
@@ -290,7 +283,7 @@ func (b *GithubBridge) visitURL(urlv string) (string, bool, error) {
 	b.Log(fmt.Sprintf("HEADERS = (%v,%v),%+v", len(resp.Header["Link"]), resp.StatusCode, resp.Header["Link"]))
 	if resp.StatusCode != 200 && resp.StatusCode != 0 {
 		b.Log(fmt.Sprintf("Error in visit (%v): %v", resp.StatusCode, string(body)))
-		return string(body), false, fmt.Errorf("Non 200 return (%v)", resp.StatusCode)
+		return string(body), false, fmt.Errorf("Non 200 return (%v) -> %v", resp.StatusCode, string(body))
 	}
 
 	return string(body), len(resp.Header["Link"]) >= 1, nil
@@ -762,6 +755,7 @@ func main() {
 	var quiet = flag.Bool("quiet", true, "Show all output")
 	var token = flag.String("token", "", "The token to use to auth")
 	var external = flag.String("external", "", "External IP")
+	var verify = flag.String("verify", "", "Token to use to verify")
 	flag.Parse()
 
 	b := Init()
@@ -775,6 +769,13 @@ func main() {
 
 	b.PrepServer()
 	b.Register = b
+
+	if len(*verify) > 0 {
+		b.getter = &prodHTTPGetter{accessToken: *verify}
+		v, err := b.issueExists("Want Processing Needed!")
+		fmt.Printf("%v and %v", err, v)
+		return
+	}
 
 	err := b.RegisterServerV2("githubcard", false, false)
 	if err != nil {

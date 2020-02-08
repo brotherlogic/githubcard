@@ -60,9 +60,9 @@ func (httpGetter testFileGetter) Post(url string, data string) (*http.Response, 
 	}
 	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
 	if httpGetter.jsonBreak {
-		strippedURL = strings.Replace(strippedURL, "token", "broke", -1)
+		strippedURL = strings.Replace(strippedURL, "brotherlogic", "broke", -1)
 	}
-	blah, err := os.Open("testdata" + strippedURL)
+	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
 		log.Printf("Error opening test file %v", err)
 	}
@@ -81,7 +81,7 @@ func (httpGetter testFileGetter) Patch(url string, data string) (*http.Response,
 	if httpGetter.jsonBreak {
 		strippedURL = strings.Replace(strippedURL, "token", "broke", -1)
 	}
-	blah, err := os.Open("testdata" + strippedURL)
+	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
 		log.Printf("Error opening test file %v", err)
 	}
@@ -100,7 +100,7 @@ func (httpGetter testFileGetter) Put(url string, data string) (*http.Response, e
 	if httpGetter.jsonBreak {
 		strippedURL = strings.Replace(strippedURL, "token", "broke", -1)
 	}
-	blah, err := os.Open("testdata" + strippedURL)
+	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
 		log.Printf("Error opening test file %v", err)
 	}
@@ -112,7 +112,7 @@ func (httpGetter testFileGetter) Put(url string, data string) (*http.Response, e
 func (httpGetter testFileGetter) Get(url string) (*http.Response, error) {
 	response := &http.Response{}
 	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
-	blah, err := os.Open("testdata" + strippedURL)
+	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
 		log.Printf("Error opening test file %v", err)
 	}
@@ -123,7 +123,7 @@ func (httpGetter testFileGetter) Get(url string) (*http.Response, error) {
 func (httpGetter testFileGetter) Delete(url string) (*http.Response, error) {
 	response := &http.Response{}
 	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
-	blah, err := os.Open("testdata" + strippedURL)
+	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
 		log.Printf("Error opening test file %v", err)
 	}
