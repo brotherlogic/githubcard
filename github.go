@@ -445,7 +445,38 @@ type AmRequest struct {
 
 // AmResponse milestone add response
 type AmResponse struct {
-	Number int `json:"number"`
+	Number int    `json:"number"`
+	Title  string `json:"title"`
+}
+
+func (b *GithubBridge) getMilestoneLocal(ctx context.Context, repo, title string) (int, error) {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/milestones", repo)
+
+	resp, err := b.getter.Get(urlv)
+
+	if err != nil {
+		return -1, err
+	}
+	defer resp.Body.Close()
+	rb, _ := ioutil.ReadAll(resp.Body)
+
+	if resp.StatusCode != 200 && resp.StatusCode != 0 {
+		return -1, fmt.Errorf("Unable to get milestones: %v->%v", resp.StatusCode, string(rb))
+	}
+
+	var amresponse []AmResponse
+	err = json.Unmarshal([]byte(rb), &amresponse)
+	if err != nil {
+		return -1, err
+	}
+
+	for _, amresp := range amresponse {
+		if amresp.Title == title {
+			return amresp.Number, nil
+		}
+	}
+
+	return -1, fmt.Errorf("Cannot locate milestone (%v)", title)
 }
 
 func (b *GithubBridge) createMilestoneLocal(ctx context.Context, repo, title, state, description string) (int, error) {
@@ -460,6 +491,11 @@ func (b *GithubBridge) createMilestoneLocal(ctx context.Context, repo, title, st
 	resp, err := b.postURL(urlv, string(bytes))
 	if err != nil {
 		return -1, err
+	}
+
+	// Possible double add
+	if resp.StatusCode == 422 {
+		return b.getMilestoneLocal(ctx, repo, title)
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
