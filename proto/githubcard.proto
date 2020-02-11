@@ -65,6 +65,7 @@ message SilenceResponse {}
 
 message GetAllRequest {
   bool latest_only = 1;
+  repeated string avoid = 2;
 }
 
 message GetAllResponse {
