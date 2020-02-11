@@ -153,10 +153,10 @@ func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error)
 //GetAll gets all the issues currently open
 func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.GetAllResponse, error) {
 	resp := &pb.GetAllResponse{}
-	g.Log(fmt.Sprintf("REC %v", in))
 
 	for _, is := range g.config.Issues {
 		allowed := true
+		g.Log(fmt.Sprintf("BUT HERE %v", is))
 		for _, no := range in.GetAvoid() {
 			if is.GetService() == no {
 				allowed = false
