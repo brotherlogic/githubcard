@@ -352,7 +352,7 @@ func TestGetAllIssuesLatest(t *testing.T) {
 
 func TestGetAllIssuesSkip(t *testing.T) {
 	s := InitTest()
-	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER, Service: "blah"})
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER, Url: "http://blah"})
 	resp, err := s.GetAll(context.Background(), &pb.GetAllRequest{LatestOnly: true, Avoid: []string{"blah"}})
 	if err != nil {
 		t.Errorf("Get all did fail: %v", err)

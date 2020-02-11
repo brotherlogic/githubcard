@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"golang.org/x/net/context"
@@ -158,7 +159,7 @@ func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.Ge
 		allowed := true
 		g.Log(fmt.Sprintf("BUT HERE %v", is))
 		for _, no := range in.GetAvoid() {
-			if is.GetService() == no {
+			if strings.Contains(is.GetUrl(), no) {
 				allowed = false
 			}
 		}
