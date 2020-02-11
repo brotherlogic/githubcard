@@ -155,7 +155,16 @@ func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.Ge
 	resp := &pb.GetAllResponse{}
 
 	for _, is := range g.config.Issues {
-		resp.Issues = append(resp.Issues, is)
+		allowed := true
+		for _, no := range in.GetAvoid() {
+			if is.GetService() == no {
+				allowed = false
+			}
+		}
+
+		if allowed {
+			resp.Issues = append(resp.Issues, is)
+		}
 	}
 
 	sort.SliceStable(resp.Issues, func(i, j int) bool {

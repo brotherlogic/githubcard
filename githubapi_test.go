@@ -350,6 +350,19 @@ func TestGetAllIssuesLatest(t *testing.T) {
 	}
 }
 
+func TestGetAllIssuesSkip(t *testing.T) {
+	s := InitTest()
+	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER, Service: "blah"})
+	resp, err := s.GetAll(context.Background(), &pb.GetAllRequest{LatestOnly: true, Avoid: []string{"blah"}})
+	if err != nil {
+		t.Errorf("Get all did fail: %v", err)
+	}
+
+	if len(resp.GetIssues()) > 0 {
+		t.Errorf("Issues were returned")
+	}
+}
+
 func TestGetAllIssues(t *testing.T) {
 	s := InitTest()
 	s.AddIssue(context.Background(), &pb.Issue{Origin: pb.Issue_FROM_RECEIVER})
