@@ -31,7 +31,7 @@ func main() {
 	defer cancel()
 
 	//	resp, err := client.Silence(ctx, &pb.SilenceRequest{Silence: "Crash for recordcollection", State: pb.SilenceRequest_UNSILENCE, Origin: "1569274842730506610"})
-	resp, err := client.Get(ctx, &pb.Issue{Service: "recordcollection", Number: 1483})
+	resp, err := client.GetAll(ctx, &pb.GetAllRequest{})
 	fmt.Printf("%v and %v\n", resp, err)
 
 }
