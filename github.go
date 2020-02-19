@@ -222,6 +222,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 	}
 
 	return []*pbgs.State{
+		&pbgs.State{Key: "all_issues", Value: int64(len(b.config.GetIssues()))},
 		&pbgs.State{Key: "top_issue", Text: mostIssue},
 		&pbgs.State{Key: "last_issue", TimeValue: b.lastIssue.Unix()},
 		&pbgs.State{Key: "issues", Value: b.issueCount},
