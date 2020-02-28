@@ -229,6 +229,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 		&pbgs.State{Key: "current_issue", Text: bestIssue},
 		&pbgs.State{Key: "webhook_count", Value: b.webhookcount},
 		&pbgs.State{Key: "external", Text: b.config.ExternalIP},
+		&pbgs.State{Key: "external", Text: b.accessCode},
 		&pbgs.State{Key: "gets", Value: b.gets},
 		&pbgs.State{Key: "posts", Value: b.posts},
 		&pbgs.State{Key: "jobs", Text: fmt.Sprintf("%v", b.config.JobsOfInterest)},
