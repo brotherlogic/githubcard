@@ -125,7 +125,14 @@ message UpdateMilestoneResponse {}
 
 message CloseResponse{}
 
+message ConfigureRequest{
+  string external_ip = 1;
+}
+
+message ConfigureResponse{}
+
 service Github {
+  rpc Configure(ConfigureRequest) returns (ConfigureResponse) {};
   rpc AddIssue(Issue) returns (Issue) {};
   rpc Get(Issue) returns (Issue) {};
   rpc GetAll(GetAllRequest) returns (GetAllResponse) {};
