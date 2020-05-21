@@ -228,7 +228,7 @@ func (b *GithubBridge) GetState() []*pbgs.State {
 		&pbgs.State{Key: "issues", Value: b.issueCount},
 		&pbgs.State{Key: "current_issue", Text: bestIssue},
 		&pbgs.State{Key: "webhook_count", Value: b.webhookcount},
-		&pbgs.State{Key: "external", Text: b.config.ExternalIP},
+		&pbgs.State{Key: "external_ip", Text: b.config.ExternalIP},
 		&pbgs.State{Key: "external", Text: b.accessCode},
 		&pbgs.State{Key: "gets", Value: b.gets},
 		&pbgs.State{Key: "posts", Value: b.posts},
@@ -836,7 +836,7 @@ func main() {
 	} else {
 		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
 		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
-		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Hour*6)
+		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Hour)
 		b.RegisterRepeatingTask(b.rebuild, "rebuild_issues", time.Minute*5)
 
 		b.Serve()
