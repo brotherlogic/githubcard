@@ -170,6 +170,9 @@ func (b *GithubBridge) readIssues(ctx context.Context) error {
 		b.config.JobsOfInterest = append(b.config.JobsOfInterest, "githubreceiver")
 	}
 
+	if b.config.ExternalIP == "" {
+		b.RaiseIssue(ctx, "Missing ext", fmt.Sprintf("The external IP is missing?"), false)
+	}
 	return nil
 }
 
