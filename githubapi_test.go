@@ -486,3 +486,12 @@ func TestGetAddExistingJob(t *testing.T) {
 	}
 
 }
+
+func TestConfigure(t *testing.T) {
+	s := InitTest()
+	s.Configure(context.Background(), &pb.ConfigureRequest{ExternalIp: "maic"})
+
+	if s.config.ExternalIP != "maic" {
+		t.Errorf("Wrong: %v", s.config)
+	}
+}

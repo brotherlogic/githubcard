@@ -208,3 +208,9 @@ func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.
 
 	return nil, fmt.Errorf("Unable to apply request, silence was not found %v", in)
 }
+
+//Configure the system
+func (g *GithubBridge) Configure(ctx context.Context, req *pb.ConfigureRequest) (*pb.ConfigureResponse, error) {
+	g.config.ExternalIP = req.GetExternalIp()
+	return &pb.ConfigureResponse{}, nil
+}
