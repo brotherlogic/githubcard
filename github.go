@@ -155,6 +155,9 @@ func (b GithubBridge) ReportHealth() bool {
 }
 
 func (b *GithubBridge) saveIssues(ctx context.Context) {
+	if b.config.ExternalIP == "" {
+		log.Fatalf("Trying to save without IP: %v", b.config)
+	}
 	b.KSclient.Save(ctx, CONFIG, b.config)
 }
 
