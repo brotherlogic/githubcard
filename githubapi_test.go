@@ -21,6 +21,7 @@ func InitTest() *GithubBridge {
 	s.accessCode = "token"
 	s.SkipLog = true
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".test")
+	s.config.ExternalIP = "Test"
 	return s
 }
 
