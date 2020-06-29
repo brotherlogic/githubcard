@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/brotherlogic/goserver"
-	"github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -174,7 +173,7 @@ func (b *GithubBridge) readIssues(ctx context.Context) error {
 	}
 
 	if b.config.ExternalIP == "" {
-		b.RaiseIssue(ctx, "Missing ext", fmt.Sprintf("The external IP is missing?"), false)
+		b.RaiseIssue("Missing ext", fmt.Sprintf("The external IP is missing?"))
 	}
 	return nil
 }
@@ -727,7 +726,7 @@ func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project 
 	}
 
 	if _, ok := data["title"]; !ok {
-		b.RaiseIssue(ctx, "Bad parse", fmt.Sprintf("Bad parse %v", string(body)), false)
+		b.RaiseIssue("Bad parse", fmt.Sprintf("Bad parse %v", string(body)))
 	}
 
 	issue := &pbgh.Issue{Number: int32(number), Service: project, Title: data["title"].(string), Body: data["body"].(string)}
@@ -803,7 +802,6 @@ func main() {
 	flag.Parse()
 
 	b := Init()
-	b.GoServer.KSclient = *keystoreclient.GetClient(b.DialMaster)
 
 	//Turn off logging
 	if *quiet {
@@ -821,7 +819,7 @@ func main() {
 		return
 	}
 
-	err := b.RegisterServerV2("githubcard", false, false)
+	err := b.RegisterServerV2("githubcard", false, true)
 	if err != nil {
 		return
 	}
@@ -829,7 +827,7 @@ func main() {
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
 	} else if len(*external) > 0 {
-		ctx, cancel := utils.ManualContext("githubc", "githubc", time.Minute)
+		ctx, cancel := utils.ManualContext("githubc", "githubc", time.Minute, false)
 		defer cancel()
 		config := &pbgh.Config{}
 		data, _, err := b.KSclient.Read(ctx, CONFIG, config)
@@ -840,11 +838,6 @@ func main() {
 		tconfig.ExternalIP = *external
 		fmt.Printf("SAVED = %v\n", b.KSclient.Save(ctx, CONFIG, tconfig))
 	} else {
-		b.RegisterRepeatingTask(b.cleanAdded, "clean_added", time.Minute)
-		b.RegisterRepeatingTask(b.procSticky, "proc_sticky", time.Minute*5)
-		b.RegisterRepeatingTask(b.validateJobs, "validate_jobs", time.Hour)
-		b.RegisterRepeatingTask(b.rebuild, "rebuild_issues", time.Minute*5)
-
 		b.Serve()
 	}
 }
