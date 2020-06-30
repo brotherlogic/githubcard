@@ -186,19 +186,6 @@ func (b *GithubBridge) Shutdown(ctx context.Context) error {
 
 // Mote promotes this server
 func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
-	if master {
-		m, _, err := b.Read(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
-		if err != nil {
-			return err
-		}
-		if len(m.(*pbgh.Token).GetToken()) == 0 {
-			return fmt.Errorf("Error reading token: %v", m)
-		}
-		b.accessCode = m.(*pbgh.Token).GetToken()
-		b.getter = &prodHTTPGetter{accessToken: b.accessCode}
-
-		return b.readIssues(ctx)
-	}
 	return nil
 }
 
@@ -838,6 +825,18 @@ func main() {
 		tconfig.ExternalIP = *external
 		fmt.Printf("SAVED = %v\n", b.KSclient.Save(ctx, CONFIG, tconfig))
 	} else {
+		ctx, cancel := utils.ManualContext("githubs", "githubs", time.Minute, true)
+		m, _, err := b.Read(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
+		if err != nil {
+			log.Fatalf("Error reading token: %v", err)
+		}
+		cancel()
+		if len(m.(*pbgh.Token).GetToken()) == 0 {
+			log.Fatalf("Error reading token: %v", m)
+		}
+		b.accessCode = m.(*pbgh.Token).GetToken()
+		b.getter = &prodHTTPGetter{accessToken: b.accessCode}
+
 		b.Serve()
 	}
 }
