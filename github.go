@@ -377,14 +377,10 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 
 func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/user/issues"
-	body, more, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(urlv)
 
 	if err != nil {
 		return nil, err
-	}
-
-	if more {
-		return nil, fmt.Errorf("Can't read all issues")
 	}
 
 	var data []interface{}
