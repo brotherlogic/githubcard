@@ -54,14 +54,19 @@ func (g *GithubBridge) UpdateMilestone(ctx context.Context, req *pb.UpdateMilest
 
 //RegisterJob registers a job to be built
 func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	for _, j := range g.config.JobsOfInterest {
+	config, err := g.readIssues(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, j := range config.JobsOfInterest {
 		if j == in.Job {
 			return &pb.RegisterResponse{}, nil
 		}
 	}
 
-	g.config.JobsOfInterest = append(g.config.JobsOfInterest, in.Job)
-	g.saveIssues(ctx)
+	config.JobsOfInterest = append(config.JobsOfInterest, in.Job)
+	g.saveIssues(ctx, config)
 
 	return &pb.RegisterResponse{}, nil
 }
@@ -82,14 +87,18 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
+	config, err := g.readIssues(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	g.lastIssue = time.Now()
 
 	// If this comes from the receiver - just add it
 	if in.Origin == pb.Issue_FROM_RECEIVER {
 		in.DateAdded = time.Now().Unix()
-		g.config.Issues = append(g.config.Issues, in)
-		g.saveIssues(ctx)
-		return in, nil
+		config.Issues = append(config.Issues, in)
+		return in, g.saveIssues(ctx, config)
 	}
 
 	// Reject alerts with a blank body
@@ -99,7 +108,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	}
 
 	//Reject silenced issues
-	for _, silence := range g.config.Silences {
+	for _, silence := range config.Silences {
 		if in.GetTitle() == silence.Silence {
 			g.silencedAlerts++
 			return &pb.Issue{}, fmt.Errorf("This issue is silenced")
@@ -115,7 +124,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 			return nil, status.Errorf(codes.ResourceExhausted, "Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
 		}
 		g.issues = append(g.issues, in)
-		g.saveIssues(ctx)
+		g.saveIssues(ctx, config)
 		return in, nil
 	}
 	g.added[in.GetTitle()] = time.Now()
@@ -194,15 +203,20 @@ func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.
 		}
 	}
 
+	config, err := g.readIssues(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	if in.State == pb.SilenceRequest_SILENCE && currSilence == -1 {
-		g.config.Silences = append(g.config.Silences, &pb.Silence{Silence: in.Silence, Origin: in.Origin})
-		g.saveIssues(ctx)
+		config.Silences = append(config.Silences, &pb.Silence{Silence: in.Silence, Origin: in.Origin})
+		g.saveIssues(ctx, config)
 		return &pb.SilenceResponse{}, nil
 	}
 
 	if in.State == pb.SilenceRequest_UNSILENCE && currSilence >= 0 {
-		g.config.Silences = append(g.config.Silences[:currSilence], g.config.Silences[currSilence+1:]...)
-		g.saveIssues(ctx)
+		config.Silences = append(config.Silences[:currSilence], config.Silences[currSilence+1:]...)
+		g.saveIssues(ctx, config)
 		return &pb.SilenceResponse{}, nil
 	}
 

@@ -153,34 +153,33 @@ func (b GithubBridge) ReportHealth() bool {
 	return true
 }
 
-func (b *GithubBridge) saveIssues(ctx context.Context) {
-	if b.config.ExternalIP == "" {
-		log.Fatalf("Trying to save without IP: %v", b.config)
+func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) error {
+	if config.ExternalIP == "" {
+		log.Fatalf("Trying to save without IP: %v", config)
 	}
-	b.KSclient.Save(ctx, CONFIG, b.config)
+	return b.KSclient.Save(ctx, CONFIG, config)
 }
 
-func (b *GithubBridge) readIssues(ctx context.Context) error {
+func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	config := &pbgh.Config{}
 	data, _, err := b.KSclient.Read(ctx, CONFIG, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	b.config = data.(*pbgh.Config)
+	config = data.(*pbgh.Config)
 
-	if len(b.config.JobsOfInterest) == 0 {
-		b.config.JobsOfInterest = append(b.config.JobsOfInterest, "githubreceiver")
+	if len(config.JobsOfInterest) == 0 {
+		config.JobsOfInterest = append(config.JobsOfInterest, "githubreceiver")
 	}
 
-	if b.config.ExternalIP == "" {
+	if config.ExternalIP == "" {
 		b.RaiseIssue("Missing ext", fmt.Sprintf("The external IP is missing?"))
 	}
-	return nil
+	return config, nil
 }
 
 // Shutdown shuts down the server
 func (b *GithubBridge) Shutdown(ctx context.Context) error {
-	b.saveIssues(ctx)
 	return nil
 }
 
