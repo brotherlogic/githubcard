@@ -175,6 +175,11 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	if config.ExternalIP == "" {
 		b.RaiseIssue("Missing ext", fmt.Sprintf("The external IP is missing?"))
 	}
+
+	if config.GetTitleToIssue() == nil {
+		config.TitleToIssue = make(map[string]string)
+	}
+
 	return config, nil
 }
 
