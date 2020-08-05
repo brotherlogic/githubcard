@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	pb "github.com/brotherlogic/githubcard/proto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 type addResponse struct {
@@ -115,6 +117,13 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		}
 	}
 
+	//Reject any issue we've seen before
+	for title, issue := range config.GetTitleToIssue() {
+		if in.GetTitle() == title {
+			return nil, fmt.Errorf("We already have an issue with this title: %v", issue)
+		}
+	}
+
 	//Don't double add issues
 	g.addedMutex.Lock()
 	g.addedCount[in.GetTitle()]++
@@ -151,8 +160,18 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	}
 
 	in.Number = r.Number
-	return in, nil
+
+	config.TitleToIssue[in.GetTitle()] = fmt.Sprintf("%v/%v", in.GetService(), in.GetNumber())
+	mapSize.Set(float64(len(config.GetTitleToIssue())))
+	return in, g.saveIssues(ctx, config)
 }
+
+var (
+	mapSize = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "githubcard_map_size",
+		Help: "The size of the print queue",
+	})
+)
 
 //Get gets an issue from github
 func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
