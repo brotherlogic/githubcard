@@ -87,8 +87,16 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	return &pb.DeleteResponse{}, nil
 }
 
+var (
+	issues = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "githubcard_issues",
+		Help: "The number of issues added per binary",
+	}, []string{"service"})
+)
+
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
+	issues.With(prometheus.Labels{"service": in.GetService()}).Inc()
 	config, err := g.readIssues(ctx)
 	if err != nil {
 		return nil, err
