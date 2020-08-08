@@ -97,6 +97,17 @@ var (
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	issues.With(prometheus.Labels{"service": in.GetService()}).Inc()
+
+	//Don't double add issues
+	g.addedMutex.Lock()
+	g.addedCount[in.GetTitle()]++
+	if v, ok := g.added[in.GetTitle()]; ok {
+		g.addedMutex.Unlock()
+		return nil, status.Errorf(codes.ResourceExhausted, "Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
+	}
+	g.added[in.GetTitle()] = time.Now()
+	g.addedMutex.Unlock()
+
 	config, err := g.readIssues(ctx)
 	if err != nil {
 		return nil, err
@@ -131,21 +142,6 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 			return nil, fmt.Errorf("We already have an issue with this title: %v", issue)
 		}
 	}
-
-	//Don't double add issues
-	g.addedMutex.Lock()
-	g.addedCount[in.GetTitle()]++
-	if v, ok := g.added[in.GetTitle()]; ok {
-		g.addedMutex.Unlock()
-		if !in.Sticky {
-			return nil, status.Errorf(codes.ResourceExhausted, "Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
-		}
-		g.issues = append(g.issues, in)
-		g.saveIssues(ctx, config)
-		return in, nil
-	}
-	g.added[in.GetTitle()] = time.Now()
-	g.addedMutex.Unlock()
 
 	b, err := g.AddIssueLocal("brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()))
 	if err != nil {
