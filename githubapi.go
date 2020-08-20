@@ -102,8 +102,10 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	g.addedMutex.Lock()
 	g.addedCount[in.GetTitle()]++
 	if v, ok := g.added[in.GetTitle()]; ok {
-		g.addedMutex.Unlock()
-		return nil, status.Errorf(codes.ResourceExhausted, "Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
+		if time.Now().Sub(v) < time.Minute*10 {
+			g.addedMutex.Unlock()
+			return nil, status.Errorf(codes.ResourceExhausted, "Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
+		}
 	}
 	g.added[in.GetTitle()] = time.Now()
 	g.addedMutex.Unlock()
