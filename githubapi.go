@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -141,7 +142,19 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	//Reject any issue we've seen before
 	for title, issue := range config.GetTitleToIssue() {
 		if in.GetTitle() == title {
-			return nil, fmt.Errorf("We already have an issue with this title: %v", issue)
+			// Is this title still open
+			elems := strings.Split(issue, "/")
+			num, err := strconv.Atoi(elems[1])
+			i, err := g.GetIssueLocal(ctx, "brotherlogic", elems[0], num)
+			if err != nil {
+				return nil, err
+			}
+
+			if i.State == pb.Issue_OPEN {
+				return nil, fmt.Errorf("We already have an issue with this title: %v", issue)
+			}
+
+			delete(config.TitleToIssue, title)
 		}
 	}
 
