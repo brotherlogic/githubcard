@@ -69,9 +69,12 @@ func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) 
 	}
 
 	config.JobsOfInterest = append(config.JobsOfInterest, in.Job)
-	g.saveIssues(ctx, config)
+	err = g.saveIssues(ctx, config)
+	if err != nil {
+		return nil, err
+	}
 
-	return &pb.RegisterResponse{}, nil
+	return &pb.RegisterResponse{}, g.validateJob(ctx, in.Job)
 }
 
 //DeleteIssue removes an issue
