@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"golang.org/x/net/context"
 )
@@ -25,6 +26,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	hooks, err := g.getWebHooks(ctx, job)
 	if job == "recordscores" {
 		g.Log(fmt.Sprintf("FOUND %+v and %v -> %v", hooks, err, len(hooks)))
+		time.Sleep(time.Second * 2)
 	}
 	if err != nil {
 		return err
@@ -42,7 +44,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	if len(hooks) == 1 {
-		err := g.addWebHook(ctx, job, Webhook{
+		hook := Webhook{
 			Name:   "web",
 			Active: true,
 			Events: []string{"push", "issues", "create", "pull_request", "check_suite", "check_run", "status"},
@@ -50,7 +52,9 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 				URL:         fmt.Sprintf("http://%v:50052/githubwebhook", g.config.ExternalIP),
 				ContentType: "json",
 				InsecureSSL: "1",
-			}})
+			}}
+		g.Log(fmt.Sprintf("Adding %v", hook))
+		err := g.addWebHook(ctx, job, hook)
 		if err != nil {
 			return err
 		}
