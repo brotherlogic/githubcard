@@ -62,10 +62,9 @@ func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) 
 		return nil, err
 	}
 
-	g.Log(fmt.Sprintf("Registering %v -> %v", in.Job, config.JobsOfInterest))
 	for _, j := range config.JobsOfInterest {
 		if j == in.Job {
-			return &pb.RegisterResponse{}, nil
+			return &pb.RegisterResponse{}, g.validateJob(ctx, in.Job)
 		}
 	}
 
