@@ -24,7 +24,7 @@ func (g *GithubBridge) validateJobs(ctx context.Context) error {
 func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	hooks, err := g.getWebHooks(ctx, job)
 	if job == "recordscores" {
-		g.Log(fmt.Sprintf("FOUND %v and %v", hooks, err))
+		g.Log(fmt.Sprintf("FOUND %+v and %v -> %v", hooks, err, len(hooks)))
 	}
 	if err != nil {
 		return err
