@@ -3,11 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"strconv"
 
 	"github.com/brotherlogic/goserver/utils"
-	"google.golang.org/grpc"
 
 	pb "github.com/brotherlogic/githubcard/proto"
 
@@ -16,11 +13,10 @@ import (
 )
 
 func main() {
-	host, port, err := utils.Resolve("githubcard", "githubcard-cli")
-	if err != nil {
-		log.Fatalf("Unable to reach organiser: %v", err)
-	}
-	conn, err := grpc.Dial(host+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
+	ctx, cancel := utils.BuildContext("githubcard-cli", "githubcard-cli")
+	defer cancel()
+
+	conn, err := utils.LFDialServer(ctx, "githubcard")
 	defer conn.Close()
 
 	if err != nil {
@@ -28,11 +24,9 @@ func main() {
 	}
 
 	client := pb.NewGithubClient(conn)
-	ctx, cancel := utils.BuildContext("githubcard-cli", "githubcard-cli")
-	defer cancel()
 
 	//	resp, err := client.Silence(ctx, &pb.SilenceRequest{Silence: "Crash for recordcollection", State: pb.SilenceRequest_UNSILENCE, Origin: "1569274842730506610"})
-	resp, err := client.Configure(ctx, &pb.ConfigureRequest{ExternalIp: os.Args[1]})
+	resp, err := client.RegisterJob(ctx, &pb.RegisterRequest{Job: "recordscores"})
 	fmt.Printf("%v and %v\n", resp, err)
 
 }

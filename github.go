@@ -278,7 +278,6 @@ func (b *GithubBridge) visitURL(url string) (string, bool, error) {
 		return "", false, err
 	}
 
-	b.Log(fmt.Sprintf("HEADERS = (%v,%v),%+v", len(resp.Header["Link"]), resp.StatusCode, resp.Header["Link"]))
 	if resp.StatusCode != 200 && resp.StatusCode != 0 {
 		b.Log(fmt.Sprintf("Error in visit (%v): %v", resp.StatusCode, string(body)))
 		return string(body), false, fmt.Errorf("Non 200 return (%v) -> %v", resp.StatusCode, string(body))
