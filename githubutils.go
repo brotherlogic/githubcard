@@ -39,6 +39,9 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 					hook.Events = []string{"push", "issues", "create", "pull_request", "check_suite", "check_run", "status"}
 					g.updateWebHook(ctx, job, hook)
 				}
+				if len(hook.Config.Secret) == 0 {
+					g.Log(fmt.Sprintf("Cannot find secret: %v", hook))
+				}
 			}
 		}
 	}
