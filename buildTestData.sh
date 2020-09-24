@@ -1,11 +1,17 @@
 mkdir -p testdata/repos/brotherlogic/Home/issues/
 mkdir -p testdata/repos/brotherlogic/MadeUpService/issues/
 mkdir -p testdata/repos/brotherlogic/crasher
+mkdir -p testdata/repos/brotherlogic/goserver
 mkdir -p testdata/repos/brotherlogic/githubreceiver/pulls/24/
 mkdir -p testdata/repos/brotherlogic/frametracker/pulls/16/
 mkdir -p testdata/repos/brotherlogic/frametracker/milestones/1/
 mkdir -p testdata/repos/brotherlogic/pullrequester/git/refs/heads/
 mkdir -p testdata/user/
+
+sleep 1
+curl -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/goserver/hooks?access_token=$1"  > testdata/repos/brotherlogic/goserver/hooks_access_token=token
+exit
+
 
 sleep 1
 curl -u "brotherlogic:$1" -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/user/issues"  > testdata/user/issues

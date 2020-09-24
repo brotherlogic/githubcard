@@ -311,6 +311,7 @@ type Config struct {
 	URL         string `json:"url"`
 	ContentType string `json:"content_type"`
 	InsecureSSL string `json:"insecure_ssl"`
+	Secret      string `json:"secret"`
 }
 
 func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook, error) {

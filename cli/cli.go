@@ -26,7 +26,8 @@ func main() {
 	client := pb.NewGithubClient(conn)
 
 	//	resp, err := client.Silence(ctx, &pb.SilenceRequest{Silence: "Crash for recordcollection", State: pb.SilenceRequest_UNSILENCE, Origin: "1569274842730506610"})
+	resp1, err := client.Configure(ctx, &pb.ConfigureRequest{ExternalIp: "73.162.90.182"})
 	resp, err := client.RegisterJob(ctx, &pb.RegisterRequest{Job: "recordscores"})
-	fmt.Printf("%v and %v\n", resp, err)
+	fmt.Printf("%v and %v -> %v\n", resp, err, resp1)
 
 }
