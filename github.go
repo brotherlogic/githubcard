@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/brotherlogic/goserver"
+	"github.com/brotherlogic/goserver/utils"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -22,7 +23,7 @@ import (
 	pb "github.com/brotherlogic/cardserver/card"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
-	"github.com/brotherlogic/goserver/utils"
+	ppb "github.com/brotherlogic/proxy/proto"
 )
 
 const (
@@ -57,6 +58,7 @@ type GithubBridge struct {
 	addedCount     map[string]int64
 	lastIssue      time.Time
 	issueLock      *sync.Mutex
+	githubsecret   string
 }
 
 type httpGetter interface {
@@ -304,6 +306,7 @@ type Webhook struct {
 // WebhookAdd struct describing a simple webhook
 type WebhookAdd struct {
 	AddEvents []string `json:"add_events"`
+	Config    Config   `json:"config"`
 }
 
 // Config struct for webhook
@@ -341,7 +344,7 @@ func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook
 func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Webhook) error {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks/%v", repo, hook.ID)
 
-	nhook := &WebhookAdd{AddEvents: hook.Events}
+	nhook := &WebhookAdd{AddEvents: hook.Events, Config: Config{Secret: hook.Config.Secret}}
 	bytes, err := json.Marshal(nhook)
 	if err != nil {
 		return err
@@ -836,6 +839,17 @@ func main() {
 		}
 		b.accessCode = m.(*pbgh.Token).GetToken()
 		b.getter = &prodHTTPGetter{accessToken: b.accessCode}
+
+		ctx, cancel = utils.ManualContext("githubs", "githubs", time.Minute, true)
+		m, _, err = b.Read(ctx, "/github.com/brotherlogic/github/secret", &ppb.GithubKey{})
+		if err != nil {
+			log.Fatalf("Error reading token: %v", err)
+		}
+		cancel()
+		if len(m.(*ppb.GithubKey).GetKey()) == 0 {
+			log.Fatalf("Error reading key: %v", m)
+		}
+		b.githubsecret = m.(*ppb.GithubKey).GetKey()
 
 		b.Serve()
 	}

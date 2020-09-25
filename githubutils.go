@@ -40,7 +40,9 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 					g.updateWebHook(ctx, job, hook)
 				}
 				if len(hook.Config.Secret) == 0 {
-					g.Log(fmt.Sprintf("Cannot find secret: %v", hook))
+					hook.Config.Secret = g.githubsecret
+					g.Log(fmt.Sprintf("Setting secret for %v", job))
+					g.updateWebHook(ctx, job, hook)
 				}
 			}
 		}
