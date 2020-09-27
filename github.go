@@ -356,7 +356,8 @@ func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Web
 	}
 
 	defer resp.Body.Close()
-	_, err = ioutil.ReadAll(resp.Body)
+	data, err := ioutil.ReadAll(resp.Body)
+	b.Log(fmt.Sprintf("RESULT: %v", string(data)))
 
 	return err
 }
