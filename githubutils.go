@@ -44,6 +44,10 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 					g.Log(fmt.Sprintf("Setting secret for %v", job))
 					g.updateWebHook(ctx, job, hook)
 				}
+				if !strings.Contains(hook.Config.URL, g.config.ExternalIP) {
+					hook.Config.URL = fmt.Sprintf("http://%v:50052/githubwebhook", g.config.ExternalIP)
+					g.updateWebHook(ctx, job, hook)
+				}
 			}
 		}
 	}
