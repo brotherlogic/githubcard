@@ -37,6 +37,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 			if strings.Contains(hook.Config.URL, "githubwebhook") {
 				if len(hook.Events) != 7 {
 					hook.Events = []string{"push", "issues", "create", "pull_request", "check_suite", "check_run", "status"}
+					hook.Config.Secret = g.githubsecret
 					g.updateWebHook(ctx, job, hook)
 				}
 				if len(hook.Config.Secret) == 0 {
@@ -46,11 +47,13 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 				}
 				if !strings.Contains(hook.Config.URL, g.config.ExternalIP) {
 					hook.Config.URL = fmt.Sprintf("http://%v:50052/githubwebhook", g.config.ExternalIP)
+					hook.Config.Secret = g.githubsecret
 					g.updateWebHook(ctx, job, hook)
 				}
 
 				if hook.Config.ContentType != "json" {
 					hook.Config.ContentType = "json"
+					hook.Config.Secret = g.githubsecret
 					g.updateWebHook(ctx, job, hook)
 				}
 			}
