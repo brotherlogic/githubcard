@@ -197,48 +197,7 @@ func (b *GithubBridge) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (b *GithubBridge) GetState() []*pbgs.State {
-	b.addedMutex.Lock()
-	defer b.addedMutex.Unlock()
-
-	bestIssue := ""
-	bestTime := time.Now().Unix()
-
-	for _, issue := range b.config.Issues {
-		if issue.DateAdded < bestTime {
-			bestIssue = issue.Url
-			bestTime = issue.DateAdded
-		}
-	}
-
-	mostIssue := ""
-	mostCount := int64(0)
-	for issue, count := range b.addedCount {
-		if count > mostCount {
-			mostIssue = issue
-			mostCount = count
-		}
-	}
-
-	return []*pbgs.State{
-		&pbgs.State{Key: "all_issues", Value: int64(len(b.config.GetIssues()))},
-		&pbgs.State{Key: "top_issue", Text: mostIssue},
-		&pbgs.State{Key: "last_issue", TimeValue: b.lastIssue.Unix()},
-		&pbgs.State{Key: "issues", Value: b.issueCount},
-		&pbgs.State{Key: "current_issue", Text: bestIssue},
-		&pbgs.State{Key: "webhook_count", Value: b.webhookcount},
-		&pbgs.State{Key: "external_ip", Text: b.config.ExternalIP},
-		&pbgs.State{Key: "external", Text: b.accessCode},
-		&pbgs.State{Key: "gets", Value: b.gets},
-		&pbgs.State{Key: "posts", Value: b.posts},
-		&pbgs.State{Key: "jobs", Text: fmt.Sprintf("%v", b.config.JobsOfInterest)},
-		&pbgs.State{Key: "attempts", Value: int64(b.attempts)},
-		&pbgs.State{Key: "fails", Value: int64(b.fails)},
-		&pbgs.State{Key: "added", Text: fmt.Sprintf("%v", b.added)},
-		&pbgs.State{Key: "sticky", Value: int64(len(b.issues))},
-		&pbgs.State{Key: "silenced_alerts", Value: int64(b.silencedAlerts)},
-		&pbgs.State{Key: "blank_alerts", Value: int64(b.blankAlerts)},
-		&pbgs.State{Key: "silences", Text: fmt.Sprintf("%v", b.config.Silences)},
-	}
+	return []*pbgs.State{}
 }
 
 const (
@@ -344,7 +303,7 @@ func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook
 func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Webhook) error {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks/%v", repo, hook.ID)
 
-	nhook := &WebhookAdd{AddEvents: hook.Events, Config: Config{Secret: hook.Config.Secret, URL: hook.Config.URL}}
+	nhook := &WebhookAdd{AddEvents: hook.Events, Config: Config{ContentType: hook.Config.ContentType, Secret: hook.Config.Secret, URL: hook.Config.URL}}
 	bytes, err := json.Marshal(nhook)
 	if err != nil {
 		return err
