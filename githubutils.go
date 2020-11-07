@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"golang.org/x/net/context"
 )
@@ -24,15 +23,15 @@ func (g *GithubBridge) validateJobs(ctx context.Context) error {
 
 func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	hooks, err := g.getWebHooks(ctx, job)
-	if job == "recordscores" {
-		g.Log(fmt.Sprintf("FOUND %+v and %v -> %v", hooks, err, len(hooks)))
-		time.Sleep(time.Second * 2)
-	}
 	if err != nil {
 		return err
 	}
 
-	if len(hooks) == 2 {
+	if len(g.config.ExternalIP) == 0 {
+		return fmt.Errorf("No external IP registered")
+	}
+
+	if len(hooks) == 1 {
 		for _, hook := range hooks {
 			if strings.Contains(hook.Config.URL, "githubwebhook") {
 				if len(hook.Events) != 7 {
@@ -60,7 +59,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		}
 	}
 
-	if len(hooks) == 1 {
+	if len(hooks) == 0 {
 		hook := Webhook{
 			Name:   "web",
 			Active: true,
