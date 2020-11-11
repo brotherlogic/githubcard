@@ -23,6 +23,7 @@ import (
 	pb "github.com/brotherlogic/cardserver/card"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
+	kmpb "github.com/brotherlogic/keymapper/proto"
 	ppb "github.com/brotherlogic/proxy/proto"
 )
 
@@ -59,6 +60,7 @@ type GithubBridge struct {
 	lastIssue      time.Time
 	issueLock      *sync.Mutex
 	githubsecret   string
+	external       string
 }
 
 type httpGetter interface {
@@ -773,6 +775,25 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	ctx, cancel := utils.ManualContext("ghc", "ghc", time.Minute, false)
+	conn, err := b.FDialServer(ctx, "keymapper")
+	if err != nil {
+		if status.Convert(err).Code() == codes.Unknown {
+			log.Fatalf("Cannot reach keymapper: %v", err)
+		}
+		return
+	}
+	client := kmpb.NewKeymapperServiceClient(conn)
+	resp, err := client.Get(ctx, &kmpb.GetRequest{Key: "github_external"})
+	if err != nil {
+		if status.Convert(err).Code() == codes.Unknown {
+			log.Fatalf("Cannot read external: %v", err)
+		}
+		return
+	}
+	b.external = resp.GetKey().GetValue()
+	cancel()
 
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
