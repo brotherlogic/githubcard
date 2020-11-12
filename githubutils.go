@@ -27,7 +27,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		return err
 	}
 
-	if len(g.config.ExternalIP) == 0 {
+	if len(g.external) == 0 {
 		return fmt.Errorf("No external IP registered")
 	}
 
@@ -44,8 +44,8 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 					g.Log(fmt.Sprintf("Setting secret for %v", job))
 					g.updateWebHook(ctx, job, hook)
 				}
-				if !strings.Contains(hook.Config.URL, g.config.ExternalIP) {
-					hook.Config.URL = fmt.Sprintf("http://%v:50052/githubwebhook", g.config.ExternalIP)
+				if !strings.Contains(hook.Config.URL, g.external) {
+					hook.Config.URL = fmt.Sprintf("http://%v:50052/githubwebhook", g.external)
 					hook.Config.Secret = g.githubsecret
 					g.updateWebHook(ctx, job, hook)
 				}
