@@ -787,7 +787,7 @@ func main() {
 	client := kmpb.NewKeymapperServiceClient(conn)
 	resp, err := client.Get(ctx, &kmpb.GetRequest{Key: "github_external"})
 	if err != nil {
-		if status.Convert(err).Code() == codes.Unknown {
+		if status.Convert(err).Code() == codes.Unknown || status.Convert(err).Code() == codes.InvalidArgument {
 			log.Fatalf("Cannot read external: %v", err)
 		}
 		return
