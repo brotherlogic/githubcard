@@ -154,7 +154,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 			}
 
 			if i.State == pb.Issue_OPEN {
-				return nil, fmt.Errorf("We already have an issue with this title: %v", issue)
+				return nil, status.Errorf(codes.AlreadyExists, "We already have an issue with this title: %v", issue)
 			}
 
 			delete(config.TitleToIssue, title)
