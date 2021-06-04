@@ -564,7 +564,7 @@ func (b *GithubBridge) addLabel(ctx context.Context, job, branch, title string, 
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
-		return fmt.Errorf("Unable to build pull request: %v", resp.StatusCode)
+		return fmt.Errorf("Unable to set label: %v", resp.StatusCode)
 	}
 
 	return nil
