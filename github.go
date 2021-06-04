@@ -510,10 +510,49 @@ type PRequest struct {
 	Base  string `json:"base"`
 }
 
-func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, title string) error {
+type Labels struct {
+	Labels []string `json:"labels"`
+}
+
+type PResponse struct {
+	number int32 `json:number`
+}
+
+func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, title string) (int32, error) {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls", job)
 
 	payload := &PRequest{Title: title, Head: branch, Base: "master", Body: "Auto created pull request"}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return -1, err
+	}
+
+	resp, err := b.postURL(urlv, string(bytes))
+	if err != nil {
+		return -1, err
+	}
+
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
+		return -1, fmt.Errorf("UNable to build pull request: %v", resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return -1, err
+	}
+
+	presp := &PResponse{}
+	err = json.Unmarshal(body, presp)
+
+	return presp.number, err
+}
+
+func (b *GithubBridge) addLabel(ctx context.Context, job, branch, title string, number int32, label string) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/labels", job)
+
+	payload := &Labels{Labels: []string{"automerge"}}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -525,7 +564,7 @@ func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, 
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
-		return fmt.Errorf("UNable to build pull request: %v", resp.StatusCode)
+		return fmt.Errorf("Unable to build pull request: %v", resp.StatusCode)
 	}
 
 	return nil
