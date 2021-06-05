@@ -44,6 +44,9 @@ func (g *GithubBridge) CreatePullRequest(ctx context.Context, in *pb.PullRequest
 		return nil, err
 	}
 	err = g.addLabel(ctx, in.Job, in.Branch, in.Title, num, "automerge")
+	if err != nil {
+		g.RaiseIssue("Bad label add", fmt.Sprintf("Unable to create label: %v", err))
+	}
 	return &pb.PullResponse{}, err
 }
 
