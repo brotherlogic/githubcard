@@ -567,6 +567,10 @@ func (b *GithubBridge) addLabel(ctx context.Context, job, branch, title string, 
 		return fmt.Errorf("Unable to set label: %v", resp.StatusCode)
 	}
 
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	b.Log(fmt.Sprintf("Adding LABEL: %v -> %v", urlv, string(body)))
+
 	return nil
 }
 
