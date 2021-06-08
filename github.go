@@ -550,7 +550,7 @@ func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, 
 }
 
 func (b *GithubBridge) addLabel(ctx context.Context, job, branch, title string, number int32, label string) error {
-	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/labels", job)
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/labels", job, number)
 
 	payload := &Labels{Labels: []string{"automerge"}}
 	bytes, err := json.Marshal(payload)
