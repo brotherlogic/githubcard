@@ -819,7 +819,7 @@ func main() {
 		return
 	}
 
-	ctx, cancel := utils.ManualContext("ghc", "ghc", time.Minute, false)
+	ctx, cancel := utils.ManualContext("ghc", time.Minute)
 	conn, err := b.FDialServer(ctx, "keymapper")
 	if err != nil {
 		if status.Convert(err).Code() == codes.Unknown {
@@ -841,7 +841,7 @@ func main() {
 	if len(*token) > 0 {
 		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
 	} else if len(*external) > 0 {
-		ctx, cancel := utils.ManualContext("githubc", "githubc", time.Minute, false)
+		ctx, cancel := utils.ManualContext("githubc", time.Minute)
 		defer cancel()
 		config := &pbgh.Config{}
 		data, _, err := b.KSclient.Read(ctx, CONFIG, config)
@@ -852,7 +852,7 @@ func main() {
 		tconfig.ExternalIP = *external
 		fmt.Printf("SAVED = %v\n", b.KSclient.Save(ctx, CONFIG, tconfig))
 	} else {
-		ctx, cancel := utils.ManualContext("githubs", "githubs", time.Minute, true)
+		ctx, cancel := utils.ManualContext("githubs", time.Minute)
 		m, _, err := b.Read(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
 		if err != nil {
 			log.Fatalf("Error reading token: %v", err)
@@ -864,7 +864,7 @@ func main() {
 		b.accessCode = m.(*pbgh.Token).GetToken()
 		b.getter = &prodHTTPGetter{accessToken: b.accessCode}
 
-		ctx, cancel = utils.ManualContext("githubs", "githubs", time.Minute, true)
+		ctx, cancel = utils.ManualContext("githubs", time.Minute)
 		m, _, err = b.Read(ctx, "/github.com/brotherlogic/github/secret", &ppb.GithubKey{})
 		if err != nil {
 			log.Fatalf("Error reading token: %v", err)

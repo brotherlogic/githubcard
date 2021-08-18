@@ -109,6 +109,10 @@ var (
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	issues.With(prometheus.Labels{"service": in.GetService()}).Inc()
 
+	// Lock the whole add process
+	key, err := g.RunLockingElection(ctx, "github-issue")
+	defer g.ReleaseLockingElection(ctx, "github-issue", key)
+
 	//Don't double add issues
 	g.addedMutex.Lock()
 	g.addedCount[in.GetTitle()]++
