@@ -68,7 +68,6 @@ func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) 
 	if err != nil {
 		return nil, err
 	}
-	g.external = config.ExternalIP
 
 	for _, j := range config.JobsOfInterest {
 		if j == in.Job {
