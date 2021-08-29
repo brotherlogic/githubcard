@@ -89,13 +89,13 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	g.issueLock.Lock()
 	defer g.issueLock.Unlock()
 	for i, is := range g.config.Issues {
-		if is.Url == in.Issue.Url {
+		if is.Service == in.Issue.Service && is.Number == in.Issue.Number {
 			g.config.Issues = append(g.config.Issues[:i], g.config.Issues[i+1:]...)
 			break
 		}
 	}
 
-	return &pb.DeleteResponse{}, nil
+	return &pb.DeleteResponse{}, g.DeleteIssueLocal(ctx, "brotherlogic", in.GetIssue())
 }
 
 var (

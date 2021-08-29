@@ -657,6 +657,20 @@ type PayloadWithMilestone struct {
 	Milestone int    `json:"milestone"`
 }
 
+type ClosePayload struct {
+	state string `json:"state"`
+}
+
+func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue *pbgh.Issue) error {
+	payload := ClosePayload{state: "closed"}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	_, err = b.patchURL(fmt.Sprintf("https://api.github.com/repos/%v/%v/issues/%v", owner, issue.GetService(), issue.GetNumber()), string(bytes))
+	return err
+}
+
 // AddIssueLocal adds an issue
 func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string, milestone int) ([]byte, error) {
 	b.attempts++
