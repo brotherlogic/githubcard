@@ -103,6 +103,21 @@ func (h prodHTTPGetter) Patch(url string, data string) (*http.Response, error) {
 
 	h.prepRequest(req)
 
+	resp, err := h.getClient().Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, fmt.Errorf("patch returned %v -> %v", resp.StatusCode, string(body))
+	}
+
 	return h.getClient().Do(req)
 }
 
