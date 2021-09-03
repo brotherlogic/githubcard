@@ -118,7 +118,7 @@ func (h prodHTTPGetter) Patch(url string, data string) (*http.Response, error) {
 		return nil, fmt.Errorf("patch returned %v -> %v", resp.StatusCode, string(body))
 	}
 
-	return h.getClient().Do(req)
+	return resp, err
 }
 
 func (h prodHTTPGetter) Put(url string, data string) (*http.Response, error) {
