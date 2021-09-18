@@ -115,6 +115,9 @@ func (h prodHTTPGetter) Patch(url string, data string) (*http.Response, error) {
 			return nil, err
 		}
 
+		if resp.StatusCode == 404 {
+			return nil, status.Errorf(codes.NotFound, "patch returned %v -> %v", resp.StatusCode, string(body))
+		}
 		return nil, fmt.Errorf("patch returned %v -> %v", resp.StatusCode, string(body))
 	}
 
