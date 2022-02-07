@@ -172,7 +172,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		}
 	}
 
-	b, err := g.AddIssueLocal("brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()))
+	b, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()))
 	if err != nil {
 		if in.Sticky {
 			g.issues = append(g.issues, in)
@@ -191,6 +191,8 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		g.AddIssue(ctx, &pb.Issue{Service: "githubcard", Title: "Add Failure", Body: fmt.Sprintf("Couldn't add issue for %v with title %v (%v)", in.Service, in.GetTitle(), in.GetBody())})
 		return nil, fmt.Errorf("Error adding issue for service %v", in.Service)
 	}
+
+	g.CtxLog(ctx, fmt.Sprintf("Adding Issue: %v -> %v/%v", in.GetTitle(), in.GetService(), r.Number))
 
 	in.Number = r.Number
 

@@ -691,7 +691,7 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 }
 
 // AddIssueLocal adds an issue
-func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string, milestone int) ([]byte, error) {
+func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int) ([]byte, error) {
 	b.attempts++
 	issue, err := b.issueExists(title)
 	if err != nil {
@@ -700,8 +700,6 @@ func (b *GithubBridge) AddIssueLocal(owner, repo, title, body string, milestone 
 	if issue != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Issue already exists")
 	}
-
-	b.Log(fmt.Sprintf("Adding Issue: %v", title))
 
 	payload := Payload{Title: title, Body: body, Assignee: owner}
 	bytes, err := json.Marshal(payload)
