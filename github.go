@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -200,6 +201,22 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 
 	if config.GetTitleToIssue() == nil {
 		config.TitleToIssue = make(map[string]string)
+	}
+
+	if len(config.GetTitleToIssue()) > 50 {
+		for title, issue := range config.GetTitleToIssue() {
+			elems := strings.Split(issue, "/")
+			num, _ := strconv.Atoi(elems[1])
+			i, err := b.GetIssueLocal(ctx, "brotherlogic", elems[0], num)
+			if err != nil {
+				break
+			}
+
+			if i.State != pbgh.Issue_OPEN {
+				delete(config.TitleToIssue, title)
+			}
+			time.Sleep(time.Second)
+		}
 	}
 
 	b.CtxLog(ctx, fmt.Sprintf("Read config with %v issues", len(config.GetTitleToIssue())))
