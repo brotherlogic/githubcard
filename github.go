@@ -202,6 +202,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 		config.TitleToIssue = make(map[string]string)
 	}
 
+	b.CtxLog(ctx, fmt.Sprintf("Read config with %v issues", len(config.GetTitleToIssue())))
+
 	return config, nil
 }
 
