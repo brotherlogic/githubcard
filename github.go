@@ -926,6 +926,7 @@ func main() {
 				elems := strings.Split(issue, "/")
 				num, _ := strconv.Atoi(elems[1])
 				i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], num)
+				b.DLog(cctx, fmt.Sprintf("Deleted %v/%v -> %v", title, issue, err))
 				if err != nil {
 					break
 				}
