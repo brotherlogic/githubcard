@@ -203,6 +203,24 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 		config.TitleToIssue = make(map[string]string)
 	}
 
+	if len(config.GetTitleToIssue()) > 50 {
+		cctx, ccancel := utils.ManualContext("githubs", time.Hour)
+		defer ccancel()
+		for title, issue := range config.GetTitleToIssue() {
+			elems := strings.Split(issue, "/")
+			num, _ := strconv.Atoi(elems[1])
+			i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], num)
+			b.DLog(cctx, fmt.Sprintf("Deleted %v/%v -> %v", title, issue, err))
+			if err != nil {
+				break
+			}
+
+			if i.State != pbgh.Issue_OPEN {
+				delete(config.TitleToIssue, title)
+			}
+			break
+		}
+	}
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
 
 	b.CtxLog(ctx, fmt.Sprintf("Read config with %v issues", len(config.GetTitleToIssue())))
