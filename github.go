@@ -205,30 +205,6 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
 
-	// Super clear
-	if len(config.GetTitleToIssue()) > 1000 {
-		for t, _ := range config.GetTitleToIssue() {
-			delete(config.TitleToIssue, t)
-		}
-	}
-
-	if len(config.GetTitleToIssue()) > 50 {
-		for title, issue := range config.GetTitleToIssue() {
-			elems := strings.Split(issue, "/")
-			num, _ := strconv.Atoi(elems[1])
-			i, err := b.GetIssueLocal(ctx, "brotherlogic", elems[0], num)
-			if err != nil {
-				break
-			}
-
-			if i.State != pbgh.Issue_OPEN {
-				delete(config.TitleToIssue, title)
-			}
-			time.Sleep(time.Second)
-			mapSize.Set(float64(len(config.GetTitleToIssue())))
-		}
-	}
-
 	b.CtxLog(ctx, fmt.Sprintf("Read config with %v issues", len(config.GetTitleToIssue())))
 
 	return config, nil
@@ -936,6 +912,36 @@ func main() {
 			log.Fatalf("Error reading key: %v", m)
 		}
 		b.githubsecret = m.(*ppb.GithubKey).GetKey()
+
+		// Clean out the config before serving
+		cctx, ccancel := utils.ManualContext("githubs", time.Hour)
+		config, err := b.readIssues(cctx)
+		if err != nil {
+			log.Fatalf("Bad read: %v", err)
+		}
+		triggered := false
+		if len(config.GetTitleToIssue()) > 50 {
+			triggered = true
+			for title, issue := range config.GetTitleToIssue() {
+				elems := strings.Split(issue, "/")
+				num, _ := strconv.Atoi(elems[1])
+				i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], num)
+				if err != nil {
+					break
+				}
+
+				if i.State != pbgh.Issue_OPEN {
+					delete(config.TitleToIssue, title)
+				}
+				mapSize.Set(float64(len(config.GetTitleToIssue())))
+			}
+		}
+		ccancel()
+		sctx, scancel := utils.ManualContext("githubs", time.Hour)
+		if triggered {
+			b.saveIssues(sctx, config)
+		}
+		scancel()
 
 		b.Serve()
 	}
