@@ -205,6 +205,13 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
 
+	// Super clear
+	if len(config.GetTitleToIssue()) > 1000 {
+		for t, _ := range config.GetTitleToIssue() {
+			delete(config.TitleToIssue, t)
+		}
+	}
+
 	if len(config.GetTitleToIssue()) > 50 {
 		for title, issue := range config.GetTitleToIssue() {
 			elems := strings.Split(issue, "/")
