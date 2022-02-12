@@ -203,6 +203,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 		config.TitleToIssue = make(map[string]string)
 	}
 
+	mapSize.Set(float64(len(config.GetTitleToIssue())))
+
 	if len(config.GetTitleToIssue()) > 50 {
 		for title, issue := range config.GetTitleToIssue() {
 			elems := strings.Split(issue, "/")
@@ -216,6 +218,7 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 				delete(config.TitleToIssue, title)
 			}
 			time.Sleep(time.Second)
+			mapSize.Set(float64(len(config.GetTitleToIssue())))
 		}
 	}
 
