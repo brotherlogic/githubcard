@@ -6,26 +6,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-func TestValidateJobs(t *testing.T) {
-	s := InitTest()
-	s.config.JobsOfInterest = append(s.config.JobsOfInterest, "crasher")
-	err := s.validateJobs(context.Background())
-
-	if err != nil {
-		t.Errorf("Validation failed")
-	}
-}
-
-func TestValidateJobsFail(t *testing.T) {
-	s := InitTest()
-	s.config.JobsOfInterest = append(s.config.JobsOfInterest, "madeupjob")
-	err := s.validateJobs(context.Background())
-
-	if err == nil {
-		t.Errorf("Validation did not fail")
-	}
-}
-
 func TestValidateSingleJob(t *testing.T) {
 	s := InitTest()
 	err := s.validateJob(context.Background(), "crasher2")

@@ -191,8 +191,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	}
 	config = data.(*pbgh.Config)
 
-	if len(config.JobsOfInterest) == 0 {
-		config.JobsOfInterest = append(config.JobsOfInterest, "githubreceiver")
+	if len(config.GetJobsOfInterest()) == 0 {
+		b.RaiseIssue("No Interesting Jobs", "Github reciever is reporting no jobs")
 	}
 
 	if config.ExternalIP == "" {

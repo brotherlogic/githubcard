@@ -7,20 +7,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (g *GithubBridge) validateJobs(ctx context.Context) error {
-	for _, j := range g.config.JobsOfInterest {
-		err := g.validateJob(ctx, j)
-
-		if err != nil {
-			g.Log(fmt.Sprintf("Error validating %v -> %v", j, err))
-			return err
-		}
-	}
-
-	g.Log(fmt.Sprintf("Validating %v jobs", len(g.config.JobsOfInterest)))
-	return nil
-}
-
 func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	hooks, err := g.getWebHooks(ctx, job)
 	if err != nil {

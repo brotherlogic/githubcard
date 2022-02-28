@@ -64,23 +64,6 @@ func (g *GithubBridge) UpdateMilestone(ctx context.Context, req *pb.UpdateMilest
 
 //RegisterJob registers a job to be built
 func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	config, err := g.readIssues(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, j := range config.JobsOfInterest {
-		if j == in.Job {
-			return &pb.RegisterResponse{}, g.validateJob(ctx, in.Job)
-		}
-	}
-
-	config.JobsOfInterest = append(config.JobsOfInterest, in.Job)
-	err = g.saveIssues(ctx, config)
-	if err != nil {
-		return nil, err
-	}
-
 	return &pb.RegisterResponse{}, g.validateJob(ctx, in.Job)
 }
 
