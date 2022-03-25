@@ -25,6 +25,7 @@ import (
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
 	kmpb "github.com/brotherlogic/keymapper/proto"
+	prpb "github.com/brotherlogic/printer/proto"
 	ppb "github.com/brotherlogic/proxy/proto"
 )
 
@@ -750,6 +751,14 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
 		return rb, fmt.Errorf("POST error: %v -> %v", resp.StatusCode, string(rb))
+	}
+
+	// Best effort print
+	conn, err := b.FDialServer(ctx, "printer")
+	if err == nil {
+		defer conn.Close()
+		client := prpb.NewPrintServiceClient(conn)
+		client.Print(ctx, &prpb.PrintRequest{Lines: []string{title}, Origin: "github"})
 	}
 
 	return rb, nil
