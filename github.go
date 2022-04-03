@@ -758,7 +758,11 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 	if err == nil {
 		defer conn.Close()
 		client := prpb.NewPrintServiceClient(conn)
-		client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github"})
+		if resp.StatusCode != 201 {
+			client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github"})
+		} else {
+			client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title)}, Origin: "github"})
+		}
 	}
 
 	return rb, nil
