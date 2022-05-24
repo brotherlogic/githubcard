@@ -16,10 +16,13 @@ import (
 
 	"github.com/brotherlogic/goserver"
 	"github.com/brotherlogic/goserver/utils"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	pb "github.com/brotherlogic/cardserver/card"
 	pbgh "github.com/brotherlogic/githubcard/proto"
@@ -32,6 +35,13 @@ import (
 const (
 	// CONFIG where we store la config
 	CONFIG = "/github.com/brotherlogic/githubcard/config"
+)
+
+var (
+	size = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "githubcard_config_size",
+		Help: "The number of issues added per binary",
+	})
 )
 
 type silence struct {
@@ -191,6 +201,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 		return nil, err
 	}
 	config = data.(*pbgh.Config)
+
+	size.Set(float64(proto.Size(config)))
 
 	if len(config.GetJobsOfInterest()) == 0 {
 		b.RaiseIssue("No Interesting Jobs", "Github reciever is reporting no jobs")
