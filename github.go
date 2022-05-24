@@ -38,10 +38,10 @@ const (
 )
 
 var (
-	size = promauto.NewGauge(prometheus.GaugeOpts{
+	size = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "githubcard_config_size",
 		Help: "The number of issues added per binary",
-	})
+	}, []string{"elem"})
 )
 
 type silence struct {
@@ -202,7 +202,11 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	}
 	config = data.(*pbgh.Config)
 
-	size.Set(float64(proto.Size(config)))
+	size.With(prometheus.Labels{"elem": "silences"}).Set(float64(proto.Size(config.GetSilences()[])))
+	size.With(prometheus.Labels{"elem": "jobs"}).Set(float64(proto.Size(config.GetJobsOfInterest()[])))
+	size.With(prometheus.Labels{"elem": "issues"}).Set(float64(proto.Size(config.GetIssues()[])))
+	size.With(prometheus.Labels{"elem": "mapping"}).Set(float64(proto.Size(config.GetTitleToIssue()[])))
+
 
 	if len(config.GetJobsOfInterest()) == 0 {
 		b.RaiseIssue("No Interesting Jobs", "Github reciever is reporting no jobs")
