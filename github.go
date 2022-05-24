@@ -203,7 +203,7 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 
 	var nissues []*pbgh.Issue
 	for _, issue := range config.GetIssues() {
-		if time.Since(time.Unix(issue.GetDateAdded(), 0)) < time.Hour*24*30 {
+		if issue.GetDateAdded() == 0 || time.Since(time.Unix(issue.GetDateAdded(), 0)) < time.Hour*24 {
 			nissues = append(nissues, issue)
 		}
 	}
