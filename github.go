@@ -22,7 +22,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 
 	pb "github.com/brotherlogic/cardserver/card"
 	pbgh "github.com/brotherlogic/githubcard/proto"
@@ -202,11 +201,10 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	}
 	config = data.(*pbgh.Config)
 
-	size.With(prometheus.Labels{"elem": "silences"}).Set(float64(proto.Size(config.GetSilences()[])))
-	size.With(prometheus.Labels{"elem": "jobs"}).Set(float64(proto.Size(config.GetJobsOfInterest()[])))
-	size.With(prometheus.Labels{"elem": "issues"}).Set(float64(proto.Size(config.GetIssues()[])))
-	size.With(prometheus.Labels{"elem": "mapping"}).Set(float64(proto.Size(config.GetTitleToIssue()[])))
-
+	size.With(prometheus.Labels{"elem": "silences"}).Set(float64(len(config.GetSilences())))
+	size.With(prometheus.Labels{"elem": "jobs"}).Set(float64(len(config.GetJobsOfInterest())))
+	size.With(prometheus.Labels{"elem": "issues"}).Set(float64(len(config.GetIssues())))
+	size.With(prometheus.Labels{"elem": "mapping"}).Set(float64(len(config.GetTitleToIssue())))
 
 	if len(config.GetJobsOfInterest()) == 0 {
 		b.RaiseIssue("No Interesting Jobs", "Github reciever is reporting no jobs")
