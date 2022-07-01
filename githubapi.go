@@ -93,7 +93,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	issues.With(prometheus.Labels{"service": in.GetService()}).Inc()
 
 	// Lock the whole add process
-	key, err := g.RunLockingElection(ctx, "github-issue")
+	key, err := g.RunLockingElection(ctx, "github-issue", "Holding for issue")
 	defer g.ReleaseLockingElection(ctx, "github-issue", key)
 
 	//Don't double add issues
@@ -155,7 +155,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		}
 	}
 
-	b, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()))
+	b, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()), in.GetPrintImmediately())
 	if err != nil {
 		if in.Sticky {
 			g.issues = append(g.issues, in)

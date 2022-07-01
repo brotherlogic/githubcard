@@ -47,6 +47,8 @@ message Issue {
   string url = 9;
 
   int32 milestone_number = 10;
+
+  bool print_immediately = 11;
 }
 
 message IssueList {

@@ -737,7 +737,7 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 }
 
 // AddIssueLocal adds an issue
-func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int) ([]byte, error) {
+func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, print bool) ([]byte, error) {
 	b.attempts++
 	issue, err := b.issueExists(title)
 	if err != nil {
@@ -781,9 +781,9 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 		defer conn.Close()
 		client := prpb.NewPrintServiceClient(conn)
 		if resp.StatusCode != 201 {
-			client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github"})
+			client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github", Override: print})
 		} else {
-			client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github"})
+			client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github", Override: print})
 		}
 	}
 
