@@ -733,31 +733,41 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 	}
 	b.Log(fmt.Sprintf("Deleting issue %v/%v", issue.GetService(), issue.GetNumber()))
 	_, err = b.patchURL(fmt.Sprintf("https://api.github.com/repos/%v/%v/issues/%v", owner, issue.GetService(), issue.GetNumber()), string(bytes))
+
+	if err == nil {
+		conn, err := b.FDialServer(ctx, "printer")
+		if err == nil {
+			defer conn.Close()
+			client := prpb.NewPrintServiceClient(conn)
+			client.Clear(ctx, &prpb.ClearRequest{Uid: issue.GetPrintId()})
+		}
+	}
 	return err
 }
 
 // AddIssueLocal adds an issue
-func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, print bool) ([]byte, error) {
+func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, print bool) ([]byte, int64, error) {
 	b.attempts++
 	issue, err := b.issueExists(title)
+	pid := int64(0)
 	if err != nil {
-		return nil, err
+		return nil, pid, err
 	}
 	if issue != nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "Issue already exists")
+		return nil, pid, status.Errorf(codes.FailedPrecondition, "Issue already exists")
 	}
 
 	payload := Payload{Title: title, Body: body, Assignee: owner}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
-		return nil, err
+		return nil, pid, err
 	}
 
 	if milestone > 0 {
 		payload := PayloadWithMilestone{Title: title, Body: body, Assignee: owner, Milestone: milestone}
 		bytes, err = json.Marshal(payload)
 		if err != nil {
-			return nil, err
+			return nil, pid, err
 		}
 
 	}
@@ -765,14 +775,14 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 	urlv := "https://api.github.com/repos/" + owner + "/" + repo + "/issues"
 	resp, err := b.postURL(urlv, string(bytes))
 	if err != nil {
-		return nil, err
+		return nil, pid, err
 	}
 
 	defer resp.Body.Close()
 	rb, _ := ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
-		return rb, fmt.Errorf("POST error: %v -> %v", resp.StatusCode, string(rb))
+		return rb, pid, fmt.Errorf("POST error: %v -> %v", resp.StatusCode, string(rb))
 	}
 
 	// Best effort print
@@ -781,13 +791,19 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 		defer conn.Close()
 		client := prpb.NewPrintServiceClient(conn)
 		if resp.StatusCode != 201 {
-			client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github", Override: print})
+			resp, err := client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github", Override: print})
+			if err == nil {
+				pid = resp.GetUid()
+			}
 		} else {
-			client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github", Override: print})
+			resp, err := client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github", Override: print})
+			if err == nil {
+				pid = resp.GetUid()
+			}
 		}
 	}
 
-	return rb, nil
+	return rb, pid, nil
 }
 
 func hash(s string) int32 {
@@ -895,7 +911,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	b.PrepServer()
+	b.PrepServer("githubcard")
 	b.Register = b
 
 	if len(*verify) > 0 {
@@ -905,7 +921,7 @@ func main() {
 		return
 	}
 
-	err := b.RegisterServerV2("githubcard", false, true)
+	err := b.RegisterServerV2(false)
 	if err != nil {
 		return
 	}

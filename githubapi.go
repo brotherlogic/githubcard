@@ -155,7 +155,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		}
 	}
 
-	b, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()), in.GetPrintImmediately())
+	b, pid, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()), in.GetPrintImmediately())
 	if err != nil {
 		if in.Sticky {
 			g.issues = append(g.issues, in)
@@ -164,6 +164,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		return nil, err
 	}
 	r := &addResponse{}
+	in.PrintId = pid
 
 	err2 := json.Unmarshal(b, &r)
 	if err2 != nil {
