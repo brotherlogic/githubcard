@@ -176,7 +176,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		return nil, fmt.Errorf("Error adding issue for service %v", in.Service)
 	}
 
-	g.CtxLog(ctx, fmt.Sprintf("Adding Issue: %v -> %v/%v", in.GetTitle(), in.GetService(), r.Number))
+	g.CtxLog(ctx, fmt.Sprintf("Adding Issue: %v -> %v/%v (%v)", in.GetTitle(), in.GetService(), r.Number, in))
 
 	in.Number = r.Number
 

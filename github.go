@@ -734,13 +734,15 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 	b.Log(fmt.Sprintf("Deleting issue %v/%v", issue.GetService(), issue.GetNumber()))
 	_, err = b.patchURL(fmt.Sprintf("https://api.github.com/repos/%v/%v/issues/%v", owner, issue.GetService(), issue.GetNumber()), string(bytes))
 
-	if err == nil {
+	if err == nil && issue.GetPrintId() > 0 {
 		conn, err := b.FDialServer(ctx, "printer")
 		if err == nil {
 			defer conn.Close()
 			client := prpb.NewPrintServiceClient(conn)
 			client.Clear(ctx, &prpb.ClearRequest{Uid: issue.GetPrintId()})
 		}
+	} else if err == nil {
+		b.RaiseIssue("Missing Print Id", fmt.Sprintf("%v is missing the print id", issue))
 	}
 	return err
 }
