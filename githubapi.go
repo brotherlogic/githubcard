@@ -182,6 +182,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 
 	config.TitleToIssue[in.GetTitle()] = fmt.Sprintf("%v/%v", in.GetService(), in.GetNumber())
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
+	config.Issues = append(config.Issues, in)
 	return in, g.saveIssues(ctx, config)
 }
 
