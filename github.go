@@ -731,7 +731,7 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 	if err != nil {
 		return err
 	}
-	b.Log(fmt.Sprintf("Deleting issue %v/%v", issue.GetService(), issue.GetNumber()))
+	b.CtxLog(ctx, fmt.Sprintf("Deleting issue %v/%v -> %v", issue.GetService(), issue.GetNumber(), issue))
 	_, err = b.patchURL(fmt.Sprintf("https://api.github.com/repos/%v/%v/issues/%v", owner, issue.GetService(), issue.GetNumber()), string(bytes))
 
 	if err == nil && issue.GetPrintId() > 0 {
