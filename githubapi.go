@@ -126,8 +126,18 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 
 	// If this comes from the receiver - just add it
 	if in.Origin == pb.Issue_FROM_RECEIVER {
-		in.DateAdded = time.Now().Unix()
-		config.Issues = append(config.Issues, in)
+		issue := in
+		for _, issues := range config.Issues {
+			if issues.GetNumber() == issue.GetNumber() && issues.GetService() == issue.GetService() {
+				issue = issues
+			}
+		}
+
+		if issue.GetPrintId() == 0 {
+			config.Issues = append(config.Issues, in)
+		}
+
+		issue.DateAdded = time.Now().Unix()
 		return in, g.saveIssues(ctx, config)
 	}
 
