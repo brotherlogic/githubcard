@@ -100,13 +100,16 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 
 	// Lock the whole add process
 	key, err := g.RunLockingElection(ctx, "github-issue", "Holding for issue")
+	if err != nil {
+		return nil, err
+	}
 	defer g.ReleaseLockingElection(ctx, "github-issue", key)
 
 	//Don't double add issues
 	g.addedMutex.Lock()
 	g.addedCount[in.GetTitle()]++
 	if v, ok := g.added[in.GetTitle()]; ok {
-		if time.Now().Sub(v) < time.Minute*10 {
+		if time.Since(v) < time.Minute*10 {
 			g.addedMutex.Unlock()
 			return nil, status.Errorf(codes.ResourceExhausted, "Unable to add this issue (%v)- recently added (%v)", in.GetTitle(), v)
 		}
@@ -131,14 +134,14 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	// Reject alerts with a blank body
 	if len(in.GetBody()) == 0 {
 		g.blankAlerts++
-		return &pb.Issue{}, fmt.Errorf("This issue has no body")
+		return &pb.Issue{}, fmt.Errorf("this issue has no body")
 	}
 
 	//Reject silenced issues
 	for _, silence := range config.Silences {
 		if in.GetTitle() == silence.Silence {
 			g.silencedAlerts++
-			return &pb.Issue{}, fmt.Errorf("This issue is silenced")
+			return &pb.Issue{}, fmt.Errorf("this issue is silenced")
 		}
 	}
 
@@ -174,12 +177,12 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 
 	err2 := json.Unmarshal(b, &r)
 	if err2 != nil {
-		return nil, fmt.Errorf("Error unmarshal: %v from %v", err2, string(b))
+		return nil, fmt.Errorf("error unmarshal: %v from %v", err2, string(b))
 	}
 
 	if r.Message == "Not Found" {
 		g.AddIssue(ctx, &pb.Issue{Service: "githubcard", Title: "Add Failure", Body: fmt.Sprintf("Couldn't add issue for %v with title %v (%v)", in.Service, in.GetTitle(), in.GetBody())})
-		return nil, fmt.Errorf("Error adding issue for service %v", in.Service)
+		return nil, fmt.Errorf("error adding issue for service %v", in.Service)
 	}
 
 	g.CtxLog(ctx, fmt.Sprintf("Adding Issue: %v -> %v/%v (%v)", in.GetTitle(), in.GetService(), r.Number, in))
@@ -265,7 +268,7 @@ func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.
 		return &pb.SilenceResponse{}, nil
 	}
 
-	return nil, fmt.Errorf("Unable to apply request, silence was not found %v", in)
+	return nil, fmt.Errorf("unable to apply request, silence was not found %v", in)
 }
 
 //Configure the system
