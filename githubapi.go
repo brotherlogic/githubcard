@@ -86,7 +86,7 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	}
 
 	if issue.GetPrintId() == 0 {
-		g.CtxLog(ctx, fmt.Sprintf("Unable to locate issue: %v -> %v", in, g.config.GetIssues()))
+		g.CtxLog(ctx, fmt.Sprintf("Unable to locate this issue: %v -> %v", in, g.config.GetIssues()))
 	}
 
 	return &pb.DeleteResponse{}, g.DeleteIssueLocal(ctx, "brotherlogic", issue)
