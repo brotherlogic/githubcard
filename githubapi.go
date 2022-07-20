@@ -69,12 +69,17 @@ func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) 
 
 //DeleteIssue removes an issue
 func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+	config, err := g.readIssues(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	issue := in.GetIssue()
 	g.issueLock.Lock()
 	defer g.issueLock.Unlock()
 	for i, is := range g.config.Issues {
 		if is.Service == in.Issue.Service && is.Number == in.Issue.Number {
-			g.config.Issues = append(g.config.Issues[:i], g.config.Issues[i+1:]...)
+			config.Issues = append(config.Issues[:i], config.Issues[i+1:]...)
 			issue = is
 			break
 		}
