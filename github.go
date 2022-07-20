@@ -501,7 +501,7 @@ func (b *GithubBridge) getMilestoneLocal(ctx context.Context, repo, title string
 		}
 	}
 
-	return -1, fmt.Errorf("cannot locate milestone (%v)", title)
+	return -1, fmt.Errorf("cannot locate the milestone (%v)", title)
 }
 
 func (b *GithubBridge) createMilestoneLocal(ctx context.Context, repo, title, state, description string) (int, error) {
