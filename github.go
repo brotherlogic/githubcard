@@ -62,7 +62,6 @@ type GithubBridge struct {
 	silencedAlerts int
 	silences       []string
 	blankAlerts    int
-	config         *pbgh.Config
 	gets           int64
 	posts          int64
 	webhookcount   int64
@@ -169,7 +168,6 @@ func Init() *GithubBridge {
 		fails:      0,
 		added:      make(map[string]time.Time),
 		addedMutex: &sync.Mutex{},
-		config:     &pbgh.Config{},
 		addedCount: make(map[string]int64),
 		issueLock:  &sync.Mutex{},
 	}
@@ -410,7 +408,7 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 	return err
 }
 
-func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
+func (b *GithubBridge) issueExists(title string, config *pbgh.Config) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/user/issues"
 	body, _, err := b.visitURL(urlv)
 
@@ -434,7 +432,7 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 		}
 
 		found := false
-		for _, issue := range b.config.Issues {
+		for _, issue := range config.Issues {
 			if dp["url"].(string) == issue.Url {
 				t, _ := time.Parse("2006-01-02T15:04:05Z", dp["created_at"].(string))
 				issue.DateAdded = t.Unix()
@@ -445,15 +443,15 @@ func (b *GithubBridge) issueExists(title string) (*pbgh.Issue, error) {
 
 		if !found {
 			val, _ := strconv.Atoi(dp["created_at"].(string))
-			b.config.Issues = append(b.config.Issues, &pbgh.Issue{Title: dp["title"].(string), Url: dp["url"].(string), DateAdded: int64(val)})
+			config.Issues = append(config.Issues, &pbgh.Issue{Title: dp["title"].(string), Url: dp["url"].(string), DateAdded: int64(val)})
 		}
 
 		seenUrls[dp["url"].(string)] = true
 	}
 
-	for i, issue := range b.config.Issues {
+	for i, issue := range config.Issues {
 		if !seenUrls[issue.Url] {
-			b.config.Issues = append(b.config.Issues[:i], b.config.Issues[i+1:]...)
+			config.Issues = append(config.Issues[:i], config.Issues[i+1:]...)
 			return retIssue, nil
 		}
 	}
@@ -750,9 +748,9 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 }
 
 // AddIssueLocal adds an issue
-func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, print bool) ([]byte, int64, error) {
+func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, print bool, config *pbgh.Config) ([]byte, int64, error) {
 	b.attempts++
-	issue, err := b.issueExists(title)
+	issue, err := b.issueExists(title, config)
 	pid := int64(0)
 	if err != nil {
 		return nil, pid, err
@@ -896,7 +894,11 @@ func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 }
 
 func (b *GithubBridge) rebuild(ctx context.Context) error {
-	_, err := b.issueExists("Clear Email")
+	config, err := b.readIssues(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = b.issueExists("Clear Email", config)
 	return err
 }
 
@@ -904,7 +906,6 @@ func main() {
 	var quiet = flag.Bool("quiet", true, "Show all output")
 	var token = flag.String("token", "", "The token to use to auth")
 	var external = flag.String("external", "", "External IP")
-	var verify = flag.String("verify", "", "Token to use to verify")
 	flag.Parse()
 
 	b := Init()
@@ -917,13 +918,6 @@ func main() {
 
 	b.PrepServer("githubcard")
 	b.Register = b
-
-	if len(*verify) > 0 {
-		b.getter = &prodHTTPGetter{accessToken: *verify}
-		v, err := b.issueExists("Want Processing Needed!")
-		fmt.Printf("%v and %v", err, v)
-		return
-	}
 
 	err := b.RegisterServerV2(false)
 	if err != nil {

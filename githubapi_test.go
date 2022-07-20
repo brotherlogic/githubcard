@@ -21,7 +21,6 @@ func InitTest() *GithubBridge {
 	s.accessCode = "token"
 	s.SkipLog = true
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".test")
-	s.config.ExternalIP = "Test"
 	return s
 }
 
@@ -156,15 +155,6 @@ func TestGetIssue(t *testing.T) {
 	}
 }
 
-func TestGetAllIssuesLatestWithNoEntries(t *testing.T) {
-	s := InitTest()
-
-	_, err := s.GetAll(context.Background(), &pb.GetAllRequest{LatestOnly: true})
-	if err != nil {
-		t.Errorf("Get all did fail: %v", err)
-	}
-}
-
 func TestCreatePullRequesrt(t *testing.T) {
 	s := InitTest()
 	s.CreatePullRequest(context.Background(), &pb.PullRequest{Job: "blah", Branch: "blah"})
@@ -220,14 +210,5 @@ func TestGetPullRequest(t *testing.T) {
 
 	if !pull.IsOpen {
 		t.Errorf("Pull request should be open %v", pull)
-	}
-}
-
-func TestConfigure(t *testing.T) {
-	s := InitTest()
-	s.Configure(context.Background(), &pb.ConfigureRequest{ExternalIp: "maic"})
-
-	if s.config.ExternalIP != "maic" {
-		t.Errorf("Wrong: %v", s.config)
 	}
 }
