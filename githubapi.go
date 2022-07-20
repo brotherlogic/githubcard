@@ -77,7 +77,7 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	issue := in.GetIssue()
 	g.issueLock.Lock()
 	defer g.issueLock.Unlock()
-	for i, is := range g.config.Issues {
+	for i, is := range config.Issues {
 		if is.Service == in.Issue.Service && is.Number == in.Issue.Number {
 			config.Issues = append(config.Issues[:i], config.Issues[i+1:]...)
 			issue = is
@@ -86,7 +86,7 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	}
 
 	if issue.GetPrintId() == 0 {
-		g.CtxLog(ctx, fmt.Sprintf("Unable to locate this issue: %v -> %v", in, g.config.GetIssues()))
+		g.CtxLog(ctx, fmt.Sprintf("Unable to locate this issue: %v -> %v", in, config.GetIssues()))
 	}
 
 	return &pb.DeleteResponse{}, g.DeleteIssueLocal(ctx, "brotherlogic", issue)
@@ -179,7 +179,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		}
 	}
 
-	b, pid, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()), in.GetPrintImmediately())
+	b, pid, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()), in.GetPrintImmediately(), config)
 	if err != nil {
 		if in.Sticky {
 			g.issues = append(g.issues, in)
@@ -225,9 +225,14 @@ func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error)
 
 //GetAll gets all the issues currently open
 func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.GetAllResponse, error) {
+	config, err := g.readIssues(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	resp := &pb.GetAllResponse{}
 
-	for _, is := range g.config.Issues {
+	for _, is := range config.Issues {
 		allowed := true
 		g.Log(fmt.Sprintf("BUT HERE %v", is))
 		for _, no := range in.GetAvoid() {
@@ -254,21 +259,20 @@ func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.Ge
 
 // Silence an issue
 func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.SilenceResponse, error) {
+	config, err := g.readIssues(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	if in.Origin == "" {
 		return nil, fmt.Errorf("Silence needs an origin")
 	}
 
 	currSilence := -1
-	for i, sil := range g.config.Silences {
+	for i, sil := range config.Silences {
 		if sil.Origin == in.Origin {
 			currSilence = i
 		}
-	}
-
-	config, err := g.readIssues(ctx)
-	if err != nil {
-		return nil, err
 	}
 
 	if in.State == pb.SilenceRequest_SILENCE && currSilence == -1 {
@@ -288,6 +292,10 @@ func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.
 
 //Configure the system
 func (g *GithubBridge) Configure(ctx context.Context, req *pb.ConfigureRequest) (*pb.ConfigureResponse, error) {
-	g.config.ExternalIP = req.GetExternalIp()
-	return &pb.ConfigureResponse{}, nil
+	config, err := g.readIssues(ctx)
+	if err != nil {
+		return nil, err
+	}
+	config.ExternalIP = req.GetExternalIp()
+	return &pb.ConfigureResponse{}, g.saveIssues(ctx, config)
 }
