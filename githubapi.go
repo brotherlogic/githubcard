@@ -39,14 +39,11 @@ func (g *GithubBridge) GetPullRequest(ctx context.Context, in *pb.PullRequest) (
 
 //CreatePullRequest creates a pull request
 func (g *GithubBridge) CreatePullRequest(ctx context.Context, in *pb.PullRequest) (*pb.PullResponse, error) {
-	num, err := g.createPullRequestLocal(ctx, in.Job, in.Branch, in.Title)
+	_, err := g.createPullRequestLocal(ctx, in.Job, in.Branch, in.Title)
 	if err != nil {
 		return nil, err
 	}
-	err = g.addLabel(ctx, in.Job, in.Branch, in.Title, num, "automerge")
-	if err != nil {
-		g.RaiseIssue("Bad label add", fmt.Sprintf("Unable to create label: %v", err))
-	}
+
 	return &pb.PullResponse{}, err
 }
 
