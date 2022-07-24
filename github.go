@@ -597,7 +597,20 @@ func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, 
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
-		return -1, fmt.Errorf("UNable to build pull request: %v", resp.StatusCode)
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		respstr := ""
+		if err != nil {
+			respstr = fmt.Sprintf("%v", err)
+		} else {
+			respstr = fmt.Sprintf("%v", string(body))
+		}
+
+		if resp.StatusCode == 422 {
+			b.CtxLog(ctx, fmt.Sprintf("Trying to create PR with access token: %v", b.accessCode))
+		}
+
+		return -1, fmt.Errorf("UNable to build pull request: %v -> %v", resp.StatusCode, respstr)
 	}
 
 	defer resp.Body.Close()
