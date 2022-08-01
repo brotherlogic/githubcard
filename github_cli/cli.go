@@ -32,5 +32,10 @@ func main() {
 	case "register":
 		resp, err := client.RegisterJob(ctx, &pb.RegisterRequest{Job: os.Args[2]})
 		fmt.Printf("%v -> %v\n", resp, err)
+	case "issue":
+		binary := os.Args[2]
+		issue := os.Args[3]
+		a, err := client.AddIssue(ctx, &pb.Issue{Service: binary, Title: issue, Body: "One line issue"})
+		fmt.Printf("%v -> %v\n", a, err)
 	}
 }
