@@ -7,6 +7,10 @@ import (
 	"golang.org/x/net/context"
 )
 
+var (
+	PORT_NUMBER = 50051
+)
+
 func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	hooks, err := g.getWebHooks(ctx, job)
 	if err != nil {
@@ -30,8 +34,8 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 					g.Log(fmt.Sprintf("Setting secret for %v", job))
 					g.updateWebHook(ctx, job, hook)
 				}
-				if !strings.Contains(hook.Config.URL, g.external) {
-					hook.Config.URL = fmt.Sprintf("http://%v:50052/githubwebhook", g.external)
+				if !strings.Contains(hook.Config.URL, g.external) || !strings.Contains(hook.Config.URL, fmt.Sprintf("%v", PORT_NUMBER)) {
+					hook.Config.URL = fmt.Sprintf("http://%v:%v/githubwebhook", g.external, PORT_NUMBER)
 					hook.Config.Secret = g.githubsecret
 					g.updateWebHook(ctx, job, hook)
 				}
@@ -51,7 +55,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 			Active: true,
 			Events: []string{"push", "issues", "create", "pull_request", "check_suite", "check_run", "status"},
 			Config: Config{
-				URL:         fmt.Sprintf("http://%v:50052/githubwebhook", g.external),
+				URL:         fmt.Sprintf("http://%v:%v/githubwebhook", g.external, PORT_NUMBER),
 				ContentType: "json",
 				InsecureSSL: "1",
 			}}
