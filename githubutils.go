@@ -21,31 +21,32 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		return fmt.Errorf("No external IP registered")
 	}
 
-	if len(hooks) == 1 {
-		for _, hook := range hooks {
-			if strings.Contains(hook.Config.URL, "githubwebhook") {
-				g.CtxLog(ctx, fmt.Sprintf("EV %v Sec %v Ext %v CT %v", len(hook.Events), len(hook.Config.Secret), hook.Config.URL, hook.Config.ContentType))
-				if len(hook.Events) != 7 {
-					hook.Events = []string{"push", "issues", "create", "pull_request", "check_suite", "check_run", "status"}
-					hook.Config.Secret = g.githubsecret
-					g.updateWebHook(ctx, job, hook)
-				}
-				if len(hook.Config.Secret) == 0 {
-					hook.Config.Secret = g.githubsecret
-					g.CtxLog(ctx, fmt.Sprintf("Setting secret for %v", job))
-					g.updateWebHook(ctx, job, hook)
-				}
-				if !strings.Contains(hook.Config.URL, g.external) || !strings.Contains(hook.Config.URL, fmt.Sprintf("%v", PORT_NUMBER)) {
-					hook.Config.URL = fmt.Sprintf("http://%v:%v/githubwebhook", g.external, PORT_NUMBER)
-					hook.Config.Secret = g.githubsecret
-					g.updateWebHook(ctx, job, hook)
-				}
+	for _, hook := range hooks {
+		if strings.Contains(hook.Config.URL, "travis") {
+			g.deleteWebHook(ctx, job, hook)
+		}
+		if strings.Contains(hook.Config.URL, "githubwebhook") {
+			g.CtxLog(ctx, fmt.Sprintf("EV %v Sec %v Ext %v CT %v", len(hook.Events), len(hook.Config.Secret), hook.Config.URL, hook.Config.ContentType))
+			if len(hook.Events) != 7 {
+				hook.Events = []string{"push", "issues", "create", "pull_request", "check_suite", "check_run", "status"}
+				hook.Config.Secret = g.githubsecret
+				g.updateWebHook(ctx, job, hook)
+			}
+			if len(hook.Config.Secret) == 0 {
+				hook.Config.Secret = g.githubsecret
+				g.CtxLog(ctx, fmt.Sprintf("Setting secret for %v", job))
+				g.updateWebHook(ctx, job, hook)
+			}
+			if !strings.Contains(hook.Config.URL, g.external) || !strings.Contains(hook.Config.URL, fmt.Sprintf("%v", PORT_NUMBER)) {
+				hook.Config.URL = fmt.Sprintf("http://%v:%v/githubwebhook", g.external, PORT_NUMBER)
+				hook.Config.Secret = g.githubsecret
+				g.updateWebHook(ctx, job, hook)
+			}
 
-				if hook.Config.ContentType != "json" {
-					hook.Config.ContentType = "json"
-					hook.Config.Secret = g.githubsecret
-					g.updateWebHook(ctx, job, hook)
-				}
+			if hook.Config.ContentType != "json" {
+				hook.Config.ContentType = "json"
+				hook.Config.Secret = g.githubsecret
+				g.updateWebHook(ctx, job, hook)
 			}
 		}
 	}

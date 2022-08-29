@@ -387,6 +387,21 @@ func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Web
 	return err
 }
 
+func (b *GithubBridge) deleteWebHook(ctx context.Context, repo string, hook *Webhook) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks/%v", repo, hook.ID)
+
+	resp, err := b.deleteURL(urlv)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	b.CtxLog(ctx, fmt.Sprintf("RESULT: %v", string(data)))
+
+	return err
+}
+
 func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook) error {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks", repo)
 
