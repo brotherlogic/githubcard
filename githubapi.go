@@ -231,7 +231,7 @@ func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.Ge
 
 	for _, is := range config.Issues {
 		allowed := true
-		g.Log(fmt.Sprintf("BUT HERE %v", is))
+		g.CtxLog(ctx, fmt.Sprintf("BUT HERE %v", is))
 		for _, no := range in.GetAvoid() {
 			if strings.Contains(is.GetUrl(), no) {
 				allowed = false

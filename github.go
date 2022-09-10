@@ -290,7 +290,7 @@ func (b *GithubBridge) deleteURL(url string) (*http.Response, error) {
 	return b.getter.Delete(url)
 }
 
-func (b *GithubBridge) visitURL(url string) (string, bool, error) {
+func (b *GithubBridge) visitURL(ctx context.Context, url string) (string, bool, error) {
 	b.gets++
 
 	resp, err := b.getter.Get(url)
@@ -306,7 +306,7 @@ func (b *GithubBridge) visitURL(url string) (string, bool, error) {
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 0 {
-		b.Log(fmt.Sprintf("Error in visit (%v): %v", resp.StatusCode, string(body)))
+		b.CtxLog(ctx, fmt.Sprintf("Error in visit (%v): %v", resp.StatusCode, string(body)))
 		return string(body), false, fmt.Errorf("Non 200 return (%v) -> %v", resp.StatusCode, string(body))
 	}
 
@@ -344,7 +344,7 @@ type Config struct {
 
 func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook, error) {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks", repo)
-	body, _, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(ctx, urlv)
 
 	if err != nil {
 		return []*Webhook{}, err
@@ -418,14 +418,14 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 	defer resp.Body.Close()
 	data, err := ioutil.ReadAll(resp.Body)
 
-	b.Log(fmt.Sprintf("READ[%v]: %v", resp.StatusCode, string(data)))
+	b.CtxLog(ctx, fmt.Sprintf("READ[%v]: %v", resp.StatusCode, string(data)))
 
 	return err
 }
 
-func (b *GithubBridge) issueExists(title string, config *pbgh.Config) (*pbgh.Issue, error) {
+func (b *GithubBridge) issueExists(ctx context.Context, title string, config *pbgh.Config) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/user/issues"
-	body, _, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(ctx, urlv)
 
 	if err != nil {
 		return nil, err
@@ -661,7 +661,7 @@ func (b *GithubBridge) addLabel(ctx context.Context, job, branch, title string, 
 
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
-	b.Log(fmt.Sprintf("Adding LABEL: %v -> %v", urlv, string(body)))
+	b.CtxLog(ctx, fmt.Sprintf("Adding LABEL: %v -> %v", urlv, string(body)))
 
 	return nil
 }
@@ -676,7 +676,7 @@ type prr struct {
 
 func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pullNumber int32) (*pbgh.PullResponse, error) {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v/commits", job, pullNumber)
-	body, _, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(ctx, urlv)
 	if err != nil {
 		return nil, err
 	}
@@ -688,7 +688,7 @@ func (b *GithubBridge) getPullRequestLocal(ctx context.Context, job string, pull
 	}
 
 	urlv = fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls/%v", job, pullNumber)
-	body, _, err = b.visitURL(urlv)
+	body, _, err = b.visitURL(ctx, urlv)
 	if err != nil {
 		return nil, err
 	}
@@ -778,7 +778,7 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 // AddIssueLocal adds an issue
 func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, print bool, config *pbgh.Config) ([]byte, int64, error) {
 	b.attempts++
-	issue, err := b.issueExists(title, config)
+	issue, err := b.issueExists(ctx, title, config)
 	pid := int64(0)
 	if err != nil {
 		return nil, pid, err
@@ -845,7 +845,7 @@ func hash(s string) int32 {
 // GetIssueLocal Gets github issues for a given project
 func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project string, number int) (*pbgh.Issue, error) {
 	urlv := "https://api.github.com/repos/" + owner + "/" + project + "/issues/" + strconv.Itoa(number)
-	body, _, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(ctx, urlv)
 
 	if err != nil {
 		return nil, err
@@ -872,10 +872,10 @@ func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project 
 }
 
 // GetIssues Gets github issues for a given project
-func (b *GithubBridge) GetIssues() pb.CardList {
+func (b *GithubBridge) GetIssues(ctx context.Context) pb.CardList {
 	cardlist := pb.CardList{}
 	urlv := "https://api.github.com/issues?state=open&filter=all"
-	body, _, err := b.visitURL(urlv)
+	body, _, err := b.visitURL(ctx, urlv)
 
 	if err != nil {
 		return cardlist
@@ -926,7 +926,7 @@ func (b *GithubBridge) rebuild(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = b.issueExists("Clear Email", config)
+	_, err = b.issueExists(ctx, "Clear Email", config)
 	return err
 }
 

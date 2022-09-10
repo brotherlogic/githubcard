@@ -61,7 +61,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 				ContentType: "json",
 				InsecureSSL: "1",
 			}}
-		g.Log(fmt.Sprintf("Adding %v", hook))
+		g.CtxLog(ctx, fmt.Sprintf("Adding %v", hook))
 		err := g.addWebHook(ctx, job, hook)
 		if err != nil {
 			return err
