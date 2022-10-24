@@ -158,7 +158,7 @@ func (h prodHTTPGetter) Get(url string) (*http.Response, error) {
 	return h.getClient().Do(req)
 }
 
-//Init a record getter
+// Init a record getter
 func Init() *GithubBridge {
 	s := &GithubBridge{
 		GoServer:   &goserver.GoServer{},
@@ -601,6 +601,50 @@ func (b *GithubBridge) createPullRequestLocal(ctx context.Context, job, branch, 
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls", job)
 
 	payload := &PRequest{Title: title, Head: branch, Base: "master", Body: "Auto created pull request"}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return -1, err
+	}
+
+	resp, err := b.postURL(urlv, string(bytes))
+	if err != nil {
+		return -1, err
+	}
+
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		respstr := ""
+		if err != nil {
+			respstr = fmt.Sprintf("%v", err)
+		} else {
+			respstr = fmt.Sprintf("%v", string(body))
+		}
+
+		if resp.StatusCode == 422 {
+			return b.createPullRequestMainLocal(ctx, job, branch, title)
+		}
+
+		return -1, fmt.Errorf("UNable to build pull request: %v -> %v", resp.StatusCode, respstr)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return -1, err
+	}
+
+	presp := &PResponse{}
+	err = json.Unmarshal(body, presp)
+
+	return presp.number, err
+}
+
+func (b *GithubBridge) createPullRequestMainLocal(ctx context.Context, job, branch, title string) (int32, error) {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/pulls", job)
+
+	payload := &PRequest{Title: title, Head: branch, Base: "main", Body: "Auto created pull request"}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
 		return -1, err
