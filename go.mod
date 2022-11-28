@@ -7,8 +7,7 @@ require (
 	github.com/brotherlogic/goserver v0.0.0-20221106165541-0672428e3628
 	github.com/brotherlogic/keymapper v0.0.0-20221128051600-76792d58a07e
 	github.com/brotherlogic/keystore v0.0.0-20221118101511-9bbbd1bfa3b7
-	github.com/brotherlogic/logging v0.0.0-20221128052323-f69c99aa56e0 // indirect
-	github.com/brotherlogic/printer v0.0.0-20221125163413-4be382786714
+	github.com/brotherlogic/printer v0.0.0-20221128053652-3233f3cee1c9
 	github.com/brotherlogic/proxy v0.0.0-20221031210609-0016886f0779
 	github.com/golang/protobuf v1.5.2
 	github.com/prometheus/client_golang v1.14.0
