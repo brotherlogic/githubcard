@@ -3,6 +3,7 @@ module github.com/brotherlogic/githubcard
 go 1.16
 
 require (
+	github.com/brotherlogic/buildserver v0.0.0-20221128061350-5b1a642d8b53 // indirect
 	github.com/brotherlogic/cardserver v0.0.0-20190719223243-651f4429cf27
 	github.com/brotherlogic/goserver v0.0.0-20221106165541-0672428e3628
 	github.com/brotherlogic/keymapper v0.0.0-20221128055005-24bf392c59e7
