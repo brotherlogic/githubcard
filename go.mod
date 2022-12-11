@@ -5,9 +5,8 @@ go 1.16
 require (
 	github.com/brotherlogic/cardserver v0.0.0-20190719223243-651f4429cf27
 	github.com/brotherlogic/goserver v0.0.0-20221202193151-b0b39691c212
-	github.com/brotherlogic/keymapper v0.0.0-20221211020801-04e0631ca8c0
+	github.com/brotherlogic/keymapper v0.0.0-20221211022042-f8f135bd9d44
 	github.com/brotherlogic/keystore v0.0.0-20221210190215-af3698c6a2c9
-	github.com/brotherlogic/logging v0.0.0-20221211021154-e47b3082196b // indirect
 	github.com/brotherlogic/printer v0.0.0-20221209183447-b5f99e08906b
 	github.com/brotherlogic/proxy v0.0.0-20221211021136-22acb0df830b
 	github.com/golang/protobuf v1.5.2
