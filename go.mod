@@ -4,11 +4,11 @@ go 1.16
 
 require (
 	github.com/brotherlogic/cardserver v0.0.0-20190719223243-651f4429cf27
-	github.com/brotherlogic/goserver v0.0.0-20221202193151-b0b39691c212
-	github.com/brotherlogic/keymapper v0.0.0-20221211030714-02f427f56f0b
-	github.com/brotherlogic/keystore v0.0.0-20221210190215-af3698c6a2c9
-	github.com/brotherlogic/printer v0.0.0-20221209183447-b5f99e08906b
-	github.com/brotherlogic/proxy v0.0.0-20221211023330-14fc812009a5
+	github.com/brotherlogic/goserver v0.0.0-20221217002224-0ba5c0213be1
+	github.com/brotherlogic/keymapper v0.0.0-20221218035325-792eaa54f8fb
+	github.com/brotherlogic/keystore v0.0.0-20221218025925-612b2a89a337
+	github.com/brotherlogic/printer v0.0.0-20221218005812-6e96f5029592
+	github.com/brotherlogic/proxy v0.0.0-20221218030630-194c08111404
 	github.com/golang/protobuf v1.5.2
 	github.com/prometheus/client_golang v1.14.0
 	golang.org/x/net v0.4.0
