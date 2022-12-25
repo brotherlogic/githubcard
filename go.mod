@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/brotherlogic/cardserver v0.0.0-20190719223243-651f4429cf27
-	github.com/brotherlogic/gobuildslave v0.0.0-20221225055807-42396db74074 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20221225061644-96d629064695 // indirect
 	github.com/brotherlogic/goserver v0.0.0-20221217002224-0ba5c0213be1
 	github.com/brotherlogic/keymapper v0.0.0-20221218051619-52e9a4494ece
 	github.com/brotherlogic/keystore v0.0.0-20221225031157-d9efa4c60049
