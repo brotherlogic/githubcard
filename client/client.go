@@ -1,4 +1,4 @@
-package dstore_client
+package github_client
 
 import (
 	"context"
