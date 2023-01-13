@@ -32,6 +32,15 @@ func main() {
 	case "register":
 		resp, err := client.RegisterJob(ctx, &pb.RegisterRequest{Job: os.Args[2]})
 		fmt.Printf("%v -> %v\n", resp, err)
+	case "all":
+		resp, err := client.GetAll(ctx, &pb.GetAllRequest{})
+		if err != nil {
+			log.Fatalf("could not get all: %v", err)
+		}
+
+		for _, issue := range resp.GetIssues() {
+			fmt.Printf("%v\n", issue.GetTitle())
+		}
 	case "issue":
 		binary := os.Args[2]
 		issue := os.Args[3]
