@@ -36,6 +36,9 @@ func (c *GHClient) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error
 
 func (c *GHClient) GetIssues(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllResponse, error) {
 	if c.Test {
+		if c.ErrorCode != codes.OK {
+			return nil, status.Errorf(c.ErrorCode, "Built to fail")
+		}
 		return &pb.GetAllResponse{Issues: c.Issues}, nil
 	}
 
