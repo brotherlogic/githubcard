@@ -1081,6 +1081,13 @@ func main() {
 		if triggered {
 			b.saveIssues(sctx, config)
 		}
+
+		// Always register home job under a webhook
+		_, err = b.RegisterJob(sctx, &pbgh.RegisterRequest{Job: "home"})
+		if err != nil {
+			b.CtxLog(ctx, fmt.Sprintf("Unable to register home: %v", err))
+		}
+
 		scancel()
 
 		b.Serve()
