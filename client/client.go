@@ -31,3 +31,18 @@ func (c *GHClient) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error
 	client := pb.NewGithubClient(conn)
 	return client.AddIssue(ctx, in)
 }
+
+func (c *GHClient) GetIssues(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllResponse, error) {
+	if c.Test {
+		return &pb.GetAllResponse{Issues: []*pb.Issue{&pb.Issue{Title: "Test Issue"}}}, nil
+	}
+
+	conn, err := c.Gs.FDialServer(ctx, "githubcard")
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	client := pb.NewGithubClient(conn)
+	return client.GetAll(ctx, req)
+}
