@@ -36,7 +36,7 @@ func (c *GHClient) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error
 
 func (c *GHClient) GetIssues(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllResponse, error) {
 	if c.Test {
-		return &pb.GetAllResponse{Issues: c.Issues}}, nil
+		return &pb.GetAllResponse{Issues: c.Issues}, nil
 	}
 
 	conn, err := c.Gs.FDialServer(ctx, "githubcard")
