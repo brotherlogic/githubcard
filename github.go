@@ -943,18 +943,11 @@ func (b *GithubBridge) rebuild(ctx context.Context) error {
 }
 
 func main() {
-	var quiet = flag.Bool("quiet", true, "Show all output")
 	var token = flag.String("token", "", "The token to use to auth")
 	var external = flag.String("external", "", "External IP")
 	flag.Parse()
 
 	b := Init()
-
-	//Turn off logging
-	if *quiet {
-		log.SetFlags(0)
-		log.SetOutput(ioutil.Discard)
-	}
 
 	b.PrepServer("githubcard")
 	b.Register = b
@@ -1075,7 +1068,7 @@ func main() {
 		}
 
 		if adjust || triggered {
-			err := b.saveIssues(ctx, config)
+			err := b.saveIssues(sctx, config)
 			if err != nil {
 				log.Fatalf("Unable to save config on startup")
 			}
