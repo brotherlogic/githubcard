@@ -74,7 +74,7 @@ type GithubBridge struct {
 
 type httpGetter interface {
 	Post(url string, data string) (*http.Response, error)
-	Get(url string) (*http.Response, error)
+	Get(ctx context.Context, url string) (*http.Response, error)
 	Delete(url string) (*http.Response, error)
 	Patch(url string, data string) (*http.Response, error)
 	Put(url string, data string) (*http.Response, error)
@@ -82,6 +82,7 @@ type httpGetter interface {
 
 type prodHTTPGetter struct {
 	accessToken string
+	clog        func(context.Context, string)
 }
 
 func (h prodHTTPGetter) getClient() *http.Client {
@@ -149,10 +150,12 @@ func (h prodHTTPGetter) Delete(url string) (*http.Response, error) {
 	return h.getClient().Do(req)
 }
 
-func (h prodHTTPGetter) Get(url string) (*http.Response, error) {
+func (h prodHTTPGetter) Get(ctx context.Context, url string) (*http.Response, error) {
 	req, _ := http.NewRequest("GET", url, nil)
 
 	h.prepRequest(req)
+
+	h.clog(ctx, fmt.Sprintf("REQUEST: %v", req))
 
 	return h.getClient().Do(req)
 }
@@ -296,7 +299,7 @@ func (b *GithubBridge) deleteURL(url string) (*http.Response, error) {
 func (b *GithubBridge) visitURL(ctx context.Context, url string) (string, bool, error) {
 	b.gets++
 
-	resp, err := b.getter.Get(url)
+	resp, err := b.getter.Get(ctx, url)
 	if err != nil {
 		return "", false, err
 	}
@@ -493,7 +496,7 @@ type AmResponse struct {
 func (b *GithubBridge) getMilestoneLocal(ctx context.Context, repo, title string) (int, error) {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/milestones", repo)
 
-	resp, err := b.getter.Get(urlv)
+	resp, err := b.getter.Get(ctx, urlv)
 
 	if err != nil {
 		return -1, err
@@ -1004,7 +1007,7 @@ func main() {
 			log.Fatalf("Error reading token: %v", m)
 		}
 		b.accessCode = m.(*pbgh.Token).GetToken()
-		b.getter = &prodHTTPGetter{accessToken: b.accessCode}
+		b.getter = &prodHTTPGetter{accessToken: b.accessCode, clog: b.CtxLog}
 
 		ctx, cancel = utils.ManualContext("githubs", time.Minute)
 		m, _, err = b.Read(ctx, "/github.com/brotherlogic/github/secret", &ppb.GithubKey{})
@@ -1043,9 +1046,6 @@ func main() {
 		}
 		ccancel()
 		sctx, scancel := utils.ManualContext("githubs", time.Hour)
-		if triggered {
-			b.saveIssues(sctx, config)
-		}
 
 		// Always register home job under a webhook
 		_, err = b.RegisterJob(sctx, &pbgh.RegisterRequest{Job: "home"})
@@ -1074,7 +1074,7 @@ func main() {
 			}
 		}
 
-		if adjust {
+		if adjust || triggered {
 			err := b.saveIssues(ctx, config)
 			if err != nil {
 				log.Fatalf("Unable to save config on startup")
