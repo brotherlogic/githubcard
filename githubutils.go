@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	pbgh "github.com/brotherlogic/githubcard/proto"
+	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 )
 
@@ -14,6 +15,16 @@ var (
 	PORT_NUMBER = 50051
 )
 
+func (g *GithubBridge) metrics(config *pbgh.Config) {
+	counts := make(map[string]int32)
+	for _, issue := range config.GetIssues() {
+		counts[issue.GetService()]++
+	}
+
+	for service, count := range counts {
+		issues.With(prometheus.Labels{"service": service}).Set(float64(count))
+	}
+}
 func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	hooks, err := g.getWebHooks(ctx, job)
 	if err != nil {

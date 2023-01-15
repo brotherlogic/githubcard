@@ -187,6 +187,7 @@ func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) erro
 	if config.ExternalIP == "" {
 		log.Fatalf("Trying to save without IP: %v", config)
 	}
+	b.metrics(config)
 	return b.KSclient.Save(ctx, CONFIG, config)
 }
 
@@ -247,6 +248,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
 
 	b.CtxLog(ctx, fmt.Sprintf("Read config with %v issues", len(config.GetTitleToIssue())))
+
+	b.metrics(config)
 
 	return config, nil
 }

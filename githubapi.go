@@ -104,8 +104,6 @@ var (
 
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
-	issues.With(prometheus.Labels{"service": in.GetService()}).Inc()
-
 	// Lock the whole add process
 	key, err := g.RunLockingElection(ctx, "github-issue", "Holding for issue")
 	if err != nil {
