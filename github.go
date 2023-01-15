@@ -1091,6 +1091,7 @@ func main() {
 
 		// Pull all issues
 		exissues := b.GetIssues(sctx)
+		b.CtxLog(ctx, fmt.Sprintf("FOUND EXISTING: %v", len(exissues.GetCards())))
 		for _, issue := range exissues.GetCards() {
 			b.CtxLog(ctx, fmt.Sprintf("IHAVEGOT %v", issue))
 		}
