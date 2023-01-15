@@ -201,7 +201,7 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 
 	var nissues []*pbgh.Issue
 	for _, issue := range config.GetIssues() {
-		if issue.GetDateAdded() == 0 || time.Since(time.Unix(issue.GetDateAdded(), 0)) < time.Hour*24 {
+		if time.Since(time.Unix(issue.GetDateAdded(), 0)) < time.Hour*24*7 {
 			b.CtxLog(ctx, fmt.Sprintf("Not Dropping: %v", issue))
 			nissues = append(nissues, issue)
 		} else {
