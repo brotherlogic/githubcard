@@ -155,7 +155,7 @@ func (h prodHTTPGetter) Get(ctx context.Context, url string) (*http.Response, er
 
 	h.prepRequest(req)
 
-	h.clog(ctx, fmt.Sprintf("REQUEST: %v", req))
+	h.clog(ctx, fmt.Sprintf("REQUEST IS: %v", req))
 
 	return h.getClient().Do(req)
 }
