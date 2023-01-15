@@ -309,7 +309,7 @@ func (b *GithubBridge) visitURL(ctx context.Context, url string) (string, bool, 
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 0 {
-		b.CtxLog(ctx, fmt.Sprintf("Error in visit (%v): %v", resp.StatusCode, string(body)))
+		b.CtxLog(ctx, fmt.Sprintf("Error in visit %v -> (%v): %v", url, resp.StatusCode, string(body)))
 		return string(body), false, fmt.Errorf("Non 200 return (%v) -> %v", resp.StatusCode, string(body))
 	}
 
