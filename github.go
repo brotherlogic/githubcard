@@ -202,17 +202,6 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	}
 	config = data.(*pbgh.Config)
 
-	var nissues []*pbgh.Issue
-	for _, issue := range config.GetIssues() {
-		if time.Since(time.Unix(issue.GetDateAdded(), 0)) < time.Hour*24*7 {
-			b.CtxLog(ctx, fmt.Sprintf("not Dropping: %v", issue))
-			nissues = append(nissues, issue)
-		} else {
-			b.CtxLog(ctx, fmt.Sprintf("Dropping issue: %v", issue))
-		}
-	}
-	config.Issues = nissues
-
 	size.With(prometheus.Labels{"elem": "silences"}).Set(float64(len(config.GetSilences())))
 	size.With(prometheus.Labels{"elem": "jobs"}).Set(float64(len(config.GetJobsOfInterest())))
 	size.With(prometheus.Labels{"elem": "issues"}).Set(float64(len(config.GetIssues())))
