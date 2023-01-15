@@ -23,7 +23,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pb "github.com/brotherlogic/cardserver/card"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
 	kmpb "github.com/brotherlogic/keymapper/proto"
@@ -917,41 +916,17 @@ func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project 
 }
 
 // GetIssues Gets github issues for a given project
-func (b *GithubBridge) GetIssues(ctx context.Context) pb.CardList {
-	cardlist := pb.CardList{}
+func (b *GithubBridge) GetIssues(ctx context.Context) ([]*pbgh.Issue, error) {
 	urlv := "https://api.github.com/issues?state=open&filter=all"
 	body, _, err := b.visitURL(ctx, urlv)
 
 	if err != nil {
-		return cardlist
+		return nil, err
 	}
 
-	var data []interface{}
-	err = json.Unmarshal([]byte(body), &data)
-	if err != nil {
-		return cardlist
-	}
-
-	for _, issue := range data {
-		issueMap := issue.(map[string]interface{})
-
-		if _, ok := issueMap["pull_request"]; !ok {
-			issueSource := issueMap["url"].(string)
-			issueTitle := issueMap["title"].(string)
-			issueText := issueMap["body"].(string)
-
-			date, _ := time.Parse("2006-01-02T15:04:05Z", issueMap["created_at"].(string))
-
-			card := &pb.Card{}
-			card.Text = issueTitle + "\n" + issueText + "\n\n" + issueSource
-			card.Hash = "githubissue-" + issueSource
-			card.Channel = pb.Card_ISSUES
-			card.Priority = int32(time.Now().Sub(date).Seconds())
-			cardlist.Cards = append(cardlist.Cards, card)
-		}
-	}
-
-	return cardlist
+	var issues []*pbgh.Issue
+	err = json.Unmarshal([]byte(body), issues)
+	return issues, err
 }
 
 func (b *GithubBridge) cleanAdded(ctx context.Context) error {
@@ -1090,11 +1065,8 @@ func main() {
 		}
 
 		// Pull all issues
-		exissues := b.GetIssues(sctx)
-		b.CtxLog(ctx, fmt.Sprintf("FOUND EXISTING: %v", len(exissues.GetCards())))
-		for _, issue := range exissues.GetCards() {
-			b.CtxLog(ctx, fmt.Sprintf("IHAVEGOT %v", issue))
-		}
+		exissues, err := b.GetIssues(sctx)
+		b.CtxLog(ctx, fmt.Sprintf("FOUND EXISTING: %v -> %v", exissues, err))
 
 		scancel()
 
