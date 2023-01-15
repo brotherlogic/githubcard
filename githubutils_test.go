@@ -20,4 +20,8 @@ func TestReadIssues(t *testing.T) {
 	if issues[0].Title == "" || issues[0].Number == 0 {
 		t.Errorf("Bad read on issue: %v", issues[0])
 	}
+
+	if issues[0].DateAdded == 0 {
+		t.Errorf("We haven't read the date: %v", issues[0])
+	}
 }
