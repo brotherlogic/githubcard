@@ -1046,6 +1046,9 @@ func main() {
 			for _, is := range config.GetIssues() {
 				if is.GetService() == issue.GetService() && is.GetNumber() == issue.GetNumber() {
 					found = true
+					if is.DateAdded == 0 && issue.GetDateAdded() > 0 {
+						is.DateAdded = issue.GetDateAdded()
+					}
 					break
 				}
 			}
