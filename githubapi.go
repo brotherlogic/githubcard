@@ -78,6 +78,12 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 		if is.Service == in.Issue.Service && is.Number == in.Issue.Number {
 			config.Issues = append(config.Issues[:i], config.Issues[i+1:]...)
 			issue = is
+
+			err := g.saveIssues(ctx, config)
+			if err != nil {
+				return nil, err
+			}
+
 			break
 		}
 	}
