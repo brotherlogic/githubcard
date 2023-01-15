@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
+	pbgh "github.com/brotherlogic/githubcard/proto"
 	"golang.org/x/net/context"
 )
 
@@ -69,5 +72,37 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	return nil
+}
 
+type issueReturn struct {
+	Url   string
+	Title string
+	Body  string
+}
+
+// GetIssues Gets github issues for a given project
+func (b *GithubBridge) GetIssues(ctx context.Context) ([]*pbgh.Issue, error) {
+	urlv := "https://api.github.com/issues?state=open&filter=all"
+	body, _, err := b.visitURL(ctx, urlv)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var issuesRet []*issueReturn
+	err = json.Unmarshal([]byte(body), &issuesRet)
+
+	var issues []*pbgh.Issue
+	for _, ir := range issuesRet {
+		splits := strings.Split(ir.Url, "/")
+		service := splits[5]
+		number, _ := strconv.ParseInt(splits[7], 10, 32)
+		issues = append(issues, &pbgh.Issue{
+			Service: service,
+			Number:  int32(number),
+			Title:   ir.Title,
+			Body:    ir.Body})
+	}
+
+	return issues, err
 }

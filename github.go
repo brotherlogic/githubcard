@@ -915,20 +915,6 @@ func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project 
 	return issue, nil
 }
 
-// GetIssues Gets github issues for a given project
-func (b *GithubBridge) GetIssues(ctx context.Context) ([]*pbgh.Issue, error) {
-	urlv := "https://api.github.com/issues?state=open&filter=all"
-	body, _, err := b.visitURL(ctx, urlv)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var issues []*pbgh.Issue
-	err = json.Unmarshal([]byte(body), issues)
-	return issues, err
-}
-
 func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 	b.addedMutex.Lock()
 	defer b.addedMutex.Unlock()
@@ -1066,7 +1052,31 @@ func main() {
 
 		// Pull all issues
 		exissues, err := b.GetIssues(sctx)
-		b.CtxLog(ctx, fmt.Sprintf("FOUND EXISTING: %v -> %v", exissues, err))
+		if err != nil {
+			log.Fatalf("Unable to read issues on startup: %v", err)
+		}
+		adjust := false
+		for _, issue := range exissues {
+			found := false
+			for _, is := range config.GetIssues() {
+				if is.GetService() == issue.GetService() && is.GetNumber() == issue.GetNumber() {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				adjust = true
+				config.Issues = append(config.Issues, issue)
+			}
+		}
+
+		if adjust {
+			err := b.saveIssues(ctx, config)
+			if err != nil {
+				log.Fatalf("Unable to save config on startup")
+			}
+		}
 
 		scancel()
 
