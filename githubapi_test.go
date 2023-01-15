@@ -38,7 +38,7 @@ func (httpGetter failGetter) Put(url string, data string) (*http.Response, error
 	return nil, errors.New("Built to Fail")
 }
 
-func (httpGetter failGetter) Get(url string) (*http.Response, error) {
+func (httpGetter failGetter) Get(ctx context.Context, url string) (*http.Response, error) {
 	return nil, errors.New("Built to Fail")
 }
 
@@ -109,7 +109,7 @@ func (httpGetter testFileGetter) Put(url string, data string) (*http.Response, e
 	return response, nil
 }
 
-func (httpGetter testFileGetter) Get(url string) (*http.Response, error) {
+func (httpGetter testFileGetter) Get(ctx context.Context, url string) (*http.Response, error) {
 	response := &http.Response{}
 	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
 	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
