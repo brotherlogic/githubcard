@@ -94,7 +94,7 @@ func (h prodHTTPGetter) getClient() *http.Client {
 }
 
 func (h prodHTTPGetter) prepRequest(req *http.Request) {
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/vnd.github+json")
 	req.SetBasicAuth("brotherlogic", h.accessToken)
 }
 
