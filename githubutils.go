@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	"github.com/prometheus/client_golang/prometheus"
@@ -86,9 +87,10 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 }
 
 type issueReturn struct {
-	Url   string
-	Title string
-	Body  string
+	Url       string
+	Title     string
+	Body      string
+	CreatedAt string `json:"created_at"`
 }
 
 // GetIssues Gets github issues for a given project
@@ -108,11 +110,16 @@ func (b *GithubBridge) GetIssues(ctx context.Context) ([]*pbgh.Issue, error) {
 		splits := strings.Split(ir.Url, "/")
 		service := splits[5]
 		number, _ := strconv.ParseInt(splits[7], 10, 32)
+		date, err := time.Parse(time.RFC3339, ir.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
 		issues = append(issues, &pbgh.Issue{
-			Service: service,
-			Number:  int32(number),
-			Title:   ir.Title,
-			Body:    ir.Body})
+			Service:   service,
+			Number:    int32(number),
+			Title:     ir.Title,
+			Body:      ir.Body,
+			DateAdded: date.Unix()})
 	}
 
 	return issues, err
