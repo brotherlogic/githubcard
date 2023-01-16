@@ -912,7 +912,7 @@ func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project 
 
 	rbody := ""
 	if _, ok := data["body"]; ok {
-		rbody = data["body"].(string)
+		rbody = fmt.Sprintf("%v", data["body"])
 	}
 
 	issue := &pbgh.Issue{Number: int32(number), Service: project, Title: data["title"].(string), Body: rbody}
