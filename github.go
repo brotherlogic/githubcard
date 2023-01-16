@@ -249,6 +249,12 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	}
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
 
+	for _, issue := range config.GetIssues() {
+		if issue.GetDateAdded() == 0 {
+			issue.DateAdded = time.Now().Unix()
+		}
+	}
+
 	b.CtxLog(ctx, fmt.Sprintf("Read config with %v issues", len(config.GetTitleToIssue())))
 
 	b.metrics(config)

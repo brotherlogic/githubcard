@@ -124,6 +124,10 @@ var (
 
 //AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
+	if in.GetDateAdded() == 0 {
+		in.DateAdded = time.Now().Unix()
+	}
+
 	// Lock the whole add process
 	key, err := g.RunLockingElection(ctx, "github-issue", "Holding for issue")
 	if err != nil {
