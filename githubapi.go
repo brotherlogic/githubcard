@@ -149,6 +149,8 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 			}
 		}
 
+		s.CtxLog(ctx, fmt.Sprintf("Resolved to existing issue: %v -> %v", issue, in))
+
 		if issue.GetPrintId() == 0 {
 			config.Issues = append(config.Issues, in)
 		}
