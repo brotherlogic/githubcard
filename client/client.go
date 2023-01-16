@@ -10,10 +10,11 @@ import (
 )
 
 type GHClient struct {
-	Gs        *pbgs.GoServer
-	ErrorCode codes.Code
-	Test      bool
-	Issues    []*pb.Issue
+	Gs         *pbgs.GoServer
+	ErrorCode  codes.Code
+	Test       bool
+	Issues     []*pb.Issue
+	lastNumber int32
 }
 
 func (c *GHClient) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
@@ -22,6 +23,8 @@ func (c *GHClient) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error
 		if c.ErrorCode != codes.OK {
 			return nil, status.Errorf(c.ErrorCode, "Forced Error")
 		}
+		c.lastNumber++
+		in.Number = c.lastNumber
 		return in, nil
 	}
 	conn, err := c.Gs.FDialServer(ctx, "githubcard")
