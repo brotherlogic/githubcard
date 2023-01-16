@@ -39,7 +39,7 @@ func main() {
 		}
 
 		for _, issue := range resp.GetIssues() {
-			fmt.Printf("%v\n", issue.GetTitle())
+			fmt.Printf("%v [%v] %v\n", issue.GetDateAdded(), issue.GetService(), issue.GetTitle())
 		}
 	case "issue":
 		binary := os.Args[2]
