@@ -50,6 +50,8 @@ message Issue {
 
   bool print_immediately = 11;
   int64 print_id = 12;
+
+  repeated string subscribers = 13;
 }
 
 message IssueList {
@@ -148,4 +150,14 @@ service Github {
   rpc ClosePullRequest(CloseRequest) returns (CloseResponse) {};
   rpc AddMilestone(AddMilestoneRequest) returns (AddMilestoneResponse) {};
   rpc UpdateMilestone (UpdateMilestoneRequest) returns (UpdateMilestoneResponse) {};
+}
+
+message ChangeUpdateRequest {
+  Issue issue = 1;
+}
+
+message ChangeUpdateResponse {}
+
+service GithubSubscriber {
+  rpc ChangeUpdate(ChangeUpdateRequest) returns (ChangeUpdateResponse) {};
 }
