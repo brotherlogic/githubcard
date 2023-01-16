@@ -190,6 +190,16 @@ func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) erro
 	if config.ExternalIP == "" {
 		log.Fatalf("Trying to save without IP: %v", config)
 	}
+
+	// Don't keep closed issues for more than 24 hours
+	var nissues []*pbgh.Issue
+	for _, issue := range config.GetIssues() {
+		if issue.State != pbgh.Issue_CLOSED || time.Since(time.Unix(issue.GetDateAdded(), 0)) < time.Hour*24 {
+			nissues = append(nissues, issue)
+		}
+	}
+	config.Issues = nissues
+
 	b.metrics(config)
 	return b.KSclient.Save(ctx, CONFIG, config)
 }
