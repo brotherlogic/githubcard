@@ -910,8 +910,12 @@ func (b *GithubBridge) GetIssueLocal(ctx context.Context, owner string, project 
 		b.RaiseIssue("Bad parse", fmt.Sprintf("Bad parse %v", string(body)))
 	}
 
-	b.CtxLog(ctx, fmt.Sprintf("Got -> %v", string(body)))
-	issue := &pbgh.Issue{Number: int32(number), Service: project, Title: data["title"].(string), Body: data["body"].(string)}
+	rbody := ""
+	if _, ok := data["body"]; ok {
+		rbody = data["body"].(string)
+	}
+
+	issue := &pbgh.Issue{Number: int32(number), Service: project, Title: data["title"].(string), Body: rbody}
 	if data["state"].(string) == "open" {
 		issue.State = pbgh.Issue_OPEN
 	} else {
