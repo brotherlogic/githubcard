@@ -1059,6 +1059,27 @@ func main() {
 			}
 		}
 
+		for _, is := range config.GetIssues() {
+			found := false
+			for _, issue := range exissues {
+				if is.GetService() == issue.GetService() && is.GetNumber() == issue.GetNumber() {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				issue, err := b.GetIssueLocal(sctx, "brotherlogic", is.GetService(), int(is.GetNumber()))
+				if err != nil {
+					log.Fatalf("Bad issue pull")
+				}
+				if is.State != issue.GetState() {
+					is.State = issue.GetState()
+					adjust = true
+				}
+			}
+		}
+
 		if adjust || triggered {
 			err := b.saveIssues(sctx, config)
 			if err != nil {

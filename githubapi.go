@@ -242,7 +242,7 @@ func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.Ge
 			}
 		}
 
-		if allowed {
+		if allowed && is.State != pb.Issue_CLOSED {
 			resp.Issues = append(resp.Issues, is)
 		}
 	}
