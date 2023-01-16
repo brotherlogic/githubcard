@@ -1077,6 +1077,7 @@ func main() {
 				if err != nil {
 					log.Fatalf("Bad issue pull")
 				}
+				b.CtxLog(sctx, fmt.Sprintf("Pulled issue: %v", issue))
 				if is.State != issue.GetState() {
 					is.State = issue.GetState()
 					adjust = true
