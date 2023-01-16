@@ -93,7 +93,7 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	}
 
 	// Fire and forget to subscribers
-	for _, subscriber := range issue.GetSubscribers() {
+	for _, subscriber := range addFocus(issue.GetSubscribers()) {
 		conn, err := g.FDialServer(ctx, subscriber)
 		defer conn.Close()
 		if err == nil {
@@ -103,6 +103,16 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	}
 
 	return &pb.DeleteResponse{}, g.DeleteIssueLocal(ctx, "brotherlogic", issue)
+}
+
+func addFocus(arr []string) []string {
+	for _, entry := range arr {
+		if entry == "focus" {
+			return arr
+		}
+	}
+
+	return append(arr, "focus")
 }
 
 var (
