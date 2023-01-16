@@ -1068,7 +1068,11 @@ func main() {
 				}
 			}
 
-			if !found {
+			if is.GetNumber() == 0 {
+				is.State = pbgh.Issue_CLOSED
+			}
+
+			if !found && is.State != pbgh.Issue_CLOSED {
 				issue, err := b.GetIssueLocal(sctx, "brotherlogic", is.GetService(), int(is.GetNumber()))
 				if err != nil {
 					log.Fatalf("Bad issue pull")
