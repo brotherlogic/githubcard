@@ -23,6 +23,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	pb "github.com/brotherlogic/githubcard/proto"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
 	kmpb "github.com/brotherlogic/keymapper/proto"
@@ -249,11 +250,17 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 	}
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
 
+	var nissues []*pb.Issue
 	for _, issue := range config.GetIssues() {
 		if issue.GetDateAdded() == 0 {
 			issue.DateAdded = time.Now().Unix()
 		}
+
+		if issue.GetNumber() > 0 {
+			nissues = append(nissues, issue)
+		}
 	}
+	config.Issues = nissues
 
 	b.CtxLog(ctx, fmt.Sprintf("Read config with %v issues", len(config.GetTitleToIssue())))
 
