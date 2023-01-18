@@ -197,6 +197,8 @@ func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) erro
 	for _, issue := range config.GetIssues() {
 		if issue.State != pbgh.Issue_CLOSED || time.Since(time.Unix(issue.GetDateAdded(), 0)) < time.Hour*24 {
 			nissues = append(nissues, issue)
+		} else {
+			b.CtxLog(ctx, fmt.Sprintf("DROPPING ON Save: %v", issue))
 		}
 	}
 	config.Issues = nissues
@@ -258,6 +260,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 
 		if issue.GetNumber() > 0 {
 			nissues = append(nissues, issue)
+		} else {
+			b.CtxLog(ctx, fmt.Sprintf("DROPPING ON READ %v", issue))
 		}
 	}
 	config.Issues = nissues
