@@ -112,6 +112,9 @@ func (b *GithubBridge) GetIssues(ctx context.Context) ([]*pbgh.Issue, error) {
 
 	var issues []*pbgh.Issue
 	for _, ir := range issuesRet {
+		if ir.PullRequest.Url != "" {
+			continue
+		}
 		splits := strings.Split(ir.Url, "/")
 		service := splits[5]
 		number, _ := strconv.ParseInt(splits[7], 10, 32)
