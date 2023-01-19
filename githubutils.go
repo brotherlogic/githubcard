@@ -87,10 +87,15 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 }
 
 type issueReturn struct {
-	Url       string
-	Title     string
-	Body      string
-	CreatedAt string `json:"created_at"`
+	Url         string
+	Title       string
+	Body        string
+	CreatedAt   string      `json:"created_at"`
+	PullRequest PullRequest `json:"pull_request"`
+}
+
+type PullRequest struct {
+	Url string
 }
 
 // GetIssues Gets github issues for a given project
@@ -107,6 +112,9 @@ func (b *GithubBridge) GetIssues(ctx context.Context) ([]*pbgh.Issue, error) {
 
 	var issues []*pbgh.Issue
 	for _, ir := range issuesRet {
+		if ir.PullRequest.Url != "" {
+			continue
+		}
 		splits := strings.Split(ir.Url, "/")
 		service := splits[5]
 		number, _ := strconv.ParseInt(splits[7], 10, 32)
