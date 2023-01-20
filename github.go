@@ -200,6 +200,10 @@ func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) erro
 		} else {
 			b.CtxLog(ctx, fmt.Sprintf("DROPPING ON Save: %v", issue))
 		}
+
+		if issue.GetUid() == 0 {
+			issue.Uid = time.Now().UnixNano()
+		}
 	}
 	config.Issues = nissues
 
