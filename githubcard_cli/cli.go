@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/brotherlogic/goserver/utils"
 
@@ -45,6 +46,15 @@ func main() {
 		binary := os.Args[2]
 		issue := os.Args[3]
 		a, err := client.AddIssue(ctx, &pb.Issue{Service: binary, Title: issue, Body: "One line issue"})
+		fmt.Printf("%v -> %v\n", a, err)
+	case "delete":
+		binary := os.Args[2]
+		issue := os.Args[3]
+		num, err := strconv.ParseInt(issue, 10, 32)
+		if err != nil {
+			log.Fatalf("Bad parse: %v", err)
+		}
+		a, err := client.DeleteIssue(ctx, &pb.DeleteRequest{Issue: &pb.Issue{Service: binary, Number: int32(num)}})
 		fmt.Printf("%v -> %v\n", a, err)
 	}
 }
