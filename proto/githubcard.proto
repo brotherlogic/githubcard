@@ -52,6 +52,8 @@ message Issue {
   int64 print_id = 12;
 
   repeated string subscribers = 13;
+
+  int64 uid = 14;
 }
 
 message IssueList {
