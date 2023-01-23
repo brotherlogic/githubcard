@@ -232,7 +232,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	if in.Uid == 0 {
 		in.Uid = time.Now().UnixNano()
 	}
-	g.CtxLog(ctx, fmt.Sprintf("Adding Issue: %v -> %v/%v (%v)", in.GetTitle(), in.GetService(), r.Number, in))
+	g.CtxLog(ctx, fmt.Sprintf("Adding THE Issue: %v -> %v/%v (%v)", in.GetTitle(), in.GetService(), r.Number, in))
 
 	config.TitleToIssue[in.GetTitle()] = fmt.Sprintf("%v/%v", in.GetService(), in.GetNumber())
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
