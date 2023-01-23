@@ -839,8 +839,6 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 			client := prpb.NewPrintServiceClient(conn)
 			client.Clear(ctx, &prpb.ClearRequest{Uid: issue.GetPrintId()})
 		}
-	} else if err == nil {
-		b.RaiseIssue("Missing Print Id", fmt.Sprintf("%v is missing the print id", issue))
 	}
 	return err
 }
