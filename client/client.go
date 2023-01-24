@@ -49,7 +49,7 @@ func (c *GHClient) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error
 			return nil, status.Errorf(c.ErrorCode, "Forced Error")
 		}
 		if c.AddErrorCode != codes.OK {
-			return nil, status.Errorf(c.ErrorCode, "Forced Error")
+			return nil, status.Errorf(c.AddErrorCode, "Forced Error")
 		}
 		c.Issues = append(c.Issues, in)
 		c.lastNumber++
