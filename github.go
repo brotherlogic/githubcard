@@ -1089,6 +1089,7 @@ func main() {
 
 			if !found {
 				adjust = true
+				b.CtxLog(sctx, fmt.Sprintf("Restoring issue: %v", issue))
 				config.Issues = append(config.Issues, issue)
 			}
 		}
