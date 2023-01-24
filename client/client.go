@@ -10,11 +10,12 @@ import (
 )
 
 type GHClient struct {
-	Gs         *pbgs.GoServer
-	ErrorCode  codes.Code
-	Test       bool
-	Issues     []*pb.Issue
-	lastNumber int32
+	Gs           *pbgs.GoServer
+	ErrorCode    codes.Code
+	Test         bool
+	Issues       []*pb.Issue
+	lastNumber   int32
+	AddErrorCode codes.Code
 }
 
 func (c *GHClient) DeleteIssue(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
@@ -44,10 +45,13 @@ func (c *GHClient) DeleteIssue(ctx context.Context, req *pb.DeleteRequest) (*pb.
 
 func (c *GHClient) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	if c.Test {
-		c.Issues = append(c.Issues, in)
 		if c.ErrorCode != codes.OK {
 			return nil, status.Errorf(c.ErrorCode, "Forced Error")
 		}
+		if c.AddErrorCode != codes.OK {
+			return nil, status.Errorf(c.ErrorCode, "Forced Error")
+		}
+		c.Issues = append(c.Issues, in)
 		c.lastNumber++
 		in.Number = c.lastNumber
 		return in, nil
