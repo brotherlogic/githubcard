@@ -1089,6 +1089,7 @@ func main() {
 
 			if !found {
 				adjust = true
+				issue.Uid = time.Now().UnixNano()
 				b.CtxLog(sctx, fmt.Sprintf("Restoring issue: %v", issue))
 				config.Issues = append(config.Issues, issue)
 			}
