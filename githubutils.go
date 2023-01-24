@@ -19,7 +19,9 @@ var (
 func (g *GithubBridge) metrics(config *pbgh.Config) {
 	counts := make(map[string]int32)
 	for _, issue := range config.GetIssues() {
-		counts[issue.GetService()]++
+		if issue.State != pbgh.Issue_CLOSED {
+			counts[issue.GetService()]++
+		}
 	}
 
 	for service, count := range counts {
