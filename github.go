@@ -203,6 +203,8 @@ func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) erro
 
 		if issue.GetUid() == 0 {
 			issue.Uid = time.Now().UnixNano()
+			b.CtxLog(ctx, fmt.Sprintf("UPDATING UID -> %v", issue))
+
 		}
 	}
 	config.Issues = nissues
