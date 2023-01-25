@@ -188,6 +188,9 @@ func (b GithubBridge) ReportHealth() bool {
 }
 
 func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) error {
+	for _, issue := range config.GetIssues() {
+		b.CtxLog(ctx, fmt.Sprintf("WRITE: %v", issue))
+	}
 	if config.ExternalIP == "" {
 		log.Fatalf("Trying to save without IP: %v", config)
 	}
@@ -220,6 +223,10 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 		return nil, err
 	}
 	config = data.(*pbgh.Config)
+
+	for _, issue := range config.GetIssues() {
+		b.CtxLog(ctx, fmt.Sprintf("READ: %v", issue))
+	}
 
 	size.With(prometheus.Labels{"elem": "silences"}).Set(float64(len(config.GetSilences())))
 	size.With(prometheus.Labels{"elem": "jobs"}).Set(float64(len(config.GetJobsOfInterest())))
