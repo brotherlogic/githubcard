@@ -458,57 +458,6 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 	return err
 }
 
-func (b *GithubBridge) issueExists(ctx context.Context, title string, config *pbgh.Config) (*pbgh.Issue, error) {
-	urlv := "https://api.github.com/user/issues"
-	body, _, err := b.visitURL(ctx, urlv)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var data []interface{}
-	err = json.Unmarshal([]byte(body), &data)
-	if err != nil {
-		return nil, err
-	}
-
-	b.issueCount = int64(len(data))
-	var retIssue *pbgh.Issue
-	seenUrls := make(map[string]bool)
-	for _, d := range data {
-		dp := d.(map[string]interface{})
-		if dp["title"].(string) == title {
-			retIssue = &pbgh.Issue{Title: title}
-		}
-
-		found := false
-		for _, issue := range config.Issues {
-			if dp["url"].(string) == issue.Url {
-				t, _ := time.Parse("2006-01-02T15:04:05Z", dp["created_at"].(string))
-				issue.DateAdded = t.Unix()
-				issue.Title = dp["title"].(string)
-				found = true
-			}
-		}
-
-		if !found {
-			val, _ := strconv.Atoi(dp["created_at"].(string))
-			config.Issues = append(config.Issues, &pbgh.Issue{Title: dp["title"].(string), Url: dp["url"].(string), DateAdded: int64(val)})
-		}
-
-		seenUrls[dp["url"].(string)] = true
-	}
-
-	for i, issue := range config.Issues {
-		if !seenUrls[issue.Url] {
-			config.Issues = append(config.Issues[:i], config.Issues[i+1:]...)
-			return retIssue, nil
-		}
-	}
-
-	return retIssue, nil
-}
-
 // AmRequest milestone request
 type AmRequest struct {
 	Title       string `json:"title"`
@@ -855,14 +804,7 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 // AddIssueLocal adds an issue
 func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, print bool, config *pbgh.Config) ([]byte, int64, error) {
 	b.attempts++
-	issue, err := b.issueExists(ctx, title, config)
 	pid := int64(0)
-	if err != nil {
-		return nil, pid, err
-	}
-	if issue != nil {
-		return nil, pid, status.Errorf(codes.FailedPrecondition, "Issue already exists")
-	}
 
 	payload := Payload{Title: title, Body: body, Assignee: owner}
 	bytes, err := json.Marshal(payload)
@@ -963,15 +905,6 @@ func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (b *GithubBridge) rebuild(ctx context.Context) error {
-	config, err := b.readIssues(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = b.issueExists(ctx, "Clear Email", config)
-	return err
 }
 
 func main() {
