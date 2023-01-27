@@ -907,6 +907,75 @@ func (b *GithubBridge) cleanAdded(ctx context.Context) error {
 	return nil
 }
 
+func (b *GithubBridge) hardSync() {
+	sctx, scancel := utils.ManualContext("githubs", time.Hour)
+	defer scancel()
+
+	config, err := b.readIssues(sctx)
+	if err != nil {
+		b.CtxLog(sctx, fmt.Sprintf("Unable to read issues: %v", err))
+	}
+	// Pull all issues
+	exissues, err := b.GetIssues(sctx)
+	if err != nil {
+		log.Fatalf("Unable to read issues on startup: %v", err)
+	}
+	adjust := false
+	for _, issue := range exissues {
+		found := false
+		for _, is := range config.GetIssues() {
+			if is.GetService() == issue.GetService() && is.GetNumber() == issue.GetNumber() {
+				found = true
+				if is.DateAdded == 0 && issue.GetDateAdded() > 0 {
+					is.DateAdded = issue.GetDateAdded()
+				}
+				break
+			}
+		}
+
+		if !found {
+			adjust = true
+			issue.Uid = time.Now().UnixNano()
+			b.CtxLog(sctx, fmt.Sprintf("Restoring issue: %v", issue))
+			config.Issues = append(config.Issues, issue)
+		}
+	}
+
+	for _, is := range config.GetIssues() {
+		found := false
+		for _, issue := range exissues {
+			if is.GetService() == issue.GetService() && is.GetNumber() == issue.GetNumber() {
+				found = true
+				break
+			}
+		}
+
+		if is.GetNumber() == 0 {
+			is.State = pbgh.Issue_CLOSED
+		}
+
+		if !found && is.State != pbgh.Issue_CLOSED {
+			issue, err := b.GetIssueLocal(sctx, "brotherlogic", is.GetService(), int(is.GetNumber()))
+			if err != nil {
+				log.Fatalf("Bad issue pull")
+			}
+			b.CtxLog(sctx, fmt.Sprintf("Pulled issue: %v", issue))
+			if is.State != issue.GetState() {
+				is.State = issue.GetState()
+				adjust = true
+			}
+		}
+	}
+
+	if adjust {
+		err := b.saveIssues(sctx, config)
+		if err != nil {
+			log.Fatalf("Unable to save config on startup")
+		}
+	}
+
+}
+
 func main() {
 	var token = flag.String("token", "", "The token to use to auth")
 	var external = flag.String("external", "", "External IP")
@@ -1002,6 +1071,10 @@ func main() {
 				mapSize.Set(float64(len(config.GetTitleToIssue())))
 			}
 		}
+		if triggered {
+			b.saveIssues(cctx, config)
+		}
+
 		ccancel()
 		sctx, scancel := utils.ManualContext("githubs", time.Hour)
 
@@ -1010,68 +1083,14 @@ func main() {
 		if err != nil {
 			b.CtxLog(ctx, fmt.Sprintf("Unable to register home: %v", err))
 		}
-
-		// Pull all issues
-		exissues, err := b.GetIssues(sctx)
-		if err != nil {
-			log.Fatalf("Unable to read issues on startup: %v", err)
-		}
-		adjust := false
-		for _, issue := range exissues {
-			found := false
-			for _, is := range config.GetIssues() {
-				if is.GetService() == issue.GetService() && is.GetNumber() == issue.GetNumber() {
-					found = true
-					if is.DateAdded == 0 && issue.GetDateAdded() > 0 {
-						is.DateAdded = issue.GetDateAdded()
-					}
-					break
-				}
-			}
-
-			if !found {
-				adjust = true
-				issue.Uid = time.Now().UnixNano()
-				b.CtxLog(sctx, fmt.Sprintf("Restoring issue: %v", issue))
-				config.Issues = append(config.Issues, issue)
-			}
-		}
-
-		for _, is := range config.GetIssues() {
-			found := false
-			for _, issue := range exissues {
-				if is.GetService() == issue.GetService() && is.GetNumber() == issue.GetNumber() {
-					found = true
-					break
-				}
-			}
-
-			if is.GetNumber() == 0 {
-				is.State = pbgh.Issue_CLOSED
-			}
-
-			if !found && is.State != pbgh.Issue_CLOSED {
-				issue, err := b.GetIssueLocal(sctx, "brotherlogic", is.GetService(), int(is.GetNumber()))
-				if err != nil {
-					log.Fatalf("Bad issue pull")
-				}
-				b.CtxLog(sctx, fmt.Sprintf("Pulled issue: %v", issue))
-				if is.State != issue.GetState() {
-					is.State = issue.GetState()
-					adjust = true
-				}
-			}
-		}
-
-		if adjust || triggered {
-			err := b.saveIssues(sctx, config)
-			if err != nil {
-				log.Fatalf("Unable to save config on startup")
-			}
-		}
-
 		scancel()
 
+		go func() {
+			for {
+				b.hardSync()
+				time.Sleep(time.Hour)
+			}
+		}()
 		b.Serve()
 	}
 }
