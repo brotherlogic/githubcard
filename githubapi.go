@@ -207,7 +207,7 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		}
 	}
 
-	b, pid, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()), in.GetPrintImmediately(), config)
+	b, pid, err := g.AddIssueLocal(ctx, "brotherlogic", in.GetService(), in.GetTitle(), in.GetBody(), int(in.GetMilestoneNumber()), in.GetPrintImmediately(), in.GetPrint(), config)
 	if err != nil {
 		if in.Sticky {
 			g.issues = append(g.issues, in)

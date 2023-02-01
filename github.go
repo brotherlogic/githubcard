@@ -802,7 +802,7 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 }
 
 // AddIssueLocal adds an issue
-func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, print bool, config *pbgh.Config) ([]byte, int64, error) {
+func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, printIm, print bool, config *pbgh.Config) ([]byte, int64, error) {
 	b.attempts++
 	pid := int64(0)
 
@@ -834,20 +834,22 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 		return rb, pid, fmt.Errorf("POST error: %v -> %v", resp.StatusCode, string(rb))
 	}
 
-	// Best effort print
-	conn, err := b.FDialServer(ctx, "printer")
-	if err == nil {
-		defer conn.Close()
-		client := prpb.NewPrintServiceClient(conn)
-		if resp.StatusCode != 201 {
-			resp, err := client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github", Override: print})
-			if err == nil {
-				pid = resp.GetUid()
-			}
-		} else {
-			resp, err := client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github", Override: print})
-			if err == nil {
-				pid = resp.GetUid()
+	if print {
+		// Best effort print
+		conn, err := b.FDialServer(ctx, "printer")
+		if err == nil {
+			defer conn.Close()
+			client := prpb.NewPrintServiceClient(conn)
+			if resp.StatusCode != 201 {
+				resp, err := client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github", Override: printIm})
+				if err == nil {
+					pid = resp.GetUid()
+				}
+			} else {
+				resp, err := client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github", Override: printIm})
+				if err == nil {
+					pid = resp.GetUid()
+				}
 			}
 		}
 	}

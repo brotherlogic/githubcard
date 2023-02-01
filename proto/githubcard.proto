@@ -49,6 +49,7 @@ message Issue {
   int32 milestone_number = 10;
 
   bool print_immediately = 11;
+  bool print = 15;
   int64 print_id = 12;
 
   repeated string subscribers = 13;
