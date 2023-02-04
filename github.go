@@ -834,6 +834,7 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 		return rb, pid, fmt.Errorf("POST error: %v -> %v", resp.StatusCode, string(rb))
 	}
 
+	b.CtxLog(ctx, fmt.Sprintf("Print request: %v", print))
 	if print {
 		// Best effort print
 		conn, err := b.FDialServer(ctx, "printer")
