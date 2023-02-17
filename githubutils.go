@@ -10,6 +10,8 @@ import (
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -96,6 +98,19 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		err := g.updateRepo(ctx, job, true)
 		if err != nil {
 			g.RaiseIssue("Bad repo update", fmt.Sprintf("%v is the error", err))
+			return err
+		}
+	}
+
+	// Enable branch protection
+	_, err = g.getBranchProtection(ctx, job, "main")
+	if err != nil {
+		return err
+	}
+	if status.Code(err) == codes.NotFound {
+		err := g.updateBranchProtection(ctx, job, &BranchProtection{Url: fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/main/protection", job)})
+		if err != nil {
+			g.RaiseIssue("Bad branch protection update", fmt.Sprintf("%v is the error", err))
 			return err
 		}
 	}

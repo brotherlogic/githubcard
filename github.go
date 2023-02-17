@@ -418,6 +418,46 @@ func (b *GithubBridge) getRepo(ctx context.Context, repo string) (*RepoReturn, e
 	return data, nil
 }
 
+type BranchProtection struct {
+	Url string `json:"url"`
+}
+
+func (b *GithubBridge) getBranchProtection(ctx context.Context, repo string, branch string) (*BranchProtection, error) {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/%v/protection", repo, branch)
+	body, _, err := b.visitURL(ctx, urlv)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var data *BranchProtection
+	err = json.Unmarshal([]byte(body), data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func (b *GithubBridge) updateBranchProtection(ctx context.Context, repo string, prot *BranchProtection) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/%v/protection", repo)
+	bytes, err := json.Marshal(prot)
+	if err != nil {
+		return err
+	}
+
+	resp, err := b.patchURL(urlv, string(bytes))
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	b.CtxLog(ctx, fmt.Sprintf("UPDATE BRANCH PROTECTION RESULT: %v", string(data)))
+
+	return err
+}
+
 type RepoUpdate struct {
 	DeleteBranchOnMerge bool `json:"delete_branch_on_merge"`
 }
