@@ -401,6 +401,47 @@ func (b *GithubBridge) getWebHooks(ctx context.Context, repo string) ([]*Webhook
 	return result, nil
 }
 
+func (b *GithubBridge) getRepo(ctx context.Context, repo string) (*RepoReturn, error) {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v", repo)
+	body, _, err := b.visitURL(ctx, urlv)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var data *RepoReturn
+	err = json.Unmarshal([]byte(body), data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+type RepoUpdate struct {
+	DeleteBranchOnMerge bool `json:"delete_branch_on_merge"`
+}
+
+func (b *GithubBridge) updateRepo(ctx context.Context, repo string, deleteHead bool) error {
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v", repo)
+	patch := &RepoUpdate{DeleteBranchOnMerge: deleteHead}
+	bytes, err := json.Marshal(patch)
+	if err != nil {
+		return err
+	}
+
+	resp, err := b.patchURL(urlv, string(bytes))
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	b.CtxLog(ctx, fmt.Sprintf("UPDATE REPO RESULT: %v", string(data)))
+
+	return err
+}
+
 func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Webhook) error {
 	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/hooks/%v", repo, hook.ID)
 
