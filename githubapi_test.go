@@ -22,6 +22,7 @@ func InitTest() *GithubBridge {
 	s.SkipLog = true
 	s.SkipIssue = true
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".test")
+
 	return s
 }
 
