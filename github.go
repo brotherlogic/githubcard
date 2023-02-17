@@ -440,7 +440,7 @@ func (b *GithubBridge) getBranchProtection(ctx context.Context, repo string, bra
 }
 
 func (b *GithubBridge) updateBranchProtection(ctx context.Context, repo string, prot *BranchProtection) error {
-	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/%v/protection", repo)
+	urlv := fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/main/protection", repo)
 	bytes, err := json.Marshal(prot)
 	if err != nil {
 		return err
