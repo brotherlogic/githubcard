@@ -20,6 +20,7 @@ func InitTest() *GithubBridge {
 	s.getter = testFileGetter{}
 	s.accessCode = "token"
 	s.SkipLog = true
+	s.SkipIssue = true
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".test")
 	return s
 }
