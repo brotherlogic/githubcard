@@ -35,8 +35,9 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	if err != nil {
 		return err
 	}
+	config, err := g.readIssues(ctx)
 
-	if len(g.external) == 0 {
+	if len(config.GetExternalIP()) == 0 {
 		return fmt.Errorf("No external IP registered")
 	}
 
@@ -87,6 +88,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		}
 	}
 
+	g.CtxLog(ctx, fmt.Sprintf("Checking for head branches"))
 	// Ensure that we delete head branches
 	repo, err := g.getRepo(ctx, job)
 	if err != nil {

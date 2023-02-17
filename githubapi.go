@@ -324,7 +324,11 @@ func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.
 func (g *GithubBridge) Configure(ctx context.Context, req *pb.ConfigureRequest) (*pb.ConfigureResponse, error) {
 	config, err := g.readIssues(ctx)
 	if err != nil {
-		return nil, err
+		if status.Code(err) == codes.InvalidArgument {
+			config = &pb.Config{}
+		} else {
+			return nil, err
+		}
 	}
 	config.ExternalIP = req.GetExternalIp()
 	return &pb.ConfigureResponse{}, g.saveIssues(ctx, config)

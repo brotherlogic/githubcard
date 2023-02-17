@@ -430,7 +430,7 @@ func (b *GithubBridge) getBranchProtection(ctx context.Context, repo string, bra
 		return nil, err
 	}
 
-	var data *BranchProtection
+	data := &BranchProtection{}
 	err = json.Unmarshal([]byte(body), data)
 	if err != nil {
 		return nil, err
