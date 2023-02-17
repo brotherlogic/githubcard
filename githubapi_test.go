@@ -20,7 +20,9 @@ func InitTest() *GithubBridge {
 	s.getter = testFileGetter{}
 	s.accessCode = "token"
 	s.SkipLog = true
+	s.SkipIssue = true
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".test")
+
 	return s
 }
 
@@ -83,7 +85,10 @@ func (httpGetter testFileGetter) Patch(url string, data string) (*http.Response,
 	}
 	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
-		log.Printf("Error opening test file %v", err)
+		blah, err = os.Open("testdata" + strippedURL + "_")
+		if err != nil {
+			log.Printf("Error patching test file %v", err)
+		}
 	}
 	response.Body = blah
 	return response, nil
@@ -114,7 +119,10 @@ func (httpGetter testFileGetter) Get(ctx context.Context, url string) (*http.Res
 	strippedURL := strings.Replace(strings.Replace(url[22:], "?", "_", -1), "&", "_", -1)
 	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
-		log.Printf("Error opening test file %v", err)
+		blah, err = os.Open("testdata" + strippedURL + "_")
+		if err != nil {
+			log.Printf("Error opening test file %v", err)
+		}
 	}
 	response.Body = blah
 	return response, nil

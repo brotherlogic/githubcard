@@ -1,12 +1,20 @@
 mkdir -p testdata/repos/brotherlogic/Home/issues/
 mkdir -p testdata/repos/brotherlogic/MadeUpService/issues/
-mkdir -p testdata/repos/brotherlogic/crasher
+mkdir -p testdata/repos/brotherlogic/crasher/branches/main
 mkdir -p testdata/repos/brotherlogic/goserver
 mkdir -p testdata/repos/brotherlogic/githubreceiver/pulls/24/
 mkdir -p testdata/repos/brotherlogic/frametracker/pulls/16/
 mkdir -p testdata/repos/brotherlogic/frametracker/milestones/1/
 mkdir -p testdata/repos/brotherlogic/pullrequester/git/refs/heads/
 mkdir -p testdata/user/
+
+sleep 1
+curl -H "Content-Type: application/json" -H "Authorization: token $1" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/crasher/branches/main/protection"  > testdata/repos/brotherlogic/crasher/branches/main/protection_
+exit
+
+sleep 1
+curl -H "Content-Type: application/json" -H "Authorization: token $1" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/crasher"  > testdata/repos/brotherlogic/crasher_
+exit
 
 sleep 1
 curl -H "Content-Type: application/json" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/goserver/hooks?access_token=$1"  > testdata/repos/brotherlogic/goserver/hooks_access_token=token
