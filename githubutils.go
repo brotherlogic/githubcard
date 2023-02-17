@@ -85,7 +85,23 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		}
 	}
 
+	// Ensure that we delete head branches
+	repo, err := g.getRepo(ctx, job)
+	if err != nil {
+		return err
+	}
+	if !repo.DeleteBranchOnMerge {
+		err := g.updateRepo(ctx, job, true)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
+}
+
+type RepoReturn struct {
+	DeleteBranchOnMerge bool `json:"delete_branch_on_merge"`
 }
 
 type issueReturn struct {
