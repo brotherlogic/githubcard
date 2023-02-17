@@ -409,7 +409,7 @@ func (b *GithubBridge) getRepo(ctx context.Context, repo string) (*RepoReturn, e
 		return nil, err
 	}
 
-	var data *RepoReturn
+	data := &RepoReturn{}
 	err = json.Unmarshal([]byte(body), data)
 	if err != nil {
 		return nil, err
