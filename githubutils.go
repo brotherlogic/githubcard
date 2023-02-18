@@ -92,14 +92,11 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	// Ensure that we delete head branches
 	repo, err := g.getRepo(ctx, job)
 	if err != nil {
-		g.RaiseIssue("Bad repo read", fmt.Sprintf("%v is the error", err))
 		return err
 	}
 	if !repo.DeleteBranchOnMerge {
-		g.RaiseIssue("Delete is not set", fmt.Sprintf("For repo %v", job))
 		err := g.updateRepo(ctx, job, true)
 		if err != nil {
-			g.RaiseIssue("Bad repo update", fmt.Sprintf("%v is the error", err))
 			return err
 		}
 	}
@@ -117,6 +114,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		}
 	} else {
 		if prot.RequiredPullRequestReviews.RequiredApprovingReviewCount != 0 {
+			g.RaiseIssue("Needed Pull Request", fmt.Sprintf("%v needed a pull request update for pull request required", job))
 			err := g.updateBranchProtection(ctx, job, &BranchProtection{
 				Url:                        fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/main/protection", job),
 				RequiredPullRequestReviews: RequiredPullRequestReviews{RequiredApprovingReviewCount: 0},
