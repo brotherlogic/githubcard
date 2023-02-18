@@ -460,7 +460,7 @@ func (b *GithubBridge) updateBranchProtection(ctx context.Context, repo string, 
 		return err
 	}
 
-	resp, err := b.patchURL(urlv, string(bytes))
+	resp, err := b.putURL(urlv, string(bytes))
 	if err != nil {
 		return err
 	}
