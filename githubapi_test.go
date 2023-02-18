@@ -11,6 +11,8 @@ import (
 	"testing"
 
 	keystoreclient "github.com/brotherlogic/keystore/client"
+	github "github.com/google/go-github/v50/github"
+	mock "github.com/migueleliasweb/go-github-mock/src/mock"
 
 	pb "github.com/brotherlogic/githubcard/proto"
 )
@@ -22,6 +24,14 @@ func InitTest() *GithubBridge {
 	s.SkipLog = true
 	s.SkipIssue = true
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".test")
+
+	mockedHTTPClient := mock.NewMockedHTTPClient(
+		mock.WithRequestMatch(
+			mock.GetReposActionsSecretsByOwnerByRepo,
+			github.Secrets{},
+		),
+	)
+	s.client = github.NewClient(mockedHTTPClient)
 
 	return s
 }
