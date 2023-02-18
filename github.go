@@ -254,8 +254,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 		defer ccancel()
 		for title, issue := range config.GetTitleToIssue() {
 			elems := strings.Split(issue, "/")
-			num, _ := strconv.Atoi(elems[1])
-			i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], num)
+			num, _ := strconv.ParseInt(elems[1], 10, 32)
+			i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], int(num))
 			b.DLog(cctx, fmt.Sprintf("Deleted %v/%v -> %v", title, issue, err))
 			if err != nil {
 				break
@@ -345,6 +345,10 @@ func (b *GithubBridge) visitURL(ctx context.Context, url string) (string, bool, 
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 0 {
+		if resp.StatusCode == 404 {
+			return string(body), false, status.Errorf(codes.NotFound, "Non 200 return (%v) -> %v", resp.StatusCode, string(body))
+		}
+
 		b.CtxLog(ctx, fmt.Sprintf("Error in visit %v -> (%v): %v", url, resp.StatusCode, string(body)))
 		return string(body), false, fmt.Errorf("Non 200 return (%v) -> %v", resp.StatusCode, string(body))
 	}
@@ -1168,8 +1172,8 @@ func main() {
 			triggered = true
 			for title, issue := range config.GetTitleToIssue() {
 				elems := strings.Split(issue, "/")
-				num, _ := strconv.Atoi(elems[1])
-				i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], num)
+				num, _ := strconv.ParseInt(elems[1], 10, 32)
+				i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], int(num))
 				b.DLog(cctx, fmt.Sprintf("Deleted %v/%v -> %v", title, issue, err))
 				if err != nil {
 					break
