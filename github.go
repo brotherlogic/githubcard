@@ -254,8 +254,8 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 		defer ccancel()
 		for title, issue := range config.GetTitleToIssue() {
 			elems := strings.Split(issue, "/")
-			num, _ := strconv.Atoi(elems[1])
-			i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], num)
+			num, _ := strconv.ParseInt(elems[1], 10, 32)
+			i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], int(num))
 			b.DLog(cctx, fmt.Sprintf("Deleted %v/%v -> %v", title, issue, err))
 			if err != nil {
 				break
@@ -1172,8 +1172,8 @@ func main() {
 			triggered = true
 			for title, issue := range config.GetTitleToIssue() {
 				elems := strings.Split(issue, "/")
-				num, _ := strconv.Atoi(elems[1])
-				i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], num)
+				num, _ := strconv.ParseInt(elems[1], 10, 32)
+				i, err := b.GetIssueLocal(cctx, "brotherlogic", elems[0], int(num))
 				b.DLog(cctx, fmt.Sprintf("Deleted %v/%v -> %v", title, issue, err))
 				if err != nil {
 					break
