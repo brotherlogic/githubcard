@@ -105,8 +105,8 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	// Enable branch protection
-	_, err = g.getBranchProtection(ctx, job, "main")
-	if err != nil {
+	prot, err := g.getBranchProtection(ctx, job, "main")
+	if err != nil && status.Code(err) != codes.NotFound {
 		return err
 	}
 	if status.Code(err) == codes.NotFound {
@@ -114,6 +114,16 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		if err != nil {
 			g.RaiseIssue("Bad branch protection update", fmt.Sprintf("%v is the error", err))
 			return err
+		}
+	} else {
+		if prot.RequiredPullRequestReviews.RequiredApprovingReviewCount != 0 {
+			err := g.updateBranchProtection(ctx, job, &BranchProtection{
+				Url:                        fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/main/protection", job),
+				RequiredPullRequestReviews: RequiredPullRequestReviews{RequiredApprovingReviewCount: 0},
+			})
+			if err != nil {
+				return err
+			}
 		}
 	}
 
