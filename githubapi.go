@@ -193,8 +193,8 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		if in.GetTitle() == title {
 			// Is this title still open
 			elems := strings.Split(issue, "/")
-			num, _ := strconv.Atoi(elems[1])
-			i, err := g.GetIssueLocal(ctx, "brotherlogic", elems[0], num)
+			num, _ := strconv.ParseInt(elems[1], 10, 32)
+			i, err := g.GetIssueLocal(ctx, "brotherlogic", elems[0], int(num))
 			if err != nil {
 				return nil, err
 			}
