@@ -434,6 +434,12 @@ type RequiredPullRequestReviews struct {
 
 type RequiredStatusChecks struct {
 	Strict bool `json:"strict"`
+	Checks []Check
+}
+
+type Check struct {
+	Context string
+	AppId   int
 }
 
 func (b *GithubBridge) getBranchProtection(ctx context.Context, repo string, branch string) (*BranchProtection, error) {
