@@ -8,6 +8,7 @@ import (
 	"time"
 
 	pbgh "github.com/brotherlogic/githubcard/proto"
+	"github.com/google/go-github/v50/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
@@ -99,6 +100,16 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	bp, _, err := g.client.Repositories.GetBranchProtection(ctx, "brotherlogic", job, "main")
+	if err != nil {
+		return err
+	}
+	if bp.RequiredPullRequestReviews.RequiredApprovingReviewCount != 0 {
+		bp.RequiredPullRequestReviews.RequiredApprovingReviewCount = 0
+		g.client.Repositories.UpdateBranchProtection(ctx, "brotherlogic", job, "main", &github.ProtectionRequest{
+			RequiredPullRequestReviews: &github.PullRequestReviewsEnforcementRequest{RequiredApprovingReviewCount: 0}})
 	}
 
 	// Enable branch protection
