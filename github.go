@@ -425,10 +425,15 @@ func (b *GithubBridge) getRepo(ctx context.Context, repo string) (*RepoReturn, e
 type BranchProtection struct {
 	Url                        string                     `json:"url"`
 	RequiredPullRequestReviews RequiredPullRequestReviews `json:"required_pull_request_reviews"`
+	RequiredStatusChecks       RequiredStatusChecks       `json:"required_status_checks"`
 }
 
 type RequiredPullRequestReviews struct {
 	RequiredApprovingReviewCount int `json:"required_approving_review_count"`
+}
+
+type RequiredStatusChecks struct {
+	Strict bool `json:"strict"`
 }
 
 func (b *GithubBridge) getBranchProtection(ctx context.Context, repo string, branch string) (*BranchProtection, error) {

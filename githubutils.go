@@ -113,11 +113,12 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 			return err
 		}
 	} else {
-		if prot.RequiredPullRequestReviews.RequiredApprovingReviewCount != 0 {
+		if prot.RequiredPullRequestReviews.RequiredApprovingReviewCount != 0 || !prot.RequiredStatusChecks.Strict {
 			g.RaiseIssue("Needed Pull Request", fmt.Sprintf("%v needed a pull request update for pull request required", job))
 			err := g.updateBranchProtection(ctx, job, &BranchProtection{
 				Url:                        fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/main/protection", job),
 				RequiredPullRequestReviews: RequiredPullRequestReviews{RequiredApprovingReviewCount: 0},
+				RequiredStatusChecks:       RequiredStatusChecks{Strict: true},
 			})
 			if err != nil {
 				return err
