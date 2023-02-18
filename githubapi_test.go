@@ -110,7 +110,10 @@ func (httpGetter testFileGetter) Put(url string, data string) (*http.Response, e
 	}
 	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
-		log.Printf("Error opening test file %v", err)
+		blah, err = os.Open("testdata" + strippedURL + "_")
+		if err != nil {
+			log.Printf("Error patching test file %v", err)
+		}
 	}
 	response.Body = blah
 	response.StatusCode = 200
