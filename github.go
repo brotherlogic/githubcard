@@ -426,7 +426,12 @@ type BranchProtection struct {
 	Url                        string                     `json:"url"`
 	RequiredPullRequestReviews RequiredPullRequestReviews `json:"required_pull_request_reviews"`
 	RequiredStatusChecks       RequiredStatusChecks       `json:"required_status_checks"`
-	EnforceAdmins bool `json:"enforce_admins"`
+	EnforceAdmins EnforceAdmins `json:"enforce_admins"`
+}
+
+type EnforceAdmins struct {
+	Url string
+	Enabled bool
 }
 
 type RequiredPullRequestReviews struct {
