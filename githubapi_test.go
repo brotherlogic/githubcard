@@ -66,7 +66,10 @@ func (httpGetter testFileGetter) Post(url string, data string) (*http.Response, 
 	}
 	blah, err := os.Open("testdata" + strippedURL + "_access_token=token")
 	if err != nil {
-		log.Printf("Error opening test file %v", err)
+		blah, err = os.Open("testdata" + strippedURL + "_")
+		if err != nil {
+			log.Printf("Error patching test file %v", err)
+		}
 	}
 	response.Body = blah
 	return response, nil
