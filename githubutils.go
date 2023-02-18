@@ -119,12 +119,12 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 				foundChecks++
 			}
 		}
-		if prot.RequiredPullRequestReviews.RequiredApprovingReviewCount != 0 || !prot.RequiredStatusChecks.Strict || foundChecks == 0 || !prot.EnforceAdmins.Enabled{
+		if prot.RequiredPullRequestReviews.RequiredApprovingReviewCount != 0 || !prot.RequiredStatusChecks.Strict || foundChecks == 0 || !prot.EnforceAdmins.Enabled {
 			g.RaiseIssue("Needed Pull Request", fmt.Sprintf("%v needed a pull request update for pull request required, %+v", job, prot))
 			err := g.updateBranchProtection(ctx, job, &BranchProtection{
 				Url:                        fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/main/protection", job),
 				RequiredPullRequestReviews: RequiredPullRequestReviews{RequiredApprovingReviewCount: 1},
-				EnforceAdmins: EnforceAdmins{Enabled: true},
+				EnforceAdmins:              EnforceAdmins{Enabled: true},
 				RequiredStatusChecks: RequiredStatusChecks{
 					Strict: true,
 					Checks: []Check{{Context: "basic_assess", AppId: -1}},
@@ -134,6 +134,22 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 				return err
 			}
 		}
+	}
+
+	// Handle secrets
+	secrets, _, err := g.client.Actions.ListRepoSecrets(ctx, "brotherlogic", job, nil)
+	if err != nil {
+		return err
+	}
+	found := false
+	for _, secret := range secrets.Secrets {
+		if secret.Name == "PERSONAL_TOKEN" {
+			found = true
+		}
+	}
+
+	if !found {
+		g.RaiseIssue("Missing PERSONAL TOKEN", fmt.Sprintf("%v is missing the personal token", job))
 	}
 
 	return nil
