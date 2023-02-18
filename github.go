@@ -19,9 +19,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
+	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	github "github.com/google/go-github/v50/github"
 
 	pb "github.com/brotherlogic/githubcard/proto"
 	pbgh "github.com/brotherlogic/githubcard/proto"
@@ -71,6 +74,7 @@ type GithubBridge struct {
 	issueLock      *sync.Mutex
 	githubsecret   string
 	external       string
+	client         *github.Client
 }
 
 type httpGetter interface {
@@ -341,10 +345,6 @@ func (b *GithubBridge) visitURL(ctx context.Context, url string) (string, bool, 
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 0 {
-		if resp.StatusCode == 404 {
-			return string(body), false, status.Errorf(codes.NotFound, "Returning not found error 404")
-		}
-
 		b.CtxLog(ctx, fmt.Sprintf("Error in visit %v -> (%v): %v", url, resp.StatusCode, string(body)))
 		return string(body), false, fmt.Errorf("Non 200 return (%v) -> %v", resp.StatusCode, string(body))
 	}
@@ -426,11 +426,11 @@ type BranchProtection struct {
 	Url                        string                     `json:"url"`
 	RequiredPullRequestReviews RequiredPullRequestReviews `json:"required_pull_request_reviews"`
 	RequiredStatusChecks       RequiredStatusChecks       `json:"required_status_checks"`
-	EnforceAdmins EnforceAdmins `json:"enforce_admins"`
+	EnforceAdmins              EnforceAdmins              `json:"enforce_admins"`
 }
 
 type EnforceAdmins struct {
-	Url string
+	Url     string
 	Enabled bool
 }
 
@@ -1194,6 +1194,13 @@ func main() {
 			b.CtxLog(ctx, fmt.Sprintf("Unable to register home: %v", err))
 		}
 		scancel()
+
+		ghcctx := context.Background()
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "... your access token ..."},
+		)
+		tc := oauth2.NewClient(ghcctx, ts)
+		b.client = github.NewClient(tc)
 
 		go func() {
 			for {
