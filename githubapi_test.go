@@ -25,10 +25,16 @@ func InitTest() *GithubBridge {
 	s.SkipIssue = true
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".test")
 
+	resp := "blah"
 	mockedHTTPClient := mock.NewMockedHTTPClient(
 		mock.WithRequestMatch(
 			mock.GetReposActionsSecretsByOwnerByRepo,
 			github.Secrets{},
+		),
+
+		mock.WithRequestMatch(
+			mock.GetReposActionsSecretsPublicKeyByOwnerByRepo,
+			github.Key{Key:&resp},
 		),
 	)
 	s.client = github.NewClient(mockedHTTPClient)
