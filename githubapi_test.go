@@ -36,6 +36,11 @@ func InitTest() *GithubBridge {
 			mock.GetReposActionsSecretsPublicKeyByOwnerByRepo,
 			github.Key{Key:&resp},
 		),
+
+		mock.WithRequestMatch(
+			mock.PutReposActionsSecretsByOwnerByRepoBySecretName,
+			"",
+		),
 	)
 	s.client = github.NewClient(mockedHTTPClient)
 
