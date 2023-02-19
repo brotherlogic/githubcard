@@ -59,6 +59,13 @@ func (g *GithubBridge) UpdateMilestone(ctx context.Context, req *pb.UpdateMilest
 	return &pb.UpdateMilestoneResponse{}, err
 }
 
+var (
+	clientReads = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "githubcard_client_reads",
+		Help: "The number of issues added per binary",
+	})
+)
+
 //RegisterJob registers a job to be built
 func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	return &pb.RegisterResponse{}, g.validateJob(ctx, in.Job)
