@@ -157,11 +157,13 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		}
 	}
 
+	g.CtxLog(ctx, fmt.Sprintf("SECRET: Found personal token (%v)", found))
 	if !found {
 		key, _, err := g.client.Actions.GetRepoPublicKey(ctx, "brotherlogic", job)
 		if err != nil {
 			return err
 		}
+		
 		eval, err := encryptSecret(*key.Key, g.accessCode)
 		if err != nil {
 			return err
@@ -169,6 +171,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		secret := &github.EncryptedSecret{
 			Name: "PERSONAL_TOKEN",
 			EncryptedValue: eval,
+			KeyID: *key.KeyID,
 		}
 		bal, err := g.client.Actions.CreateOrUpdateRepoSecret(ctx, "brotherlogic", job,secret )
 		if err != nil {
