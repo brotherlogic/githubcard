@@ -137,7 +137,10 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	// Handle secrets
-	secrets, _, err := g.client.Actions.ListRepoSecrets(ctx, "brotherlogic", job, nil)
+	secrets, resp, err := g.client.Actions.ListRepoSecrets(ctx, "brotherlogic", job, nil)
+	if resp != nil {
+		clientReads.Set(float64(resp.Rate.Remaining))
+	}
 	if err != nil {
 		return err
 	}
