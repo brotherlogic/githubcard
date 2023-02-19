@@ -1199,12 +1199,14 @@ func main() {
 		}
 		scancel()
 
-		ghcctx := context.Background()
+		ghcctx, cancel := utils.ManualContext("client-reg", time.Hour)
+		b.CtxLog(ghcctx, fmt.Sprintf("Building client with %v", b.accessCode))
 		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "... your access token ..."},
+			&oauth2.Token{AccessToken:b.accessCode},
 		)
 		tc := oauth2.NewClient(ghcctx, ts)
 		b.client = github.NewClient(tc)
+		cancel()
 
 		go func() {
 			for {
