@@ -7,6 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"crypto/rand"
+    "encoding/base64"
+    "golang.org/x/crypto/nacl/box"
+
+	github "github.com/google/go-github/v50/github"
+
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
@@ -152,10 +158,45 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	if !found {
-		g.RaiseIssue("Missing PERSONAL TOKEN", fmt.Sprintf("%v is missing the personal token", job))
+		key, _, err := g.client.Actions.GetRepoPublicKey(ctx, "brotherlogic", job)
+		if err != nil {
+			return err
+		}
+		eval, err := encryptSecret(*key.Key, g.accessCode)
+		if err != nil {
+			return err
+		}
+		secret := &github.EncryptedSecret{
+			KeyID: "PERSONAL_TOKEN",
+			EncryptedValue: eval,
+		}
+		g.client.Actions.CreateOrUpdateRepoSecret(ctx, "brotherlogic", job,secret )
 	}
 
 	return nil
+}
+
+
+func encryptSecret(pk, secret string) (string, error) {
+    var pkBytes [32]byte
+    copy(pkBytes[:], pk)
+    secretBytes := []byte(secret)
+
+    out := make([]byte, 0,
+        len(secretBytes)+
+        box.Overhead+
+        len(pkBytes))
+
+    enc, err := box.SealAnonymous(
+        out, secretBytes, &pkBytes, rand.Reader,
+    )
+    if err != nil {
+        return "", err
+    }
+
+    encEnc := base64.StdEncoding.EncodeToString(enc)
+
+    return encEnc, nil
 }
 
 type RepoReturn struct {
