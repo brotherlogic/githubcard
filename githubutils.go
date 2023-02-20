@@ -7,10 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"crypto/rand"
-	"encoding/base64"
-
-	"golang.org/x/crypto/nacl/box"
+	"github.com/jefflinse/githubsecret"
 
 	github "github.com/google/go-github/v50/github"
 
@@ -185,25 +182,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 }
 
 func encryptSecret(pk, secret string) (string, error) {
-	var pkBytes [32]byte
-	copy(pkBytes[:], pk)
-	secretBytes := []byte(secret)
-
-	out := make([]byte, 0,
-		len(secretBytes)+
-			box.Overhead+
-			len(pkBytes))
-
-	enc, err := box.SealAnonymous(
-		out, secretBytes, &pkBytes, rand.Reader,
-	)
-	if err != nil {
-		return "", err
-	}
-
-	encEnc := base64.StdEncoding.EncodeToString(enc)
-
-	return encEnc, nil
+	return githubsecret.Encrypt(pk, secret)
 }
 
 type RepoReturn struct {
