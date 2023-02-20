@@ -1096,9 +1096,16 @@ func main() {
 	flag.Parse()
 
 	b := Init()
-
 	b.PrepServer("githubcard")
 	b.Register = b
+
+	if len(*token) > 0 {
+		ctx, cancel := utils.ManualContext("ghc", time.Minute)
+		err := b.Save(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
+		fmt.Printf("Saved: %v\n", err)
+		cancel()
+		return
+	}
 
 	err := b.RegisterServerV2(false)
 	if err != nil {
@@ -1124,11 +1131,8 @@ func main() {
 	b.external = resp.GetKey().GetValue()
 	cancel()
 
-	if len(*token) > 0 {
-		ctx, cancel := utils.ManualContext("ghc", time.Minute)
-		b.Save(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
-		cancel()
-	} else if len(*external) > 0 {
+	log.Printf("HUH: %v", *token)
+	if len(*external) > 0 {
 		ctx, cancel := utils.ManualContext("githubc", time.Minute)
 		defer cancel()
 		config := &pbgh.Config{}
