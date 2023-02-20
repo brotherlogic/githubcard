@@ -1125,7 +1125,9 @@ func main() {
 	cancel()
 
 	if len(*token) > 0 {
-		//b.Save(context.Bakground(), "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
+		ctx, cancel := utils.ManualContext("ghc", time.Minute)
+		b.Save(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{Token: *token})
+		cancel()
 	} else if len(*external) > 0 {
 		ctx, cancel := utils.ManualContext("githubc", time.Minute)
 		defer cancel()
@@ -1202,7 +1204,7 @@ func main() {
 		ghcctx, cancel := utils.ManualContext("client-reg", time.Hour)
 		b.CtxLog(ghcctx, fmt.Sprintf("Building client with %v", b.accessCode))
 		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken:b.accessCode},
+			&oauth2.Token{AccessToken: b.accessCode},
 		)
 		tc := oauth2.NewClient(ghcctx, ts)
 		b.client = github.NewClient(tc)
