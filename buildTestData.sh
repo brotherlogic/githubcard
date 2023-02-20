@@ -9,6 +9,10 @@ mkdir -p testdata/repos/brotherlogic/pullrequester/git/refs/heads/
 mkdir -p testdata/user/
 
 sleep 1
+curl -H "Content-Type: application/json" -H "Authorization: token $1" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/rstore/actions/secrets/public-key"  
+exit
+
+sleep 1
 curl -H "Content-Type: application/json" -H "Authorization: token $1" --user-agent "GithubAgent" "https://api.github.com/repos/brotherlogic/crasher/branches/main/protection"  > testdata/repos/brotherlogic/crasher/branches/main/protection_
 exit
 
