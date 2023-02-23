@@ -91,6 +91,8 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	// Enable branch protection
+	g.CtxLog(ctx, fmt.Sprintf("Got %v", g.client))
+	g.CtxLog(ctx, fmt.Sprintf("Got2  %v", g.client.Repositories))
 	repo, _, err := g.client.Repositories.Get(ctx, "brotherlogic", job)
 	if err != nil {
 		return err
