@@ -1131,6 +1131,15 @@ func main() {
 	b.external = resp.GetKey().GetValue()
 	cancel()
 
+	ghcctx, cancel := utils.ManualContext("client-reg", time.Hour)
+	b.CtxLog(ghcctx, fmt.Sprintf("Building client with %v", b.accessCode))
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: b.accessCode},
+	)
+	tc := oauth2.NewClient(ghcctx, ts)
+	b.client = github.NewClient(tc)
+	cancel()
+
 	log.Printf("HUH: %v", *token)
 	if len(*external) > 0 {
 		ctx, cancel := utils.ManualContext("githubc", time.Minute)
@@ -1204,15 +1213,6 @@ func main() {
 			b.CtxLog(ctx, fmt.Sprintf("Unable to register home: %v", err))
 		}
 		scancel()
-
-		ghcctx, cancel := utils.ManualContext("client-reg", time.Hour)
-		b.CtxLog(ghcctx, fmt.Sprintf("Building client with %v", b.accessCode))
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: b.accessCode},
-		)
-		tc := oauth2.NewClient(ghcctx, ts)
-		b.client = github.NewClient(tc)
-		cancel()
 
 		go func() {
 			for {
