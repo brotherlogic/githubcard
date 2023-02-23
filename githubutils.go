@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/jefflinse/githubsecret"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	github "github.com/google/go-github/v50/github"
 
@@ -91,10 +93,11 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	// Enable branch protection
-	g.CtxLog(ctx, fmt.Sprintf("Got %v", g.client))
-	g.CtxLog(ctx, fmt.Sprintf("Got2  %v", g.client.Repositories))
-	repo, _, err := g.client.Repositories.Get(ctx, "brotherlogic", job)
+	repo, resp, err := g.client.Repositories.Get(ctx, "brotherlogic", job)
 	if err != nil {
+		if resp.StatusCode == 403 {
+			return status.Errorf(codes.ResourceExhausted, "Bad pull: %v", err)
+		}
 		return err
 	}
 
