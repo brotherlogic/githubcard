@@ -14,8 +14,6 @@ import (
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var (
@@ -92,51 +90,14 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		}
 	}
 
-	g.CtxLog(ctx, fmt.Sprintf("Checking for head branches"))
-	// Ensure that we delete head branches
-	repo, err := g.getRepo(ctx, job)
+	// Enable branch protection
+	repo, _, err := g.client.Repositories.Get(ctx, "brotherlogic", job)
 	if err != nil {
 		return err
 	}
-	if !repo.DeleteBranchOnMerge {
-		err := g.updateRepo(ctx, job, true)
-		if err != nil {
-			return err
-		}
-	}
 
-	// Enable branch protection
-	prot, err := g.getBranchProtection(ctx, job, "main")
-	if err != nil && status.Code(err) != codes.NotFound {
-		return err
-	}
-	if status.Code(err) == codes.NotFound {
-		err := g.updateBranchProtection(ctx, job, &BranchProtection{Url: fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/main/protection", job)})
-		if err != nil {
-			g.RaiseIssue("Bad branch protection update", fmt.Sprintf("%v is the error", err))
-			return err
-		}
-	} else {
-		foundChecks := 0
-		for _, check := range prot.RequiredStatusChecks.Checks {
-			if check.Context == "basic_assess" {
-				foundChecks++
-			}
-		}
-		if prot.RequiredPullRequestReviews.RequiredApprovingReviewCount != 0 || !prot.RequiredStatusChecks.Strict || foundChecks == 0 || !prot.EnforceAdmins.Enabled {
-			err := g.updateBranchProtection(ctx, job, &BranchProtection{
-				Url:                        fmt.Sprintf("https://api.github.com/repos/brotherlogic/%v/branches/main/protection", job),
-				RequiredPullRequestReviews: RequiredPullRequestReviews{RequiredApprovingReviewCount: 1},
-				EnforceAdmins:              EnforceAdmins{Enabled: true},
-				RequiredStatusChecks: RequiredStatusChecks{
-					Strict: true,
-					Checks: []Check{{Context: "basic_assess", AppId: -1}},
-				},
-			})
-			if err != nil {
-				return err
-			}
-		}
+	if repo.GetDefaultBranch() != "main" {
+		g.RaiseIssue("Default Branch Change Needed", fmt.Sprintf("%v needs to change the default branch", job))
 	}
 
 	// Handle secrets
