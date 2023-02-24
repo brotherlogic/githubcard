@@ -98,6 +98,9 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		if resp.StatusCode == 403 {
 			return status.Errorf(codes.ResourceExhausted, "Bad pull: %v", err)
 		}
+		if resp.StatusCode == 401 {
+			g.CtxLog(ctx, fmt.Sprintf("401 error from github: %v", g.accessCode))
+		}
 		return err
 	}
 
@@ -111,6 +114,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		clientReads.Set(float64(resp.Rate.Remaining))
 	}
 	if err != nil {
+
 		return err
 	}
 	found := false
