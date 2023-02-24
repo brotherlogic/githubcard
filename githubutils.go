@@ -7,9 +7,16 @@ import (
 	"strings"
 	"time"
 
+<<<<<<< Updated upstream
 	"github.com/jefflinse/githubsecret"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+=======
+	"crypto/rand"
+	"encoding/base64"
+
+	"golang.org/x/crypto/nacl/box"
+>>>>>>> Stashed changes
 
 	github "github.com/google/go-github/v50/github"
 
@@ -98,6 +105,9 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		if resp.StatusCode == 403 {
 			return status.Errorf(codes.ResourceExhausted, "Bad pull: %v", err)
 		}
+		if resp.StatusCode == 401 {
+			g.CtxLog(ctx, fmt.Sprintf("401 error from github: %v", g.accessCode))
+		}
 		return err
 	}
 
@@ -111,6 +121,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		clientReads.Set(float64(resp.Rate.Remaining))
 	}
 	if err != nil {
+		
 		return err
 	}
 	found := false
@@ -147,7 +158,29 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 }
 
 func encryptSecret(pk, secret string) (string, error) {
+<<<<<<< Updated upstream
 	return githubsecret.Encrypt(pk, secret)
+=======
+	var pkBytes [32]byte
+	copy(pkBytes[:], pk)
+	secretBytes := []byte(secret)
+
+	out := make([]byte, 0,
+		len(secretBytes)+
+			box.Overhead+
+			len(pkBytes))
+
+	enc, err := box.SealAnonymous(
+		out, secretBytes, &pkBytes, rand.Reader,
+	)
+	if err != nil {
+		return "", err
+	}
+
+	encEnc := base64.StdEncoding.EncodeToString(enc)
+
+	return encEnc, nil
+>>>>>>> Stashed changes
 }
 
 type RepoReturn struct {
