@@ -1131,6 +1131,18 @@ func main() {
 	b.external = resp.GetKey().GetValue()
 	cancel()
 
+	ctx, cancel = utils.ManualContext("githubs", time.Minute)
+	m, _, err := b.Read(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
+	if err != nil {
+		log.Fatalf("Error reading token: %v", err)
+	}
+	cancel()
+	if len(m.(*pbgh.Token).GetToken()) == 0 {
+		log.Fatalf("Error reading token: %v", m)
+	}
+	b.accessCode = m.(*pbgh.Token).GetToken()
+	cancel()
+
 	ghcctx, cancel := utils.ManualContext("client-reg", time.Hour)
 	b.CtxLog(ghcctx, fmt.Sprintf("Building client with %v", b.accessCode))
 	ts := oauth2.StaticTokenSource(
@@ -1153,16 +1165,6 @@ func main() {
 		tconfig.ExternalIP = *external
 		fmt.Printf("SAVED = %v\n", b.KSclient.Save(ctx, CONFIG, tconfig))
 	} else {
-		ctx, cancel := utils.ManualContext("githubs", time.Minute)
-		m, _, err := b.Read(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
-		if err != nil {
-			log.Fatalf("Error reading token: %v", err)
-		}
-		cancel()
-		if len(m.(*pbgh.Token).GetToken()) == 0 {
-			log.Fatalf("Error reading token: %v", m)
-		}
-		b.accessCode = m.(*pbgh.Token).GetToken()
 		b.getter = &prodHTTPGetter{accessToken: b.accessCode, clog: b.CtxLog}
 
 		ctx, cancel = utils.ManualContext("githubs", time.Minute)
