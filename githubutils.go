@@ -105,7 +105,10 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	if repo.GetDefaultBranch() != "main" {
-		g.RaiseIssue("Default Branch Change Needed", fmt.Sprintf("%v needs to change the default branch", job))
+		db := "main"
+		repo.DefaultBranch = &db
+		_, _, err := g.client.Repositories.Edit(ctx, "brotherlogic", job, repo)
+		g.BounceIssue(ctx, "Updated branch", fmt.Sprintf("To main -> %v", err), job)
 	}
 
 	// Handle secrets
