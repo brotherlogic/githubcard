@@ -106,7 +106,10 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 
 	if repo.GetDefaultBranch() != "main" {
 		db := "main"
+		deleteBranch := true
 		repo.DefaultBranch = &db
+		repo.DeleteBranchOnMerge = &deleteBranch
+
 		_, _, err := g.client.Repositories.Edit(ctx, "brotherlogic", job, repo)
 		g.BounceIssue(ctx, "Updated branch", fmt.Sprintf("To main -> %v", err), job)
 	}
