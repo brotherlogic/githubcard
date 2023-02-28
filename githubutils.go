@@ -122,44 +122,26 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		g.BounceIssue(ctx, "Updated branch", fmt.Sprintf("To main -> %v", err), job)
 	}
 
-	// Handle secrets
-	secrets, resp, err := g.client.Actions.ListRepoSecrets(ctx, "brotherlogic", job, nil)
-	if resp != nil {
-		clientReads.Set(float64(resp.Rate.Remaining))
+	key, _, err := g.client.Actions.GetRepoPublicKey(ctx, "brotherlogic", job)
+	if err != nil {
+		return err
 	}
+
+	eval, err := encryptSecret(*key.Key, g.accessCode)
 	if err != nil {
 
 		return err
 	}
-	found := false
-	for _, secret := range secrets.Secrets {
-		if secret.Name == "PERSONAL_TOKEN" {
-			found = true
-		}
+	secret := &github.EncryptedSecret{
+		Name:           "PERSONAL_TOKEN",
+		EncryptedValue: eval,
+		KeyID:          *key.KeyID,
 	}
-
-	g.CtxLog(ctx, fmt.Sprintf("SECRET: Found personal token (%v)", found))
-	if !found {
-		key, _, err := g.client.Actions.GetRepoPublicKey(ctx, "brotherlogic", job)
-		if err != nil {
-			return err
-		}
-
-		eval, err := encryptSecret(*key.Key, g.accessCode)
-		if err != nil {
-			return err
-		}
-		secret := &github.EncryptedSecret{
-			Name:           "PERSONAL_TOKEN",
-			EncryptedValue: eval,
-			KeyID:          *key.KeyID,
-		}
-		bal, err := g.client.Actions.CreateOrUpdateRepoSecret(ctx, "brotherlogic", job, secret)
-		if err != nil {
-			return err
-		}
-		g.CtxLog(ctx, fmt.Sprintf("Added secret %+v -> %v,%v (%v)", secret, bal, err, g.accessCode))
+	bal, err := g.client.Actions.CreateOrUpdateRepoSecret(ctx, "brotherlogic", job, secret)
+	if err != nil {
+		return err
 	}
+	g.CtxLog(ctx, fmt.Sprintf("Added secret %+v -> %v,%v (%v)", secret, bal, err, g.accessCode))
 
 	return nil
 }
