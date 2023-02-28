@@ -141,7 +141,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	if err != nil {
 		return err
 	}
-	g.CtxLog(ctx, fmt.Sprintf("Added secret %+v -> %v,%v (%v)", secret, bal, err, g.accessCode))
+	g.CtxLog(ctx, fmt.Sprintf("added secret %+v -> %v,%v (%v)", secret, bal, err, g.accessCode))
 
 	return nil
 }
