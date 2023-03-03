@@ -104,21 +104,22 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		return err
 	}
 
+	nrepo := &github.Repository{}
 	updated := false
 	if repo.GetDefaultBranch() != "main" {
 		db := "main"
-		repo.DefaultBranch = &db
+		nrepo.DefaultBranch = &db
 		updated = true
 	}
 
 	if !repo.GetDeleteBranchOnMerge() {
 		deleteBranch := true
-		repo.DeleteBranchOnMerge = &deleteBranch
+		nrepo.DeleteBranchOnMerge = &deleteBranch
 		updated = true
 	}
 
 	if updated {
-		_, _, err := g.client.Repositories.Edit(ctx, "brotherlogic", job, repo)
+		_, _, err := g.client.Repositories.Edit(ctx, "brotherlogic", job, nrepo)
 		g.BounceIssue(ctx, "Updated branch", fmt.Sprintf("To main -> %v from %+v", err, repo), job)
 	}
 
