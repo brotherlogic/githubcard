@@ -128,8 +128,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 
 	if updated {
-		_, _, err := g.client.Repositories.Edit(ctx, "brotherlogic", job, nrepo)
-		g.BounceIssue(ctx, "Updated branch", fmt.Sprintf("To main -> %v from %+v", err, repo), job)
+		g.client.Repositories.Edit(ctx, "brotherlogic", job, nrepo)
 	}
 
 	key, _, err := g.client.Actions.GetRepoPublicKey(ctx, "brotherlogic", job)
