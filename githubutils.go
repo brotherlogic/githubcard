@@ -105,12 +105,20 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		return err
 	}
 
+	// Add a main branch if there isn't one
+
 	nrepo := &github.Repository{}
 	updated := false
 	if repo.GetDefaultBranch() != "main" {
 		db := "main"
 		nrepo.DefaultBranch = &db
 		updated = true
+
+		// Push a new commit
+		_, _, err := g.client.Repositories.RenameBranch(ctx, "brotherlogic", job, "master", "main")
+		if err != nil {
+			g.RaiseIssue("Bad branch rename", fmt.Sprintf("Bad rename: %v", err))
+		}
 	}
 
 	if !repo.GetDeleteBranchOnMerge() {
