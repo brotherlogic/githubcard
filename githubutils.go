@@ -152,6 +152,19 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 	g.CtxLog(ctx, fmt.Sprintf("added secret %+v -> %v,%v (%v)", secret, bal, err, g.accessCode))
 
+	prot, resp, err := g.client.Repositories.GetBranchProtection(ctx, "brotherlogic", job, "main")
+	if err != nil {
+		g.RaiseIssue("Bad branch pull", fmt.Sprintf("Got %v and %+v", err, resp))
+	}
+	prot.RequiredPullRequestReviews.BypassPullRequestAllowances = &github.BypassPullRequestAllowances{}
+	_, resp, err = g.client.Repositories.UpdateBranchProtection(ctx, "brotherlogic", job, "main",
+		&github.ProtectionRequest{RequiredPullRequestReviews: &github.PullRequestReviewsEnforcementRequest{
+			BypassPullRequestAllowancesRequest: &github.BypassPullRequestAllowancesRequest{},
+		}})
+	if err != nil {
+		g.RaiseIssue("Bad Branch Update", fmt.Sprintf("Got %v and %v", err, resp))
+	}
+
 	return nil
 }
 
