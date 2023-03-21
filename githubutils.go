@@ -152,7 +152,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	}
 	g.CtxLog(ctx, fmt.Sprintf("added secret %+v -> %v,%v (%v)", secret, bal, err, g.accessCode))
 
-	if !repo.Private {
+	if !repo.GetPrivate() {
 		_, resp, err = g.client.Repositories.GetBranchProtection(ctx, "brotherlogic", job, "main")
 		if err != nil {
 			g.RaiseIssue("Bad branch pull", fmt.Sprintf("Got %v and %+v", err, resp))
