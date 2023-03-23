@@ -942,6 +942,9 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 	rb, _ := ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 0 {
+		if resp.StatusCode == 404 {
+			return rb, pid, status.Errorf(codes.NotFound, "POST error: %v -> %v", resp.StatusCode, string(rb))
+		}
 		return rb, pid, fmt.Errorf("POST error: %v -> %v", resp.StatusCode, string(rb))
 	}
 
