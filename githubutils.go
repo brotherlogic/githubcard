@@ -173,7 +173,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		}
 
 		if !foundBasicAssess {
-			g.RaiseIssue("Missing basic assess", fmt.Sprintf("Did not find basic assess: %+v", bp.GetRequiredStatusChecks().Checks))
+			g.RaiseIssue("Missing basic assess", fmt.Sprintf("Did not find basic assess for %v: %v", job, bp.GetRequiredStatusChecks().Checks))
 		}
 
 	}
