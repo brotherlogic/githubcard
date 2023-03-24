@@ -158,9 +158,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 			g.RaiseIssue("Bad branch pull", fmt.Sprintf("Got %v and %+v", err, resp))
 		}
 		_, resp, err = g.client.Repositories.UpdateBranchProtection(ctx, "brotherlogic", job, "main",
-			&github.ProtectionRequest{RequiredPullRequestReviews: &github.PullRequestReviewsEnforcementRequest{
-				BypassPullRequestAllowancesRequest: &github.BypassPullRequestAllowancesRequest{},
-			}})
+			&github.UpdateBranchProtection{EnforceAdmins: true})
 		if err != nil {
 			g.RaiseIssue("Bad Branch Update", fmt.Sprintf("Got %v and %v", err, resp))
 		}
