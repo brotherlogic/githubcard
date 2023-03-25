@@ -164,7 +164,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		}
 
 		foundBasicAssess := false
-		if bp != nil && bp.GetRequiredStatusChecks().Checks != nil {
+		if bp != nil && bp.GetRequiredStatusChecks() != nil && bp.GetRequiredStatusChecks().Checks != nil {
 			for _, check := range bp.GetRequiredStatusChecks().Checks {
 				if check.Context == "basic_assess" {
 					foundBasicAssess = true
