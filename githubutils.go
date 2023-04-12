@@ -155,7 +155,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	if !repo.GetPrivate() {
 		bp, resp, err := g.client.Repositories.GetBranchProtection(ctx, "brotherlogic", job, "main")
 		if err != nil {
-			g.RaiseIssue("Bad branch pull", fmt.Sprintf("Got %v and %+v", err, resp))
+			g.RaiseIssue("Bad branch pull", fmt.Sprintf("For %v Got %v and %+v", job, err, resp))
 		}
 		_, resp, err = g.client.Repositories.UpdateBranchProtection(ctx, "brotherlogic", job, "main",
 			&github.ProtectionRequest{
@@ -167,7 +167,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 				},
 			})
 		if err != nil {
-			g.RaiseIssue("Bad Branch Update", fmt.Sprintf("Got %v and %v", err, resp))
+			g.RaiseIssue("Bad Branch Update", fmt.Sprintf("For %v Got %v and %v", job, err, resp))
 		}
 
 		foundBasicAssess := false
