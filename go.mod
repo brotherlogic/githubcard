@@ -7,13 +7,13 @@ require (
 	github.com/brotherlogic/keymapper v0.0.0-20230108072843-3e2224631447
 	github.com/brotherlogic/keystore v0.0.0-20230605062808-e90788956f75
 	github.com/brotherlogic/printer v0.0.0-20230108022149-cde29d1d72c7
-	github.com/brotherlogic/proxy v0.0.0-20230605063000-493ae1cf355e
+	github.com/brotherlogic/proxy v0.0.0-20230612074148-e0cd3d051e6a
 	github.com/google/go-github/v50 v50.2.0
 	github.com/jefflinse/githubsecret v1.0.2
 	github.com/migueleliasweb/go-github-mock v0.0.16
 	github.com/prometheus/client_golang v1.15.1
-	golang.org/x/net v0.10.0
-	golang.org/x/oauth2 v0.8.0
+	golang.org/x/net v0.11.0
+	golang.org/x/oauth2 v0.9.0
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 )
@@ -21,13 +21,13 @@ require (
 require (
 	github.com/ProtonMail/go-crypto v0.0.0-20230528122434-6f98819771a1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/buildserver v0.0.0-20230531234700-ce0c31e351e7 // indirect
+	github.com/brotherlogic/buildserver v0.0.0-20230610183004-84db4ad05cd8 // indirect
 	github.com/brotherlogic/datastore v0.0.0-20230118231105-ee668be05973 // indirect
 	github.com/brotherlogic/discovery v0.0.0-20230527174721-899846f80b8c // indirect
-	github.com/brotherlogic/dstore v0.0.0-20230603175306-86eb7e42ee6e // indirect
+	github.com/brotherlogic/dstore v0.0.0-20230610181820-2225c4f68d59 // indirect
 	github.com/brotherlogic/gobuildslave v0.0.0-20230604044345-1e331dee389b // indirect
-	github.com/brotherlogic/lock v0.0.0-20230605063014-e8b9469923a1 // indirect
-	github.com/brotherlogic/logging v0.0.0-20230606183157-73a4deab858e // indirect
+	github.com/brotherlogic/lock v0.0.0-20230612074258-113922a25aaf // indirect
+	github.com/brotherlogic/logging v0.0.0-20230613184344-eaecb0a10653 // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -41,9 +41,9 @@ require (
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/struCoder/pidusage v0.2.1 // indirect
-	golang.org/x/crypto v0.9.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/crypto v0.10.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/text v0.10.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 )
