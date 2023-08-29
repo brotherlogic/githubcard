@@ -22,7 +22,7 @@ type addResponse struct {
 	Message string
 }
 
-//ClosePullRequest closes a pull request
+// ClosePullRequest closes a pull request
 func (g *GithubBridge) ClosePullRequest(ctx context.Context, in *pb.CloseRequest) (*pb.CloseResponse, error) {
 	resp, err := g.closePullRequestLocal(ctx, in.Job, in.PullNumber, in.Sha)
 	if err != nil {
@@ -32,12 +32,12 @@ func (g *GithubBridge) ClosePullRequest(ctx context.Context, in *pb.CloseRequest
 	return resp, err
 }
 
-//GetPullRequest gets a pull request
+// GetPullRequest gets a pull request
 func (g *GithubBridge) GetPullRequest(ctx context.Context, in *pb.PullRequest) (*pb.PullResponse, error) {
 	return g.getPullRequestLocal(ctx, in.Job, in.PullNumber)
 }
 
-//CreatePullRequest creates a pull request
+// CreatePullRequest creates a pull request
 func (g *GithubBridge) CreatePullRequest(ctx context.Context, in *pb.PullRequest) (*pb.PullResponse, error) {
 	_, err := g.createPullRequestLocal(ctx, in.Job, in.Branch, in.Title)
 	if err != nil {
@@ -47,13 +47,13 @@ func (g *GithubBridge) CreatePullRequest(ctx context.Context, in *pb.PullRequest
 	return &pb.PullResponse{}, err
 }
 
-//AddMilestone adds a milestone
+// AddMilestone adds a milestone
 func (g *GithubBridge) AddMilestone(ctx context.Context, req *pb.AddMilestoneRequest) (*pb.AddMilestoneResponse, error) {
 	num, err := g.createMilestoneLocal(ctx, req.Repo, req.Title, "open", req.Description)
 	return &pb.AddMilestoneResponse{Number: int32(num)}, err
 }
 
-//UpdateMilestone updates a milestone
+// UpdateMilestone updates a milestone
 func (g *GithubBridge) UpdateMilestone(ctx context.Context, req *pb.UpdateMilestoneRequest) (*pb.UpdateMilestoneResponse, error) {
 	err := g.updateMilestoneLocal(ctx, req.Repo, req.Number, req.State)
 	return &pb.UpdateMilestoneResponse{}, err
@@ -66,12 +66,12 @@ var (
 	})
 )
 
-//RegisterJob registers a job to be built
+// RegisterJob registers a job to be built
 func (g *GithubBridge) RegisterJob(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	return &pb.RegisterResponse{}, g.validateJob(ctx, in.Job)
 }
 
-//DeleteIssue removes an issue
+// DeleteIssue removes an issue
 func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteResponse, error) {
 	config, err := g.readIssues(ctx)
 	if err != nil {
@@ -93,10 +93,6 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 
 			break
 		}
-	}
-
-	if issue.GetPrintId() == 0 {
-		g.CtxLog(ctx, fmt.Sprintf("Issue has no print id: %v", issue))
 	}
 
 	// Fire and forget to subscribers
@@ -129,7 +125,7 @@ var (
 	}, []string{"service"})
 )
 
-//AddIssue adds an issue to github
+// AddIssue adds an issue to github
 func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	if in.GetDateAdded() == 0 {
 		in.DateAdded = time.Now().Unix()
@@ -169,8 +165,6 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 				issue = issues
 			}
 		}
-
-		g.CtxLog(ctx, fmt.Sprintf("Resolved to existing issue: %v -> %v", issue, in))
 
 		if issue.GetPrintId() == 0 {
 			config.Issues = append(config.Issues, in)
@@ -239,7 +233,6 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 	if in.Uid == 0 {
 		in.Uid = time.Now().UnixNano()
 	}
-	g.CtxLog(ctx, fmt.Sprintf("Adding THE Issue: %v -> %v/%v (%v)", in.GetTitle(), in.GetService(), r.Number, in))
 
 	config.TitleToIssue[in.GetTitle()] = fmt.Sprintf("%v/%v", in.GetService(), in.GetNumber())
 	mapSize.Set(float64(len(config.GetTitleToIssue())))
@@ -254,13 +247,13 @@ var (
 	})
 )
 
-//Get gets an issue from github
+// Get gets an issue from github
 func (g *GithubBridge) Get(ctx context.Context, in *pb.Issue) (*pb.Issue, error) {
 	b, err := g.GetIssueLocal(ctx, "brotherlogic", in.GetService(), int(in.GetNumber()))
 	return b, err
 }
 
-//GetAll gets all the issues currently open
+// GetAll gets all the issues currently open
 func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.GetAllResponse, error) {
 	config, err := g.readIssues(ctx)
 	if err != nil {
@@ -271,7 +264,6 @@ func (g *GithubBridge) GetAll(ctx context.Context, in *pb.GetAllRequest) (*pb.Ge
 
 	for _, is := range config.Issues {
 		allowed := true
-		g.CtxLog(ctx, fmt.Sprintf("BUT HERE %v", is))
 		for _, no := range in.GetAvoid() {
 			if strings.Contains(is.GetUrl(), no) {
 				allowed = false
@@ -327,7 +319,7 @@ func (g *GithubBridge) Silence(ctx context.Context, in *pb.SilenceRequest) (*pb.
 	return nil, fmt.Errorf("unable to apply request, silence was not found %v", in)
 }
 
-//Configure the system
+// Configure the system
 func (g *GithubBridge) Configure(ctx context.Context, req *pb.ConfigureRequest) (*pb.ConfigureResponse, error) {
 	config, err := g.readIssues(ctx)
 	if err != nil {

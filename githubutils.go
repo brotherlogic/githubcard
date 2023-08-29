@@ -50,7 +50,6 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 			g.deleteWebHook(ctx, job, hook)
 		}
 		if strings.Contains(hook.Config.URL, "githubwebhook") {
-			g.CtxLog(ctx, fmt.Sprintf("EV %v Sec %v Ext %v CT %v", len(hook.Events), len(hook.Config.Secret), hook.Config.URL, hook.Config.ContentType))
 			if len(hook.Events) != 7 {
 				hook.Events = []string{"push", "issues", "create", "pull_request", "check_suite", "check_run", "status"}
 				hook.Config.Secret = g.githubsecret
@@ -58,7 +57,6 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 			}
 			if len(hook.Config.Secret) == 0 {
 				hook.Config.Secret = g.githubsecret
-				g.CtxLog(ctx, fmt.Sprintf("Setting secret for %v", job))
 				g.updateWebHook(ctx, job, hook)
 			}
 			if !strings.Contains(hook.Config.URL, g.external) || !strings.Contains(hook.Config.URL, fmt.Sprintf("%v", PORT_NUMBER)) {
@@ -86,7 +84,6 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 				InsecureSSL: "1",
 			}}
 		hook.Config.Secret = g.githubsecret
-		g.CtxLog(ctx, fmt.Sprintf("Adding %v", hook))
 		err := g.addWebHook(ctx, job, hook)
 		if err != nil {
 			return err
@@ -150,7 +147,6 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	if err != nil {
 		return err
 	}
-	g.CtxLog(ctx, fmt.Sprintf("added secret %+v -> %v,%v (%v)", secret, bal, err, g.accessCode))
 
 	if !repo.GetPrivate() {
 		bp, resp, err := g.client.Repositories.GetBranchProtection(ctx, "brotherlogic", job, "main")
