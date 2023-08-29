@@ -143,7 +143,7 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		EncryptedValue: eval,
 		KeyID:          *key.KeyID,
 	}
-	bal, err := g.client.Actions.CreateOrUpdateRepoSecret(ctx, "brotherlogic", job, secret)
+	_, err = g.client.Actions.CreateOrUpdateRepoSecret(ctx, "brotherlogic", job, secret)
 	if err != nil {
 		return err
 	}
