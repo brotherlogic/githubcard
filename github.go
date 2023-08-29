@@ -160,8 +160,6 @@ func (h prodHTTPGetter) Get(ctx context.Context, url string) (*http.Response, er
 
 	h.prepRequest(req)
 
-	h.clog(ctx, fmt.Sprintf("REQUEST IS: %v", req))
-
 	return h.getClient().Do(req)
 }
 
@@ -192,9 +190,6 @@ func (b GithubBridge) ReportHealth() bool {
 }
 
 func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) error {
-	for _, issue := range config.GetIssues() {
-		b.CtxLog(ctx, fmt.Sprintf("WRITE: %v", issue))
-	}
 	if config.ExternalIP == "" {
 		log.Fatalf("Trying to save without IP: %v", config)
 	}
@@ -204,14 +199,10 @@ func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) erro
 	for _, issue := range config.GetIssues() {
 		if issue.State != pbgh.Issue_CLOSED || time.Since(time.Unix(issue.GetDateAdded(), 0)) < time.Hour*24 {
 			nissues = append(nissues, issue)
-		} else {
-			b.CtxLog(ctx, fmt.Sprintf("DROPPING ON Save: %v", issue))
 		}
 
 		if issue.GetUid() == 0 {
 			issue.Uid = time.Now().UnixNano()
-			b.CtxLog(ctx, fmt.Sprintf("UPDATING UID -> %v", issue))
-
 		}
 	}
 	config.Issues = nissues
@@ -227,10 +218,6 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 		return nil, err
 	}
 	config = data.(*pbgh.Config)
-
-	for _, issue := range config.GetIssues() {
-		b.CtxLog(ctx, fmt.Sprintf("READ: %v", issue))
-	}
 
 	size.With(prometheus.Labels{"elem": "silences"}).Set(float64(len(config.GetSilences())))
 	size.With(prometheus.Labels{"elem": "jobs"}).Set(float64(len(config.GetJobsOfInterest())))
@@ -277,13 +264,9 @@ func (b *GithubBridge) readIssues(ctx context.Context) (*pbgh.Config, error) {
 
 		if issue.GetNumber() > 0 {
 			nissues = append(nissues, issue)
-		} else {
-			b.CtxLog(ctx, fmt.Sprintf("DROPPING ON READ %v", issue))
 		}
 	}
 	config.Issues = nissues
-
-	b.CtxLog(ctx, fmt.Sprintf("Read config with %v issues", len(config.GetTitleToIssue())))
 
 	b.metrics(config)
 
@@ -349,7 +332,6 @@ func (b *GithubBridge) visitURL(ctx context.Context, url string) (string, bool, 
 			return string(body), false, status.Errorf(codes.NotFound, "Non 200 return (%v) -> %v", resp.StatusCode, string(body))
 		}
 
-		b.CtxLog(ctx, fmt.Sprintf("Error in visit %v -> (%v): %v", url, resp.StatusCode, string(body)))
 		return string(body), false, fmt.Errorf("Non 200 return (%v) -> %v", resp.StatusCode, string(body))
 	}
 
@@ -482,8 +464,7 @@ func (b *GithubBridge) updateBranchProtection(ctx context.Context, repo string, 
 	}
 
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	b.CtxLog(ctx, fmt.Sprintf("UPDATE BRANCH PROTECTION RESULT: %v", string(data)))
+	_, err = ioutil.ReadAll(resp.Body)
 
 	return err
 }
@@ -506,8 +487,7 @@ func (b *GithubBridge) updateRepo(ctx context.Context, repo string, deleteHead b
 	}
 
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	b.CtxLog(ctx, fmt.Sprintf("UPDATE REPO RESULT: %v", string(data)))
+	_, err = ioutil.ReadAll(resp.Body)
 
 	return err
 }
@@ -527,8 +507,7 @@ func (b *GithubBridge) updateWebHook(ctx context.Context, repo string, hook *Web
 	}
 
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	b.CtxLog(ctx, fmt.Sprintf("RESULT: %v", string(data)))
+	_, err = ioutil.ReadAll(resp.Body)
 
 	return err
 }
@@ -542,8 +521,7 @@ func (b *GithubBridge) deleteWebHook(ctx context.Context, repo string, hook *Web
 	}
 
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	b.CtxLog(ctx, fmt.Sprintf("RESULT: %v", string(data)))
+	_, err = ioutil.ReadAll(resp.Body)
 
 	return err
 }
@@ -562,9 +540,7 @@ func (b *GithubBridge) addWebHook(ctx context.Context, repo string, hook Webhook
 	}
 
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-
-	b.CtxLog(ctx, fmt.Sprintf("READ[%v]: %v", resp.StatusCode, string(data)))
+	_, err = ioutil.ReadAll(resp.Body)
 
 	return err
 }
@@ -799,8 +775,7 @@ func (b *GithubBridge) addLabel(ctx context.Context, job, branch, title string, 
 	}
 
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	b.CtxLog(ctx, fmt.Sprintf("Adding LABEL: %v -> %v", urlv, string(body)))
+	ioutil.ReadAll(resp.Body)
 
 	return nil
 }
@@ -898,7 +873,6 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 	if err != nil {
 		return err
 	}
-	b.CtxLog(ctx, fmt.Sprintf("Deleting issue %v/%v -> %v", issue.GetService(), issue.GetNumber(), issue))
 	_, err = b.patchURL(fmt.Sprintf("https://api.github.com/repos/%v/%v/issues/%v", owner, issue.GetService(), issue.GetNumber()), string(bytes))
 
 	if err == nil && issue.GetPrintId() > 0 {
@@ -948,7 +922,6 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 		return rb, pid, fmt.Errorf("POST error: %v -> %v", resp.StatusCode, string(rb))
 	}
 
-	b.CtxLog(ctx, fmt.Sprintf("Print request: %v", print))
 	if print {
 		// Best effort print
 		conn, err := b.FDialServer(ctx, "printer")
@@ -1029,9 +1002,6 @@ func (b *GithubBridge) hardSync() {
 	defer scancel()
 
 	config, err := b.readIssues(sctx)
-	if err != nil {
-		b.CtxLog(sctx, fmt.Sprintf("Unable to read issues: %v", err))
-	}
 	// Pull all issues
 	exissues, err := b.GetIssues(sctx)
 	if err != nil {
@@ -1053,7 +1023,6 @@ func (b *GithubBridge) hardSync() {
 		if !found {
 			adjust = true
 			issue.Uid = time.Now().UnixNano()
-			b.CtxLog(sctx, fmt.Sprintf("Restoring issue: %v", issue))
 			config.Issues = append(config.Issues, issue)
 		}
 	}
@@ -1076,7 +1045,6 @@ func (b *GithubBridge) hardSync() {
 			if err != nil {
 				log.Fatalf("Bad issue pull")
 			}
-			b.CtxLog(sctx, fmt.Sprintf("Pulled issue: %v", issue))
 			if is.State != issue.GetState() {
 				is.State = issue.GetState()
 				adjust = true
@@ -1147,7 +1115,6 @@ func main() {
 	cancel()
 
 	ghcctx, cancel := utils.ManualContext("client-reg", time.Hour)
-	b.CtxLog(ghcctx, fmt.Sprintf("Building client with %v", b.accessCode))
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: b.accessCode},
 	)
@@ -1155,7 +1122,6 @@ func main() {
 	b.client = github.NewClient(tc)
 	cancel()
 
-	log.Printf("HUH: %v", *token)
 	if len(*external) > 0 {
 		ctx, cancel := utils.ManualContext("githubc", time.Minute)
 		defer cancel()
@@ -1214,9 +1180,6 @@ func main() {
 
 		// Always register home job under a webhook
 		_, err = b.RegisterJob(sctx, &pbgh.RegisterRequest{Job: "home"})
-		if err != nil {
-			b.CtxLog(ctx, fmt.Sprintf("Unable to register home: %v", err))
-		}
 		scancel()
 
 		go func() {
