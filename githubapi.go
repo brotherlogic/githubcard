@@ -166,9 +166,9 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 			}
 		}
 
-		if issue.GetPrintId() == 0 {
+		if issue.GetPrintId() == "" {
 			config.Issues = append(config.Issues, in)
-			issue.PrintId = 10
+			issue.PrintId = "blah"
 		}
 
 		issue.DateAdded = time.Now().Unix()
