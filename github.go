@@ -24,13 +24,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	printclient "github.com/brotherlogic/printqueue/client"
 	github "github.com/google/go-github/v50/github"
 
 	pb "github.com/brotherlogic/githubcard/proto"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
 	kmpb "github.com/brotherlogic/keymapper/proto"
-	prpb "github.com/brotherlogic/printer/proto"
+	pqpb "github.com/brotherlogic/printqueue/proto"
 	ppb "github.com/brotherlogic/proxy/proto"
 )
 
@@ -875,21 +876,19 @@ func (b *GithubBridge) DeleteIssueLocal(ctx context.Context, owner string, issue
 	}
 	_, err = b.patchURL(fmt.Sprintf("https://api.github.com/repos/%v/%v/issues/%v", owner, issue.GetService(), issue.GetNumber()), string(bytes))
 
-	if err == nil && issue.GetPrintId() > 0 {
-		conn, err := b.FDialServer(ctx, "printer")
+	if err == nil && issue.GetPrintId() != "" {
+		_, err := printclient.NewPrintQueueClient(ctx)
 		if err == nil {
-			defer conn.Close()
-			client := prpb.NewPrintServiceClient(conn)
-			client.Clear(ctx, &prpb.ClearRequest{Uid: issue.GetPrintId()})
+			//client.(ctx, &prpb.ClearRequest{Uid: issue.GetPrintId()})
 		}
 	}
 	return err
 }
 
 // AddIssueLocal adds an issue
-func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, printIm, print bool, config *pbgh.Config) ([]byte, int64, error) {
+func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, body string, milestone int, printIm, print bool, config *pbgh.Config) ([]byte, string, error) {
 	b.attempts++
-	pid := int64(0)
+	pid := ""
 
 	payload := Payload{Title: title, Body: body, Assignee: owner}
 	bytes, err := json.Marshal(payload)
@@ -924,19 +923,17 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 
 	if print {
 		// Best effort print
-		conn, err := b.FDialServer(ctx, "printer")
+		pclient, err := printclient.NewPrintQueueClient(ctx)
 		if err == nil {
-			defer conn.Close()
-			client := prpb.NewPrintServiceClient(conn)
 			if resp.StatusCode != 201 {
-				resp, err := client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github", Override: printIm})
+				resp, err := pclient.Print(ctx, &pqpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github"}) //, Override: printIm})
 				if err == nil {
-					pid = resp.GetUid()
+					pid = resp.GetId()
 				}
 			} else {
-				resp, err := client.Print(ctx, &prpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github", Override: printIm})
+				resp, err := pclient.Print(ctx, &pqpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github"}) //, Override: printIm})
 				if err == nil {
-					pid = resp.GetUid()
+					pid = resp.GetId()
 				}
 			}
 		}
