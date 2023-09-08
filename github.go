@@ -926,12 +926,12 @@ func (b *GithubBridge) AddIssueLocal(ctx context.Context, owner, repo, title, bo
 		pclient, err := printclient.NewPrintQueueClient(ctx)
 		if err == nil {
 			if resp.StatusCode != 201 {
-				resp, err := pclient.Print(ctx, &pqpb.PrintRequest{Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github"}) //, Override: printIm})
+				resp, err := pclient.Print(ctx, &pqpb.PrintRequest{Destination: pqpb.Destination_DESTINATION_RECEIPT, Lines: []string{fmt.Sprintf("%v: %v", resp.StatusCode, title)}, Origin: "github"}) //, Override: printIm})
 				if err == nil {
 					pid = resp.GetId()
 				}
 			} else {
-				resp, err := pclient.Print(ctx, &pqpb.PrintRequest{Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github"}) //, Override: printIm})
+				resp, err := pclient.Print(ctx, &pqpb.PrintRequest{Destination: pqpb.Destination_DESTINATION_RECEIPT, Lines: []string{fmt.Sprintf("%v", title), "\n", fmt.Sprintf("%v", body)}, Origin: "github"}) //, Override: printIm})
 				if err == nil {
 					pid = resp.GetId()
 				}
