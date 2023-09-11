@@ -98,8 +98,8 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 	// Fire and forget to subscribers
 	for _, subscriber := range addFocus(issue.GetSubscribers()) {
 		conn, err := g.FDialServer(ctx, subscriber)
-		defer conn.Close()
 		if err == nil {
+			defer conn.Close()
 			client := pb.NewGithubSubscriberClient(conn)
 			client.ChangeUpdate(ctx, &pb.ChangeUpdateRequest{Issue: issue})
 		}
