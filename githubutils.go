@@ -55,7 +55,13 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	if err != nil {
 		return err
 	}
-	outstanding.With(prometheus.Labels{"job": job, "type": "prs"}).Set(float64(len(prs)))
+	outstanding.With(prometheus.Labels{"job": job, "type": "pull"}).Set(float64(len(prs)))
+
+	brs, _, err := g.client.Repositories.ListBranches(ctx, "brotherlogic", job, &github.BranchListOptions{})
+	if err != nil {
+		return err
+	}
+	outstanding.With(prometheus.Labels{"job": job, "type": "branch"}).Set(float64(len(brs)))
 
 	for _, hook := range hooks {
 		if strings.Contains(hook.Config.URL, "travis") {
