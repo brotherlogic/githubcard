@@ -15,11 +15,17 @@ import (
 
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
 )
 
 var (
 	PORT_NUMBER = 50051
+
+	outstanding = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "githubcard_outstanding",
+		Help: "The number of issues added per binary",
+	}, []string{"job", "type"})
 )
 
 func (g *GithubBridge) metrics(config *pbgh.Config) {
@@ -44,6 +50,12 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 	if len(config.GetExternalIP()) == 0 {
 		return fmt.Errorf("No external IP registered")
 	}
+
+	prs, _, err := g.client.PullRequests.List(ctx, "brotherlogic", job, &github.PullRequestListOptions{})
+	if err != nil {
+		return err
+	}
+	outstanding.With(prometheus.Labels{"job": job, "type": "prs"}).Set(float64(len(prs)))
 
 	for _, hook := range hooks {
 		if strings.Contains(hook.Config.URL, "travis") {
