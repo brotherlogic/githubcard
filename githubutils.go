@@ -180,9 +180,6 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 					},
 				},
 			})
-		if err != nil {
-			g.RaiseIssue("Bad Branch Update", fmt.Sprintf("For %v Got %v and %v", job, err, resp))
-		}
 
 		foundBasicAssess := false
 		if bp != nil && bp.GetRequiredStatusChecks() != nil && bp.GetRequiredStatusChecks().Checks != nil {
