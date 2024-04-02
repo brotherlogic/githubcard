@@ -7,7 +7,7 @@ toolchain go1.22.1
 require (
 	github.com/brotherlogic/goserver v0.0.0-20240303220030-80da220f0393
 	github.com/brotherlogic/keymapper v0.0.0-20240313234234-a8c716e1d67a
-	github.com/brotherlogic/keystore v0.0.0-20240321145007-6c611d35fed3
+	github.com/brotherlogic/keystore v0.0.0-20240328162824-66cac326ee10
 	github.com/brotherlogic/printqueue v0.41.0
 	github.com/brotherlogic/proxy v0.0.0-20240313234216-581467edf0b2
 	github.com/google/go-github/v50 v50.2.0
@@ -27,7 +27,7 @@ require (
 	github.com/brotherlogic/datastore v0.0.0-20240313234543-6ca7ba1ba5c6 // indirect
 	github.com/brotherlogic/discovery v0.0.0-20240313234113-91c6f01d2f29 // indirect
 	github.com/brotherlogic/dstore v0.0.0-20240213113129-6ba7a68ec1dd // indirect
-	github.com/brotherlogic/githubridge v0.2776.0 // indirect
+	github.com/brotherlogic/githubridge v0.2777.0 // indirect
 	github.com/brotherlogic/gobuildslave v0.0.0-20240313234611-4b9213dcf104 // indirect
 	github.com/brotherlogic/lock v0.0.0-20240313234114-ec93481862e4 // indirect
 	github.com/brotherlogic/logging v0.0.0-20240313234139-959ecaf73f42 // indirect
@@ -47,5 +47,5 @@ require (
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240325203815-454cdb8f5daa // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda // indirect
 )
