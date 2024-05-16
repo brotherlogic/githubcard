@@ -192,6 +192,7 @@ func (b GithubBridge) ReportHealth() bool {
 
 func (b *GithubBridge) saveIssues(ctx context.Context, config *pbgh.Config) error {
 	if config.ExternalIP == "" {
+		b.CtxLog(ctx, "Save IP")
 		log.Fatalf("Trying to save without IP: %v", config)
 	}
 
@@ -1002,6 +1003,7 @@ func (b *GithubBridge) hardSync() {
 	// Pull all issues
 	exissues, err := b.GetIssues(sctx)
 	if err != nil {
+		b.CtxLog(sctx, "Issues on startup")
 		log.Fatalf("Unable to read issues on startup: %v", err)
 	}
 	adjust := false
@@ -1086,6 +1088,7 @@ func main() {
 	conn, err := b.FDialServer(ctx, "keymapper")
 	if err != nil {
 		if status.Convert(err).Code() == codes.Unknown {
+			b.CtxLog(ctx, "Keymapper")
 			log.Fatalf("Cannot reach keymapper: %v", err)
 		}
 		return
@@ -1094,6 +1097,7 @@ func main() {
 	resp, err := client.Get(ctx, &kmpb.GetRequest{Key: "github_external"})
 	if err != nil {
 		if status.Convert(err).Code() == codes.Unknown || status.Convert(err).Code() == codes.InvalidArgument {
+			b.CtxLog(ctx, "External")
 			log.Fatalf("Cannot read external: %v", err)
 		}
 		return
@@ -1104,10 +1108,12 @@ func main() {
 	ctx, cancel = utils.ManualContext("githubs", time.Minute)
 	m, _, err := b.Read(ctx, "/github.com/brotherlogic/githubcard/token", &pbgh.Token{})
 	if err != nil {
+		b.CtxLog(ctx, "Token1")
 		log.Fatalf("Error reading token: %v", err)
 	}
 	cancel()
 	if len(m.(*pbgh.Token).GetToken()) == 0 {
+		b.CtxLog(ctx, "Token2")
 		log.Fatalf("Error reading token: %v", m)
 	}
 	b.accessCode = m.(*pbgh.Token).GetToken()
@@ -1127,6 +1133,7 @@ func main() {
 		config := &pbgh.Config{}
 		data, _, err := b.KSclient.Read(ctx, CONFIG, config)
 		if err != nil {
+			b.CtxLog(ctx, fmt.Sprintf("Read config: %v", err))
 			log.Fatalf("%v", err)
 		}
 		tconfig := data.(*pbgh.Config)
@@ -1138,10 +1145,12 @@ func main() {
 		ctx, cancel = utils.ManualContext("githubs", time.Minute)
 		m, _, err = b.Read(ctx, "/github.com/brotherlogic/github/secret", &ppb.GithubKey{})
 		if err != nil {
+			b.CtxLog(ctx, "Token")
 			log.Fatalf("Error reading token: %v", err)
 		}
 		cancel()
 		if len(m.(*ppb.GithubKey).GetKey()) == 0 {
+			b.CtxLog(ctx, "Key")
 			log.Fatalf("Error reading key: %v", m)
 		}
 		b.githubsecret = m.(*ppb.GithubKey).GetKey()
@@ -1150,6 +1159,7 @@ func main() {
 		cctx, ccancel := utils.ManualContext("githubs", time.Hour)
 		config, err := b.readIssues(cctx)
 		if err != nil {
+			b.CtxLog(cctx, fmt.Sprintf("Bad read: %v"))
 			log.Fatalf("Bad read: %v", err)
 		}
 		triggered := false
