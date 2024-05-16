@@ -1003,7 +1003,7 @@ func (b *GithubBridge) hardSync() {
 	// Pull all issues
 	exissues, err := b.GetIssues(sctx)
 	if err != nil {
-		b.CtxLog(sctx, "Issues on startup")
+		b.CtxLog(sctx, fmt.Sprintf("Issues on startup: %v", err))
 		log.Fatalf("Unable to read issues on startup: %v", err)
 	}
 	adjust := false
