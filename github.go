@@ -1040,6 +1040,7 @@ func (b *GithubBridge) hardSync() {
 		if !found && is.State != pbgh.Issue_CLOSED {
 			issue, err := b.GetIssueLocal(sctx, "brotherlogic", is.GetService(), int(is.GetNumber()))
 			if err != nil {
+				b.CtxLog(sctx, fmt.Sprintf("Bad issue pull: %v", err))
 				log.Fatalf("Bad issue pull")
 			}
 			if is.State != issue.GetState() {
@@ -1052,6 +1053,7 @@ func (b *GithubBridge) hardSync() {
 	if adjust {
 		err := b.saveIssues(sctx, config)
 		if err != nil {
+			b.CtxLog(sctx, fmt.Sprintf("Save failure: %v", err))
 			log.Fatalf("Unable to save config on startup")
 		}
 	}
@@ -1185,6 +1187,8 @@ func main() {
 				time.Sleep(time.Hour)
 			}
 		}()
+
+		b.CtxLog(sctx, fmt.Sprintf("Serving!"))
 		err = b.Serve()
 		if err != nil {
 			b.DLog(sctx, fmt.Sprintf("Unable to serve: %v", err))
