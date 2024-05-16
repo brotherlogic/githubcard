@@ -1117,6 +1117,8 @@ func main() {
 		log.Fatalf("Error reading token: %v", m)
 	}
 	b.accessCode = m.(*pbgh.Token).GetToken()
+	b.CtxLog(ctx, fmt.Sprintf("Read token: %v -> %v", m, b.accessCode))
+
 	cancel()
 
 	ghcctx, cancel := utils.ManualContext("client-reg", time.Hour)
