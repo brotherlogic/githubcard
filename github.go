@@ -1185,6 +1185,9 @@ func main() {
 				time.Sleep(time.Hour)
 			}
 		}()
-		b.Serve()
+		err = b.Serve()
+		if err != nil {
+			b.DLog(sctx, fmt.Sprintf("Unable to serve: %v", err))
+		}
 	}
 }
