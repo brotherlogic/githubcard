@@ -1,3 +1,3 @@
 # Githubcard
 
-Github card producer
+Github card producer.
