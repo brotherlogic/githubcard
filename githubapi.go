@@ -131,7 +131,9 @@ func (g *GithubBridge) AddIssue(ctx context.Context, in *pb.Issue) (*pb.Issue, e
 		in.DateAdded = time.Now().Unix()
 	}
 
-	g.RaiseIssue("Issue Addition", fmt.Sprintf("%v was requested with %v", in, ctx))
+	if in.GetOrigin() != pb.Issue_FROM_RECEIVER {
+		g.RaiseIssue("Issue Addition", fmt.Sprintf("%v was requested with %v", in, ctx))
+	}
 
 	// Lock the whole add process
 	key, err := g.RunLockingElection(ctx, "github-issue", "Holding for issue")
