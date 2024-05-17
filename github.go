@@ -1161,7 +1161,7 @@ func main() {
 		cctx, ccancel := utils.ManualContext("githubs", time.Hour)
 		config, err := b.readIssues(cctx)
 		if err != nil {
-			b.CtxLog(cctx, fmt.Sprintf("Bad read: %v"))
+			b.CtxLog(cctx, fmt.Sprintf("Bad read: %v", err))
 			log.Fatalf("Bad read: %v", err)
 		}
 		triggered := false
