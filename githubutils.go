@@ -166,36 +166,6 @@ func (g *GithubBridge) validateJob(ctx context.Context, job string) error {
 		return err
 	}
 
-	if !repo.GetPrivate() {
-		bp, resp, err := g.client.Repositories.GetBranchProtection(ctx, "brotherlogic", job, "main")
-		if err != nil {
-			g.RaiseIssue("Bad branch pull", fmt.Sprintf("For %v Got %v and %+v", job, err, resp))
-		}
-		_, resp, err = g.client.Repositories.UpdateBranchProtection(ctx, "brotherlogic", job, "main",
-			&github.ProtectionRequest{
-				EnforceAdmins: true,
-				RequiredStatusChecks: &github.RequiredStatusChecks{
-					Checks: []*github.RequiredStatusCheck{
-						{Context: "basic_assess"},
-					},
-				},
-			})
-
-		foundBasicAssess := false
-		if bp != nil && bp.GetRequiredStatusChecks() != nil && bp.GetRequiredStatusChecks().Checks != nil {
-			for _, check := range bp.GetRequiredStatusChecks().Checks {
-				if check.Context == "basic_assess" {
-					foundBasicAssess = true
-				}
-			}
-		}
-
-		if !foundBasicAssess {
-			g.RaiseIssue("Missing basic assess", fmt.Sprintf("Did not find basic assess for %v: %+v", job, bp))
-		}
-
-	}
-
 	return nil
 }
 
