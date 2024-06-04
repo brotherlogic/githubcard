@@ -64,6 +64,9 @@ var (
 		Name: "githubcard_client_reads",
 		Help: "The number of issues added per binary",
 	})
+	issueDeletes = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "githubcard_closes",
+	}, []string{"repo"})
 )
 
 // RegisterJob registers a job to be built
@@ -94,6 +97,8 @@ func (g *GithubBridge) DeleteIssue(ctx context.Context, in *pb.DeleteRequest) (*
 			break
 		}
 	}
+
+	issueDeletes.With(prometheus.Labels{"repo": in.Issue.GetService()}).Inc()
 
 	// Fire and forget to subscribers
 	for _, subscriber := range addFocus(issue.GetSubscribers()) {
