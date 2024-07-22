@@ -4,7 +4,7 @@ go 1.22.1
 
 require (
 	github.com/brotherlogic/goserver v0.0.0-20240303220030-80da220f0393
-	github.com/brotherlogic/keymapper v0.0.0-20240712015141-d7584570225b
+	github.com/brotherlogic/keymapper v0.0.0-20240719015940-a2df23429150
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
 	github.com/brotherlogic/printqueue v0.42.0
 	github.com/brotherlogic/proxy v0.0.0-20240514020020-ab840b5d83df
@@ -21,14 +21,14 @@ require (
 require (
 	github.com/ProtonMail/go-crypto v1.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/buildserver v0.0.0-20240712230902-3eca63f96e88 // indirect
-	github.com/brotherlogic/datastore v0.0.0-20240712025237-0166a6618dac // indirect
-	github.com/brotherlogic/discovery v0.0.0-20240715163650-e8ab9c1d4b5d // indirect
-	github.com/brotherlogic/dstore v0.0.0-20240712175918-ed573b257ee6 // indirect
+	github.com/brotherlogic/buildserver v0.0.0-20240719232134-a2f93a4433e1 // indirect
+	github.com/brotherlogic/datastore v0.0.0-20240719030010-46c4c4f35542 // indirect
+	github.com/brotherlogic/discovery v0.0.0-20240722164211-35b31fcfc132 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20240719181624-24f91729abb2 // indirect
 	github.com/brotherlogic/githubridge v0.2802.0 // indirect
-	github.com/brotherlogic/gobuildslave v0.0.0-20240714210717-0971582f6c06 // indirect
-	github.com/brotherlogic/lock v0.0.0-20240715144354-2b5e4e1a7e41 // indirect
-	github.com/brotherlogic/logging v0.0.0-20240712201917-1ba05a23469b // indirect
+	github.com/brotherlogic/gobuildslave v0.0.0-20240721211408-9dc5c4e02efe // indirect
+	github.com/brotherlogic/lock v0.0.0-20240722145008-bd42642df4bd // indirect
+	github.com/brotherlogic/logging v0.0.0-20240719203012-54cf6f89ed51 // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -45,5 +45,5 @@ require (
 	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240711142825-46eb208f015d // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240722135656-d784300faade // indirect
 )
