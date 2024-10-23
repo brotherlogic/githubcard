@@ -6,10 +6,10 @@ toolchain go1.23.0
 
 require (
 	github.com/brotherlogic/goserver v0.0.0-20240826215223-fccbac46b3d4
-	github.com/brotherlogic/keymapper v0.0.0-20241012060135-f0eda1744658
+	github.com/brotherlogic/keymapper v0.0.0-20241019062220-63c79d95e221
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
 	github.com/brotherlogic/printqueue v0.42.0
-	github.com/brotherlogic/proxy v0.0.0-20241015180223-13799a3e102c
+	github.com/brotherlogic/proxy v0.0.0-20241022181925-fa7a873187ff
 	github.com/google/go-github/v50 v50.2.0
 	github.com/jefflinse/githubsecret v1.0.2
 	github.com/migueleliasweb/go-github-mock v0.0.16
@@ -23,14 +23,14 @@ require (
 require (
 	github.com/ProtonMail/go-crypto v1.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/buildserver v0.0.0-20241012050330-3ae1afe165d8 // indirect
+	github.com/brotherlogic/buildserver v0.0.0-20241019052424-57d6e0feaa55 // indirect
 	github.com/brotherlogic/datastore v0.0.0-20240830190304-3b849e438317 // indirect
-	github.com/brotherlogic/discovery v0.0.0-20241012160749-a760ef53c8ed // indirect
-	github.com/brotherlogic/dstore v0.0.0-20241012011839-68aa3d415cc9 // indirect
+	github.com/brotherlogic/discovery v0.0.0-20241019174757-a28906468083 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20241019012445-0a0ddd903d24 // indirect
 	github.com/brotherlogic/githubridge v0.2802.0 // indirect
-	github.com/brotherlogic/gobuildslave v0.0.0-20241014042725-ab61314fc274 // indirect
-	github.com/brotherlogic/lock v0.0.0-20241009092133-2ae849454aca // indirect
-	github.com/brotherlogic/logging v0.0.0-20241012170930-158c4608aebd // indirect
+	github.com/brotherlogic/gobuildslave v0.0.0-20241021044944-ed3bfbe748a3 // indirect
+	github.com/brotherlogic/lock v0.0.0-20241016092357-1bb58df36fea // indirect
+	github.com/brotherlogic/logging v0.0.0-20241019172747-671159a8153c // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -48,5 +48,5 @@ require (
 	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241015192408-796eee8c2d53 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38 // indirect
 )
