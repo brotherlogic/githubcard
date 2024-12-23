@@ -4,7 +4,7 @@ go 1.23.2
 
 require (
 	github.com/brotherlogic/goserver v0.0.0-20240826215223-fccbac46b3d4
-	github.com/brotherlogic/keymapper v0.0.0-20241223124415-32b3f3a65081
+	github.com/brotherlogic/keymapper v0.0.0-20241223144518-13e9316b4ab6
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
 	github.com/brotherlogic/printqueue v0.42.0
 	github.com/brotherlogic/proxy v0.0.0-20241112194140-6e8d25127194
@@ -46,5 +46,5 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241219192143-6b3ec007d9bb // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241223144023-3abc09e42ca8 // indirect
 )
