@@ -22,13 +22,13 @@ require (
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/brotherlogic/buildserver v0.0.0-20250102184320-a40aab3d7207 // indirect
-	github.com/brotherlogic/datastore v0.0.0-20241220230045-434035a99d2b // indirect
+	github.com/brotherlogic/datastore v0.0.0-20250102192824-0ce74800f7f8 // indirect
 	github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09 // indirect
-	github.com/brotherlogic/dstore v0.0.0-20250102102820-e676ce6a6b8b // indirect
+	github.com/brotherlogic/dstore v0.0.0-20250102192841-6b18538a8363 // indirect
 	github.com/brotherlogic/githubridge v0.2824.0 // indirect
 	github.com/brotherlogic/gobuildslave v0.0.0-20241111085829-8d4e5069a7fd // indirect
 	github.com/brotherlogic/lock v0.0.0-20250102185745-e3ce8f195bd4 // indirect
-	github.com/brotherlogic/logging v0.0.0-20250102155919-61ed16db70ce // indirect
+	github.com/brotherlogic/logging v0.0.0-20250102190054-df6c2d172c7e // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
