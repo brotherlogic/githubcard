@@ -22,9 +22,9 @@ require (
 	github.com/ProtonMail/go-crypto v1.1.4 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/brotherlogic/buildserver v0.0.0-20250109190747-387bcbad9068 // indirect
-	github.com/brotherlogic/datastore v0.0.0-20250102195318-271a5f66c743 // indirect
+	github.com/brotherlogic/datastore v0.0.0-20250109205055-7c0f869da953 // indirect
 	github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09 // indirect
-	github.com/brotherlogic/dstore v0.0.0-20250102200438-7aa2ed930fac // indirect
+	github.com/brotherlogic/dstore v0.0.0-20250109205109-c2f22df81426 // indirect
 	github.com/brotherlogic/githubridge v0.2830.0 // indirect
 	github.com/brotherlogic/gobuildslave v0.0.0-20250103200520-e2108162f3da // indirect
 	github.com/brotherlogic/lock v0.0.0-20250102204720-b7596af6cb3c // indirect
