@@ -21,14 +21,14 @@ require (
 require (
 	github.com/ProtonMail/go-crypto v1.1.6 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/buildserver v0.0.0-20250310071544-1dfb21be174b // indirect
+	github.com/brotherlogic/buildserver v0.0.0-20250310092026-d2b9652c959e // indirect
 	github.com/brotherlogic/datastore v0.0.0-20250113225754-a9cab19c721e // indirect
 	github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09 // indirect
-	github.com/brotherlogic/dstore v0.0.0-20250310073231-30931945f352 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20250310083409-8898a73dfc48 // indirect
 	github.com/brotherlogic/githubridge v0.2848.0 // indirect
-	github.com/brotherlogic/gobuildslave v0.0.0-20250310074332-7a49bf58c24e // indirect
-	github.com/brotherlogic/lock v0.0.0-20250310030931-f2a91bc2afdc // indirect
-	github.com/brotherlogic/logging v0.0.0-20250310074225-3db322229e8d // indirect
+	github.com/brotherlogic/gobuildslave v0.0.0-20250310091900-1a6a9dc1b5b8 // indirect
+	github.com/brotherlogic/lock v0.0.0-20250310092051-627e1a2d6a3d // indirect
+	github.com/brotherlogic/logging v0.0.0-20250310091134-bf41bb50f601 // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
