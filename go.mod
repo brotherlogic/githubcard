@@ -4,7 +4,7 @@ go 1.23.2
 
 require (
 	github.com/brotherlogic/goserver v0.0.0-20250123145056-95c6fbb2310a
-	github.com/brotherlogic/keymapper v0.0.0-20250311232537-b1b3213f04c8
+	github.com/brotherlogic/keymapper v0.0.0-20250312062053-b801cffad885
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
 	github.com/brotherlogic/printqueue v0.42.0
 	github.com/brotherlogic/proxy v0.0.0-20241112194140-6e8d25127194
@@ -21,14 +21,14 @@ require (
 require (
 	github.com/ProtonMail/go-crypto v1.1.6 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/buildserver v0.0.0-20250312033227-1129bff19c4a // indirect
+	github.com/brotherlogic/buildserver v0.0.0-20250312054551-2f5935d33dff // indirect
 	github.com/brotherlogic/datastore v0.0.0-20250113225754-a9cab19c721e // indirect
 	github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09 // indirect
-	github.com/brotherlogic/dstore v0.0.0-20250312044539-b26ece273978 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20250312060855-b268c5fac32d // indirect
 	github.com/brotherlogic/githubridge v0.2849.0 // indirect
-	github.com/brotherlogic/gobuildslave v0.0.0-20250312030748-c855b1acd9e2 // indirect
-	github.com/brotherlogic/lock v0.0.0-20250312032711-3a31bb3009ec // indirect
-	github.com/brotherlogic/logging v0.0.0-20250312045055-d2abc2947d14 // indirect
+	github.com/brotherlogic/gobuildslave v0.0.0-20250312060440-af58cf20f808 // indirect
+	github.com/brotherlogic/lock v0.0.0-20250312053406-02891927bb04 // indirect
+	github.com/brotherlogic/logging v0.0.0-20250312053806-7adf9b90220d // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
