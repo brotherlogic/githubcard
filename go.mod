@@ -4,7 +4,7 @@ go 1.24.4
 
 require (
 	github.com/brotherlogic/goserver v0.0.0-20250608182006-4ace595931a5
-	github.com/brotherlogic/keymapper v0.0.0-20250621023009-e09bc10d87e3
+	github.com/brotherlogic/keymapper v0.0.0-20250621040229-6da15ed79908
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
 	github.com/brotherlogic/printqueue v0.42.0
 	github.com/brotherlogic/proxy v0.0.0-20250505164613-c8c2fcd479b6
